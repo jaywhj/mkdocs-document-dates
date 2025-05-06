@@ -16,6 +16,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
         ('position', config_options.Type(str, default='bottom')),
         ('exclude', config_options.Type(list, default=[])),
+        ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation_date', 'created_at', 'date_created'])),
+        ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'updated_at', 'date_modified', 'last_update'])),
     )
 
     def __init__(self):
@@ -122,9 +124,19 @@ class DocumentDatesPlugin(BasePlugin):
         except ValueError:
             return False
 
+    def _find_meta_date(self, meta: dict, field_names: list, default_date: datetime) -> datetime:
+        """从meta中查找第一个匹配的日期字段"""
+        for field in field_names:
+            if field in meta:
+                result = self._parse_meta_date(meta[field], default_date)
+                if result != default_date:  # 找到有效日期
+                    return result
+        return default_date
+
     def _process_meta_dates(self, meta: dict, created: datetime, modified: datetime) -> tuple[datetime, datetime]:
-        result_created = self._parse_meta_date(meta.get('created'), created)
-        result_modified = self._parse_meta_date(meta.get('modified'), modified)
+        """处理meta中的日期字段，支持多种字段名"""
+        result_created = self._find_meta_date(meta, self.config['created_field_names'], created)
+        result_modified = self._find_meta_date(meta, self.config['modified_field_names'], modified)
         return result_created, result_modified
 
     def _parse_meta_date(self, date_str: str | None, default_date: datetime) -> datetime:

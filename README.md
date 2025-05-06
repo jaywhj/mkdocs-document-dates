@@ -64,7 +64,8 @@ modified: 2025-02-23
 # Document Title
 ```
 
-
+- `created` can be replaced by any of the following fields: `created, date, creation_date, created_at, date_created`
+- `modified` can be replaced by any of the following fields: `modified, updated, last_modified, updated_at, date_modified, last_update`
 
 ## Configuration Options
 

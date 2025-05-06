@@ -64,6 +64,9 @@ modified: 2025-02-23
 # 文档标题
 ```
 
+- `created` 可用以下任一字段代替：`created, date, creation_date, created_at, date_created`
+- `modified` 可用以下任一字段代替：`modified, updated, last_modified, updated_at, date_modified, last_update`
+
 ## 配置选项
 
 - **type**: 日期类型（默认：`date`）
