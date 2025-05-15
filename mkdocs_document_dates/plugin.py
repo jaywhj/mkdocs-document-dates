@@ -38,9 +38,8 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 添加自定义 CSS
         css_file = Path(config['docs_dir']) / 'assets' / 'document_dates.css'
-        if not css_file.exists():
-            css_file.parent.mkdir(parents=True, exist_ok=True)
-            css_file.write_text(self._get_css_content())
+        css_file.parent.mkdir(parents=True, exist_ok=True)
+        css_file.write_text(self._get_css_content())
         config['extra_css'].append('assets/document_dates.css')
 
         return config
