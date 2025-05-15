@@ -14,7 +14,6 @@
 - 跨平台支持（Windows、macOS、Linux）
 - 支持多种时间格式（date、datetime、timeago）
 - 灵活的显示位置（顶部或底部）
-- 支持自定义显示样式（CSS）
 - 支持文档排除模式
 - Material Design 风格的图标，优雅的样式设计
 - 轻量级，无额外依赖
@@ -67,10 +66,6 @@ modified: 2025-02-23
 
 - `created` 可用以下任一字段代替：`created, date, creation_date, created_at, date_created`
 - `modified` 可用以下任一字段代替：`modified, updated, last_modified, updated_at, date_modified, last_update`
-
-## 自定义显示样式（CSS）
-
-直接修改文件 `docs/assets/document_dates.css` 中的代码即可
 
 ## 配置选项
 
