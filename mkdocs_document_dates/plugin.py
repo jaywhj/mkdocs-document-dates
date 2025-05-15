@@ -38,10 +38,11 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 添加自定义 CSS
         css_file = Path(config['docs_dir']) / 'assets' / 'document_dates.css'
-        css_file.parent.mkdir(parents=True, exist_ok=True)
-        css_file.write_text(self._get_css_content())
+        if not css_file.exists():
+            css_file.parent.mkdir(parents=True, exist_ok=True)
+            css_file.write_text(self._get_css_content())
         config['extra_css'].append('assets/document_dates.css')
-        
+
         return config
 
     def _get_date_info(self, created, modified):
@@ -50,8 +51,10 @@ class DocumentDatesPlugin(BasePlugin):
             locale = 'en'
         t = self.translations[locale]
         
+        position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
+        
         return (
-            f"<div class='document-dates-plugin-wrapper'>"
+            f"<div class='document-dates-plugin-wrapper {position_class}'>"
             f"<div class='document-dates-plugin'>"
             f"<span title='{t['created_time']}: {created.strftime(self.config['date_format'])}'><span class='material-icons'>add_circle</span>"
             f"{self._get_formatted_date(created)}</span>"

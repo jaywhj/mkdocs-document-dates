@@ -14,7 +14,8 @@
 - 跨平台支持（Windows、macOS、Linux）
 - 支持多种时间格式（date、datetime、timeago）
 - 灵活的显示位置（顶部或底部）
-- 支持文档排除
+- 支持自定义显示样式（CSS）
+- 支持文档排除模式
 - Material Design 风格的图标，优雅的样式设计
 - 轻量级，无额外依赖
 - 多语言支持
@@ -67,6 +68,10 @@ modified: 2025-02-23
 - `created` 可用以下任一字段代替：`created, date, creation_date, created_at, date_created`
 - `modified` 可用以下任一字段代替：`modified, updated, last_modified, updated_at, date_modified, last_update`
 
+## 自定义显示样式（CSS）
+
+直接修改文件 `docs/assets/document_dates.css` 中的代码即可。
+
 ## 配置选项
 
 - **type**: 日期类型（默认：`date`）
@@ -84,7 +89,7 @@ modified: 2025-02-23
 - **exclude**: 排除文件列表（默认：[]）
   - 支持 glob 模式，例如：["private/\*", "temp.md", "drafts/\*.md"]
 
-## 注意事项
+## 小贴士
 
 - 在使用 CI/CD 构建系统时（比如 Github Actions）它仍然有效，使用了缓存文件 `.dates_cache.json` 来解决这个问题：
     1. 首先，你可以这么配置工作流（倒数第二行），在你的 .github/workflows/ci.yml 中：

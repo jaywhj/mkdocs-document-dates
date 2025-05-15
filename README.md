@@ -14,7 +14,8 @@ A MkDocs plugin for displaying <mark>accurate</mark> document creation and last 
 - Cross-platform support (Windows, macOS, Linux)
 - Support for multiple time formats (date, datetime, timeago)
 - Flexible display position (top or bottom)
-- Support for document exclusion
+- Support for customizing display styles (CSS)
+- Support for document exclusion mode
 - Material Design icons, Elegant styling
 - Lightweight with no extra dependencies
 - Multi-language support
@@ -67,6 +68,10 @@ modified: 2025-02-23
 - `created` can be replaced by any of the following fields: `created, date, creation_date, created_at, date_created`
 - `modified` can be replaced by any of the following fields: `modified, updated, last_modified, updated_at, date_modified, last_update`
 
+## Custom Display Styles (CSS)
+
+Simply modify the code in the file `docs/assets/document_dates.css`.
+
 ## Configuration Options
 
 - **type** : Date type (default: `date` )
@@ -84,7 +89,7 @@ modified: 2025-02-23
 - **exclude** : File exclusion list (default: [] )
   - Supports glob patterns, e.g., ["private/\*", "temp.md", "drafts/\*.md"]
 
-## Notes
+## Tips
 
 - It still works when using CI/CD build systems (e.g. Github Actions), used a cache file `.dates_cache.json` to solve this problem:
     1. First, you can configure the workflow like this (penultimate line) in your .github/workflows/ci.yml:

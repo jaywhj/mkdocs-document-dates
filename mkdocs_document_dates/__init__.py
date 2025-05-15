@@ -1,7 +1,5 @@
 """MkDocs Document Dates Plugin."""
 
-__version__ = '2.3.3'
-
 from .hooks_installer import install
 
 # 在包被导入时自动执行 hooks 安装

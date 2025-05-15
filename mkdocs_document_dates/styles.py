@@ -4,7 +4,7 @@ DOCUMENT_DATES_CSS = """
     color: #8e8e8e;
     font-size: 0.75rem;
     padding: 0.2rem 0;
-    opacity: 0.8;
+    opacity: 0.7;
     display: flex;
     gap: 1.5rem;
     align-items: center;
@@ -19,9 +19,24 @@ DOCUMENT_DATES_CSS = """
     font-size: 0.9rem;
     opacity: 0.7;
 }
-.document-dates-plugin-wrapper {
-    margin: 0.3rem 0 1rem 0;
+
+
+/* top position style */
+.document-dates-plugin-wrapper.document-dates-top {
+    margin-top: -1.2rem;
+    padding-bottom: 0.3rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.07);
-    padding-bottom: 0.5rem;
+}
+/* bottom position style */
+.document-dates-plugin-wrapper.document-dates-bottom {
+    margin: 1rem 0;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+
+/* Hide the footnote divider immediately following the date information with the CSS adjacent sibling selector */
+.document-dates-plugin-wrapper + .footnote hr {
+    display: none;
 }
 """
