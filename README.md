@@ -19,6 +19,10 @@ A MkDocs plugin for displaying <mark>accurate</mark> document creation and last 
 - Multi-language support
 - Support for CI/CD build systems (e.g. Github Actions)
 
+## Showcases
+
+![render](render.gif)
+
 ## Installation
 
 ```bash

@@ -19,6 +19,10 @@
 - 多语言支持
 - 支持 CI/CD 构建系统（如 Github Actions）
 
+## 效果图
+
+![render](render.gif)
+
 ## 安装
 
 ```bash
