@@ -70,7 +70,7 @@ modified: 2025-02-23
 
 ## Custom Display Styles (CSS)
 
-Simply modify the code in the file `docs/assets/document_dates.css`.
+Simply modify the code in the file `docs/assets/document_dates.css`
 
 ## Configuration Options
 
