@@ -70,7 +70,7 @@ modified: 2025-02-23
 
 ## 自定义显示样式（CSS）
 
-直接修改文件 `docs/assets/document_dates.css` 中的代码即可。
+直接修改文件 `docs/assets/document_dates.css` 中的代码即可
 
 ## 配置选项
 
