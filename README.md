@@ -8,7 +8,6 @@ A MkDocs plugin for displaying <mark>accurate</mark> document creation and last 
 
 ## Features
 
-- Automatically displays document creation and last modification times
 - **No Git dependency**, uses filesystem timestamps directly
 - Supports manual date specification in `Front Matter`
 - Cross-platform support (Windows, macOS, Linux)
