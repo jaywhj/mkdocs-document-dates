@@ -36,7 +36,7 @@ class DocumentDatesPlugin(BasePlugin):
         if material_icons_url not in config['extra_css']:
             config['extra_css'].append(material_icons_url)
         
-        # 添加自定义 CSS
+        # 添加默认 CSS
         css_file = Path(config['docs_dir']) / 'assets' / 'document_dates.css'
         css_file.parent.mkdir(parents=True, exist_ok=True)
         css_file.write_text(self._get_css_content())
