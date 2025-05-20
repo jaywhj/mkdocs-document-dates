@@ -7,7 +7,7 @@ try:
 except FileNotFoundError:
     long_description = "A MkDocs plugin for displaying accurate document creation and last modification dates."
 
-VERSION = '2.4.0'
+VERSION = '3.0.0'
 
 setup(
     name="mkdocs-document-dates",
@@ -36,7 +36,12 @@ setup(
         ],
     },
     package_data={
-        'mkdocs_document_dates': ['hooks/*'],
+        'mkdocs_document_dates': [
+            'hooks/*',
+            'static/tippy/*',
+            'static/*.config.css',
+            'static/*.config.js'
+        ],
     },
     python_requires=">=3.7",
 )

@@ -1,12 +1,12 @@
 import os
 import json
+import shutil
 import platform
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from .lang import load_translations
-from .styles import DOCUMENT_DATES_CSS
 
 class DocumentDatesPlugin(BasePlugin):
     config_scheme = (
@@ -24,23 +24,62 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
         self.translations = load_translations()
 
-    def _get_css_content(self):
-        return DOCUMENT_DATES_CSS
-
     def on_config(self, config):
         if 'extra_css' not in config:
             config['extra_css'] = []
         
-        # 添加 Material Icons
+        # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
         material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         if material_icons_url not in config['extra_css']:
             config['extra_css'].append(material_icons_url)
         
-        # 添加默认 CSS
-        css_file = Path(config['docs_dir']) / 'assets' / 'document_dates.css'
-        css_file.parent.mkdir(parents=True, exist_ok=True)
-        css_file.write_text(self._get_css_content())
-        config['extra_css'].append('assets/document_dates.css')
+
+        # 加载 static 目录下的所有资源
+        source_dir = Path(__file__).parent / 'static'
+        dest_dir = Path(config['docs_dir']) / 'assets/document_dates'
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        # 复制 static 目录到 document_dates 目录，对于配置文件（document-dates.config.css 和 document-dates.config.js），只在目标不存在时才复制
+        for item in source_dir.glob('**/*'):
+            if item.is_file():
+                relative_path = item.relative_to(source_dir)
+                dest_path = dest_dir / relative_path
+                dest_path.parent.mkdir(parents=True, exist_ok=True)
+                if not dest_path.exists() or item.name not in ['document-dates.config.css', 'document-dates.config.js']:
+                    shutil.copy2(item, dest_path)
+
+        # tippyjs core
+            # https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js
+            # https://unpkg.com/tippy.js@6/dist/tippy.umd.min.js
+            # https://unpkg.com/tippy.js@6/dist/tippy.css
+        # animations
+            # https://unpkg.com/tippy.js@6/animations/scale.css
+        # animations: Material filling effect
+            # https://unpkg.com/tippy.js@6/dist/backdrop.css
+            # https://unpkg.com/tippy.js@6/animations/shift-away.css
+        # themes
+            # https://unpkg.com/tippy.js@6/themes/light.css
+            # https://unpkg.com/tippy.js@6/themes/material.css
+
+        # 加载所有 CSS 资源文件
+        tippy_css_dir = dest_dir / 'tippy'
+        for css_file in tippy_css_dir.glob('*.css'):
+            config['extra_css'].append(f'assets/document_dates/tippy/{css_file.name}')
+
+        # 加载 CSS 主配置文件
+        config['extra_css'].append('assets/document_dates/document-dates.config.css')
+
+        # 然后按顺序加载 JS 文件
+        if 'extra_javascript' not in config:
+            config['extra_javascript'] = []
+
+        # 优先加载核心 JS 文件
+        js_core_files = ['popper.min.js', 'tippy.umd.min.js']
+        for js_file in js_core_files:
+            config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
+
+        # 最后加载 JS 配置文件
+        config['extra_javascript'].append('assets/document_dates/document-dates.config.js')
 
         return config
 
@@ -53,13 +92,15 @@ class DocumentDatesPlugin(BasePlugin):
         position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
         
         return (
-            f"<div class='document-dates-plugin-wrapper {position_class}'>"
-            f"<div class='document-dates-plugin'>"
-            f"<span title='{t['created_time']}: {created.strftime(self.config['date_format'])}'><span class='material-icons'>add_circle</span>"
-            f"{self._get_formatted_date(created)}</span>"
-            f"<span title='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'><span class='material-icons'>update</span>"
-            f"{self._get_formatted_date(modified)}</span>"
-            f"</div>"
+            f"<div class='document-dates-plugin-wrapper {position_class}'>" 
+            f"<div class='document-dates-plugin'>" 
+            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>" 
+            f"<span class='material-icons' data-icon='doc_created'>add_circle</span>" 
+            f"{self._get_formatted_date(created)}</span>" 
+            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>" 
+            f"<span class='material-icons' data-icon='doc_modified'>update</span>" 
+            f"{self._get_formatted_date(modified)}</span>" 
+            f"</div>" 
             f"</div>"
         )
 

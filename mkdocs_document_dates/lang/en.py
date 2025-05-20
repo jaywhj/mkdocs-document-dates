@@ -14,6 +14,6 @@ translations = {
     'months_ago': '{} months ago',
     'year_ago': '1 year ago',
     'years_ago': '{} years ago',
-    'created_time': 'Created Time',
+    'created_time': 'Created',
     'modified_time': 'Last Update',
 }
