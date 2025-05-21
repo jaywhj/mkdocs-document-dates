@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 
 
-A MkDocs plugin for displaying the <mark>exact</mark> creation and last modification dates of markdown document.
+A MkDocs plugin for displaying the <mark>exact</mark> creation date and last modification date of markdown documents.
 
 ## Features
 
