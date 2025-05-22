@@ -1,0 +1,18 @@
+{
+    "just_now": "방금",
+    "seconds_ago": "{} 초 전",
+    "minute_ago": "1 분 전",
+    "minutes_ago": "{} 분 전",
+    "hour_ago": "1 시간 전",
+    "hours_ago": "{} 시간 전",
+    "day_ago": "1 일 전",
+    "days_ago": "{} 일 전",
+    "week_ago": "1 주 전",
+    "weeks_ago": "{} 주 전",
+    "month_ago": "1 개월 전",
+    "months_ago": "{} 개월 전",
+    "year_ago": "1 년 전",
+    "years_ago": "{} 년 전",
+    "created_time": "작성일",
+    "modified_time": "수정일"
+}

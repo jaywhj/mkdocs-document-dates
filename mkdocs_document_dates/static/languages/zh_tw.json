@@ -1,0 +1,18 @@
+{
+    "just_now": "剛剛",
+    "seconds_ago": "{} 秒前",
+    "minute_ago": "1 分鐘前",
+    "minutes_ago": "{} 分鐘前",
+    "hour_ago": "1 小時前",
+    "hours_ago": "{} 小時前",
+    "day_ago": "1 天前",
+    "days_ago": "{} 天前",
+    "week_ago": "1 週前",
+    "weeks_ago": "{} 週前",
+    "month_ago": "1 個月前",
+    "months_ago": "{} 個月前",
+    "year_ago": "1 年前",
+    "years_ago": "{} 年前",
+    "created_time": "建立時間",
+    "modified_time": "修改時間"
+}

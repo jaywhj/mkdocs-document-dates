@@ -1,0 +1,18 @@
+{
+    "just_now": "justo ahora",
+    "seconds_ago": "hace {} segundos",
+    "minute_ago": "hace un minuto",
+    "minutes_ago": "hace {} minutos",
+    "hour_ago": "hace una hora",
+    "hours_ago": "hace {} horas",
+    "day_ago": "hace un día",
+    "days_ago": "hace {} días",
+    "week_ago": "hace una semana",
+    "weeks_ago": "hace {} semanas",
+    "month_ago": "hace un mes",
+    "months_ago": "hace {} meses",
+    "year_ago": "hace un año",
+    "years_ago": "hace {} años",
+    "created_time": "Fecha de creación",
+    "modified_time": "Fecha de modificación"
+}

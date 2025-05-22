@@ -81,6 +81,7 @@ modified: 2025-02-23
 
 - 样式与主题：`docs/assets/document_dates/document-dates.config.css`
 - 属性与动画：`docs/assets/document_dates/document-dates.config.js`
+- 语言国际化：`docs/assets/document_dates/languages/`
 
 提示：如果要恢复默认效果，直接删除此文件，然后重新 build 即可！
 

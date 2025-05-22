@@ -2,11 +2,18 @@ import os
 import json
 import shutil
 import platform
+import logging
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
-from .lang import load_translations
+
+# 配置日志等级 (INFO WARNING ERROR)
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(levelname)s: %(message)s'
+)
+
 
 class DocumentDatesPlugin(BasePlugin):
     config_scheme = (
@@ -22,9 +29,12 @@ class DocumentDatesPlugin(BasePlugin):
 
     def __init__(self):
         super().__init__()
-        self.translations = load_translations()
+        self.translations = {}
 
     def on_config(self, config):
+        # 加载 json 语言文件
+        self.translations = self._load_translations(config['docs_dir'])
+        
         if 'extra_css' not in config:
             config['extra_css'] = []
         
@@ -33,18 +43,22 @@ class DocumentDatesPlugin(BasePlugin):
         if material_icons_url not in config['extra_css']:
             config['extra_css'].append(material_icons_url)
         
-
-        # 加载 static 目录下的所有资源
+        # 复制 css 和 js 资源文件
         source_dir = Path(__file__).parent / 'static'
         dest_dir = Path(config['docs_dir']) / 'assets/document_dates'
         dest_dir.mkdir(parents=True, exist_ok=True)
 
-        # 复制 static 目录到 document_dates 目录，对于配置文件（document-dates.config.css 和 document-dates.config.js），只在目标不存在时才复制
         for item in source_dir.glob('**/*'):
             if item.is_file():
                 relative_path = item.relative_to(source_dir)
                 dest_path = dest_dir / relative_path
                 dest_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                # 跳过 languages 目录下的文件
+                if 'languages' in str(relative_path):
+                    continue
+                
+                # 对于配置文件只在目标不存在时才复制，其他文件则直接复制
                 if not dest_path.exists() or item.name not in ['document-dates.config.css', 'document-dates.config.js']:
                     shutil.copy2(item, dest_path)
 
@@ -83,40 +97,6 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
-    def _get_date_info(self, created, modified):
-        locale = self.config['locale']
-        if locale not in self.translations:
-            locale = 'en'
-        t = self.translations[locale]
-        
-        position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
-        
-        return (
-            f"<div class='document-dates-plugin-wrapper {position_class}'>" 
-            f"<div class='document-dates-plugin'>" 
-            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>" 
-            f"<span class='material-icons' data-icon='doc_created'>add_circle</span>" 
-            f"{self._get_formatted_date(created)}</span>" 
-            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>" 
-            f"<span class='material-icons' data-icon='doc_modified'>update</span>" 
-            f"{self._get_formatted_date(modified)}</span>" 
-            f"</div>" 
-            f"</div>"
-        )
-
-    def _insert_date_info(self, markdown, date_info):
-        if not markdown.strip():
-            return markdown
-            
-        if self.config['position'] == 'top':
-            lines = markdown.splitlines()
-            for i, line in enumerate(lines):
-                if line.startswith('#'):
-                    lines.insert(i + 1, date_info)
-                    return '\n'.join(lines)
-            return f"{date_info}\n{markdown}"
-        return f"{markdown}\n\n{date_info}"
-
     def on_page_markdown(self, markdown, page, config, files):
         file_path = Path(page.file.abs_src_path)
         
@@ -134,6 +114,43 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 将日期信息写入 markdown
         return self._insert_date_info(markdown, date_info)
+
+
+    def _get_translation_dirs(self, docs_dir):
+        # 内置语言文件目录
+        builtin_dir = Path(__file__).parent / 'static' / 'languages'
+        # 用户自定义语言文件目录
+        custom_dir = Path(docs_dir) / 'assets' / 'document_dates' / 'languages'
+        
+        # 复制 en.json 文件到用户自定义语言文件目录作为参考范例
+        custom_en_json = custom_dir / 'en.json'
+        if not custom_en_json.exists():
+            custom_dir.mkdir(parents=True, exist_ok=True)
+            en_json = builtin_dir / 'en.json'
+            shutil.copy2(en_json, custom_en_json)
+        
+        return [builtin_dir, custom_dir]
+
+    def _load_translations(self, docs_dir=None):
+        translations = {}
+        
+        for trans_dir in self._get_translation_dirs(docs_dir):
+            if not trans_dir.exists():
+                continue
+
+            for lang_file in trans_dir.glob('*.json'):
+                try:
+                    with lang_file.open('r', encoding='utf-8') as f:
+                        lang_data = json.load(f)
+                        # 自定义语言会覆盖内置语言
+                        translations[lang_file.stem] = lang_data
+                except json.JSONDecodeError as e:
+                    logging.error(f"Invalid JSON format in language file {lang_file}: {str(e)}")
+                except Exception as e:
+                    logging.error(f"Error loading language file {lang_file}: {str(e)}")
+
+        return translations
+
 
     def _is_excluded(self, file_path: Path, docs_dir: Path) -> bool:
         for pattern in self.config['exclude']:
@@ -167,29 +184,6 @@ class DocumentDatesPlugin(BasePlugin):
         except ValueError:
             return False
 
-    def _find_meta_date(self, meta: dict, field_names: list, default_date: datetime) -> datetime:
-        """从meta中查找第一个匹配的日期字段"""
-        for field in field_names:
-            if field in meta:
-                result = self._parse_meta_date(meta[field], default_date)
-                if result != default_date:  # 找到有效日期
-                    return result
-        return default_date
-
-    def _process_meta_dates(self, meta: dict, created: datetime, modified: datetime) -> tuple[datetime, datetime]:
-        """处理meta中的日期字段，支持多种字段名"""
-        result_created = self._find_meta_date(meta, self.config['created_field_names'], created)
-        result_modified = self._find_meta_date(meta, self.config['modified_field_names'], modified)
-        return result_created, result_modified
-
-    def _parse_meta_date(self, date_str: str | None, default_date: datetime) -> datetime:
-        if not date_str:
-            return default_date
-
-        try:
-            return datetime.fromisoformat(str(date_str).strip("'\""))
-        except (ValueError, TypeError):
-            return default_date
 
     def _get_file_dates(self, file_path, config):
         try:
@@ -223,21 +217,41 @@ class DocumentDatesPlugin(BasePlugin):
                 created = modified
 
             return created, modified
-                
+
         except (OSError, ValueError, json.JSONDecodeError) as e:
             current_time = datetime.now()
             return current_time, current_time
 
-    def _get_timeago(self, date):
+
+    def _parse_meta_date(self, date_str: str | None, default_date: datetime) -> datetime:
+        if not date_str:
+            return default_date
+
+        try:
+            return datetime.fromisoformat(str(date_str).strip("'\""))
+        except (ValueError, TypeError):
+            return default_date
+
+    def _find_meta_date(self, meta: dict, field_names: list, default_date: datetime) -> datetime:
+        """从meta中查找第一个匹配的日期字段"""
+        for field in field_names:
+            if field in meta:
+                result = self._parse_meta_date(meta[field], default_date)
+                if result != default_date:
+                    return result
+        return default_date
+
+    def _process_meta_dates(self, meta: dict, created: datetime, modified: datetime) -> tuple[datetime, datetime]:
+        """处理meta中的日期字段, 支持多种字段名"""
+        result_created = self._find_meta_date(meta, self.config['created_field_names'], created)
+        result_modified = self._find_meta_date(meta, self.config['modified_field_names'], modified)
+        return result_created, result_modified
+
+
+    def _get_timeago(self, date, t):
         now = datetime.now()
         diff = now - date
         seconds = diff.total_seconds()
-        
-        # 获取翻译字典
-        locale = self.config['locale']
-        if locale not in self.translations:
-            locale = 'en'
-        t = self.translations[locale]
         
         # 时间间隔判断
         if seconds < 10:
@@ -269,9 +283,44 @@ class DocumentDatesPlugin(BasePlugin):
         else:
             return t['years_ago'].format(int(seconds / 31536000))
 
-    def _get_formatted_date(self, date):
+    def _get_formatted_date(self, date, translations):
         if self.config['type'] == 'timeago':
-            return self._get_timeago(date)
+            return self._get_timeago(date, translations)
         elif self.config['type'] == 'datetime':
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
+
+    def _get_date_info(self, created, modified):
+        locale = self.config['locale']
+        if locale not in self.translations:
+            locale = 'en'
+        t = self.translations[locale]
+        
+        position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
+        
+        return (
+            f"<div class='document-dates-plugin-wrapper {position_class}'>" 
+            f"<div class='document-dates-plugin'>" 
+            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>" 
+            f"<span class='material-icons' data-icon='doc_created'></span>" 
+            f"{self._get_formatted_date(created, t)}</span>" 
+            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>" 
+            f"<span class='material-icons' data-icon='doc_modified'></span>" 
+            f"{self._get_formatted_date(modified, t)}</span>" 
+            f"</div>" 
+            f"</div>"
+        )
+
+
+    def _insert_date_info(self, markdown, date_info):
+        if not markdown.strip():
+            return markdown
+
+        if self.config['position'] == 'top':
+            lines = markdown.splitlines()
+            for i, line in enumerate(lines):
+                if line.startswith('#'):
+                    lines.insert(i + 1, date_info)
+                    return '\n'.join(lines)
+            return f"{date_info}\n{markdown}"
+        return f"{markdown}\n\n{date_info}"

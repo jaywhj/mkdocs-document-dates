@@ -79,6 +79,7 @@ This plugin supports deep customization, just modify the code in the correspondi
 
 - Style & Theme: `docs/assets/document_dates/document-dates.config.css`
 - Properties & Animations: `docs/assets/document_dates/document-dates.config.js`
+- Internationalization of languages: `docs/assets/document_dates/languages/`
 
 Tip: If you want to restore the default effect, just delete this file and rebuild your project
 

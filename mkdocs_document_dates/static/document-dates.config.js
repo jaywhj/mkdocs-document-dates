@@ -1,24 +1,4 @@
-
-/* 1. Customized Icons (optional)
-    Just change the icon name. default: add_circle, update
-    the icon names, see Google Fonts Icons (2500+): https://fonts.google.com/icons 
-    */
-/*
-const iconConfig = {
-    doc_created: 'note_add',    // default: add_circle
-    doc_modified: 'task',       // default: update
-};
-// For updating icons dynamically based on the data-icon attribute
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.material-icons[data-icon]').forEach(icon => {
-        const defaultIcon = icon.getAttribute('data-icon');
-        icon.textContent = iconConfig[defaultIcon] || defaultIcon;
-    });
-});
-*/
-
-
-/* 2. Tooltip properties
+/* Tooltip properties
     including theme, placement, animation, arrow, etc
     */
 // Match Tooltip's theme with Material's color scheme
@@ -44,7 +24,7 @@ const tippyInstances = tippy('[data-tippy-content]', {
 });
 
 
-/* 3. Automatic theme switching
+/* Automatic theme switching
     Set Tooltip's theme to change automatically with the Material's light/dark color scheme
     If you don't need this feature, just delete the code below
     */
