@@ -7,7 +7,7 @@ try:
 except FileNotFoundError:
     long_description = "A MkDocs plugin for displaying the exact creation date and last modification date of markdown documents."
 
-VERSION = '3.0.1'
+VERSION = '3.1.6'
 
 setup(
     name="mkdocs-document-dates",
@@ -31,7 +31,7 @@ setup(
             'document-dates = mkdocs_document_dates.plugin:DocumentDatesPlugin',
         ],
         'console_scripts': [
-            # 提供手动执行 hooks 安装的入口
+            # 提供手动执行 hooks 的入口
             'mkdocs-document-dates-hooks=mkdocs_document_dates.hooks_installer:install'
         ],
     },
@@ -40,8 +40,8 @@ setup(
             'hooks/*',
             'static/languages/*',
             'static/tippy/*',
-            'static/*.config.css',
-            'static/*.config.js'
+            'static/core/*',
+            'static/config/*'
         ],
     },
     python_requires=">=3.7",

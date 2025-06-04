@@ -3,8 +3,10 @@ import json
 import shutil
 import platform
 import logging
+import subprocess
 from datetime import datetime
 from pathlib import Path
+from typing import Union, List
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 
@@ -13,6 +15,25 @@ logging.basicConfig(
     level=logging.WARNING,
     format='%(levelname)s: %(message)s'
 )
+
+
+class Author:
+    def __init__(self, name="", email="", **kwargs):
+        # 基础属性
+        self.name = name
+        self.email = email
+        # 扩展属性
+        self.attributes = kwargs
+    
+    def __getattr__(self, name):
+        return self.attributes.get(name)
+    
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'email': self.email,
+            **self.attributes
+        }
 
 
 class DocumentDatesPlugin(BasePlugin):
@@ -24,105 +45,162 @@ class DocumentDatesPlugin(BasePlugin):
         ('position', config_options.Type(str, default='bottom')),
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation_date', 'created_at', 'date_created'])),
-        ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'updated_at', 'date_modified', 'last_update'])),
+        ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'updated_at', 'last_update'])),
+        ('show_author', config_options.Type(bool, default=True)),
+        ('author_field_mapping', config_options.Type(dict, default={
+            'name': ['name', 'author'],
+            'email': ['email', 'mail']
+        }))
     )
 
     def __init__(self):
         super().__init__()
         self.translations = {}
+        self.dates_cache = {}
 
     def on_config(self, config):
+        docs_dir_path = Path(config['docs_dir'])
+
         # 加载 json 语言文件
-        self.translations = self._load_translations(config['docs_dir'])
+        self.translations = self._load_translations(docs_dir_path)
+
+        # 加载日期缓存
+        jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
+        if jsonl_cache_file.exists():
+            try:
+                with open(jsonl_cache_file, "r", encoding='utf-8') as f:
+                    for line in f:
+                        try:
+                            entry = json.loads(line.strip())
+                            if entry and isinstance(entry, dict) and len(entry) == 1:
+                                file_path, file_info = next(iter(entry.items()))
+                                self.dates_cache[file_path] = file_info
+                        except (json.JSONDecodeError, StopIteration) as e:
+                            logging.warning(f"Skipping invalid JSONL line: {e}")
+                logging.info(f"Loaded cache from JSONL file: {jsonl_cache_file}")
+            except IOError as e:
+                logging.warning(f"Error reading from '.dates_cache.jsonl': {str(e)}")
+        
+        # 兼容旧版缓存文件
+        json_cache_file = docs_dir_path / '.dates_cache.json'
+        if not self.dates_cache and json_cache_file.exists():
+            try:
+                with open(json_cache_file, "r", encoding='utf-8') as f:
+                    self.dates_cache = json.load(f)
+                logging.info(f"Loaded cache from JSON file: {json_cache_file}")
+            except (json.JSONDecodeError, KeyError) as e:
+                logging.warning(f"Error reading from '.dates_cache.json': {str(e)}")        
+        
         
         if 'extra_css' not in config:
             config['extra_css'] = []
+        if 'extra_javascript' not in config:
+            config['extra_javascript'] = []
         
         # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
         material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         if material_icons_url not in config['extra_css']:
             config['extra_css'].append(material_icons_url)
         
-        # 复制 css 和 js 资源文件
-        source_dir = Path(__file__).parent / 'static'
-        dest_dir = Path(config['docs_dir']) / 'assets/document_dates'
-        dest_dir.mkdir(parents=True, exist_ok=True)
-
-        for item in source_dir.glob('**/*'):
-            if item.is_file():
-                relative_path = item.relative_to(source_dir)
-                dest_path = dest_dir / relative_path
-                dest_path.parent.mkdir(parents=True, exist_ok=True)
-                
-                # 跳过 languages 目录下的文件
-                if 'languages' in str(relative_path):
-                    continue
-                
-                # 对于配置文件只在目标不存在时才复制，其他文件则直接复制
-                if not dest_path.exists() or item.name not in ['document-dates.config.css', 'document-dates.config.js']:
-                    shutil.copy2(item, dest_path)
-
-        # tippyjs core
-            # https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js
-            # https://unpkg.com/tippy.js@6/dist/tippy.umd.min.js
-            # https://unpkg.com/tippy.js@6/dist/tippy.css
+        # 加载 Tooltip 资源：Tippy.js
+        """
+        # core
+            https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js
+            https://unpkg.com/tippy.js@6/dist/tippy.umd.min.js
+            https://unpkg.com/tippy.js@6/dist/tippy.css
         # animations
-            # https://unpkg.com/tippy.js@6/animations/scale.css
+            https://unpkg.com/tippy.js@6/animations/scale.css
         # animations: Material filling effect
-            # https://unpkg.com/tippy.js@6/dist/backdrop.css
-            # https://unpkg.com/tippy.js@6/animations/shift-away.css
+            https://unpkg.com/tippy.js@6/dist/backdrop.css
+            https://unpkg.com/tippy.js@6/animations/shift-away.css
         # themes
-            # https://unpkg.com/tippy.js@6/themes/light.css
-            # https://unpkg.com/tippy.js@6/themes/material.css
-
-        # 加载所有 CSS 资源文件
+            https://unpkg.com/tippy.js@6/themes/light.css
+            https://unpkg.com/tippy.js@6/themes/material.css
+        """
+        # 复制静态资源到用户目录
+        dest_dir = docs_dir_path / 'assets/document_dates'
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        
+        for dir_name in ['tippy', 'core']:
+            source_dir = Path(__file__).parent / 'static' / dir_name
+            target_dir = dest_dir / dir_name
+            shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+        
+        # 复制配置文件模板到用户目录（如果不存在）
+        config_files = ['user.config.css', 'user.config.js']
+        for config_file in config_files:
+            source_config = Path(__file__).parent / 'static/config' / config_file
+            target_config = dest_dir / config_file
+            if not target_config.exists():
+                shutil.copy2(source_config, target_config)
+        
+        # 加载 Tippy CSS 文件
         tippy_css_dir = dest_dir / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
             config['extra_css'].append(f'assets/document_dates/tippy/{css_file.name}')
-
-        # 加载 CSS 主配置文件
-        config['extra_css'].append('assets/document_dates/document-dates.config.css')
-
-        # 然后按顺序加载 JS 文件
-        if 'extra_javascript' not in config:
-            config['extra_javascript'] = []
-
-        # 优先加载核心 JS 文件
+        
+        # 加载自定义 CSS 文件
+        config['extra_css'].extend([
+            'assets/document_dates/core/core.css',
+            'assets/document_dates/user.config.css'
+        ])
+        
+        # 按顺序加载 Tippy JS 文件
         js_core_files = ['popper.min.js', 'tippy.umd.min.js']
         for js_file in js_core_files:
             config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
-
-        # 最后加载 JS 配置文件
-        config['extra_javascript'].append('assets/document_dates/document-dates.config.js')
+        
+        # 加载自定义 JS 文件
+        config['extra_javascript'].extend([
+            'assets/document_dates/core/core.js',
+            'assets/document_dates/user.config.js'
+        ])
 
         return config
 
     def on_page_markdown(self, markdown, page, config, files):
-        file_path = Path(page.file.abs_src_path)
+        # 获取文件的绝对路径和相对路径
+        file_path = page.file.abs_src_path
+        rel_path = page.file.src_path
         
-        if self._is_excluded(file_path, Path(config['docs_dir'])):
+        # 检查是否需要排除
+        if self._is_excluded(rel_path):
             return markdown
         
-        # 获取文件时间
-        created, modified = self._get_file_dates(file_path, config)
+        # 获取时间信息，优先从 front matter 获取
+        created = self._find_meta_date(page.meta, self.config['created_field_names'])
+        modified = self._find_meta_date(page.meta, self.config['modified_field_names'])
         
-        # 处理 front matter 中的时间
-        created, modified = self._process_meta_dates(page.meta, created, modified)
+        # 如果 front matter 中没有创建时间，则从缓存或文件系统获取
+        if not created:
+            created = self._get_file_creation_time(file_path, rel_path)
+        # 如果 front matter 中没有修改时间，则从文件系统获取
+        if not modified:
+            modified = self._get_file_modification_time(file_path)
+  
+        # 获取作者信息
+        author = None
+        if self.config['show_author']:
+            author = self._process_meta_author(page.meta)
+            if not author:
+                author = self._get_git_authors(file_path)
+                if not author:
+                    author = self._get_local_author()
         
-        # 生成日期信息 HTML
-        date_info = self._get_date_info(created, modified)
+        # 生成日期和作者信息 HTML
+        info_html = self._generate_html_info(created, modified, author)
         
-        # 将日期信息写入 markdown
-        return self._insert_date_info(markdown, date_info)
+        # 将信息写入 markdown
+        return self._insert_date_info(markdown, info_html)
 
 
-    def _get_translation_dirs(self, docs_dir):
+    def _get_translation_dirs(self, docs_dir_path):
         # 内置语言文件目录
         builtin_dir = Path(__file__).parent / 'static' / 'languages'
         # 用户自定义语言文件目录
-        custom_dir = Path(docs_dir) / 'assets' / 'document_dates' / 'languages'
+        custom_dir = docs_dir_path / 'assets' / 'document_dates' / 'languages'
         
-        # 复制 en.json 文件到用户自定义语言文件目录作为参考范例
+        # 复制 en.json 到用户目录作为自定义参考
         custom_en_json = custom_dir / 'en.json'
         if not custom_en_json.exists():
             custom_dir.mkdir(parents=True, exist_ok=True)
@@ -131,13 +209,10 @@ class DocumentDatesPlugin(BasePlugin):
         
         return [builtin_dir, custom_dir]
 
-    def _load_translations(self, docs_dir=None):
+    def _load_translations(self, docs_dir_path):
         translations = {}
         
-        for trans_dir in self._get_translation_dirs(docs_dir):
-            if not trans_dir.exists():
-                continue
-
+        for trans_dir in self._get_translation_dirs(docs_dir_path):
             for lang_file in trans_dir.glob('*.json'):
                 try:
                     with lang_file.open('r', encoding='utf-8') as f:
@@ -152,100 +227,203 @@ class DocumentDatesPlugin(BasePlugin):
         return translations
 
 
-    def _is_excluded(self, file_path: Path, docs_dir: Path) -> bool:
+    def _is_excluded(self, rel_path) -> bool:
         for pattern in self.config['exclude']:
-            if self._matches_exclude_pattern(file_path, docs_dir, pattern):
+            if self._matches_exclude_pattern(rel_path, pattern):
                 return True
         return False
 
-    def _matches_exclude_pattern(self, file_path: Path, docs_dir: Path, pattern: str) -> bool:
+    def _matches_exclude_pattern(self, rel_path, pattern) -> bool:
         try:
-            # 获取相对于 docs_dir 的路径
-            rel_path = file_path.relative_to(docs_dir)
-            pattern_path = Path(pattern)
-
             # 情况1：匹配具体文件路径
             if '*' not in pattern:
-                return str(rel_path) == pattern
+                return rel_path == pattern
 
             # 情况2：匹配目录下所有文件（包含子目录）
             if pattern.endswith('/*'):
-                base_dir = pattern[:-2]
-                return str(rel_path).startswith(f"{base_dir}/")
+                return rel_path.startswith(pattern[:-1])
 
             # 情况3：匹配指定目录下的特定类型文件（不包含子目录）
             if '*.' in pattern:
+                pattern_path = Path(pattern)
+                rel_path_obj = Path(rel_path)
                 pattern_dir = pattern_path.parent
                 pattern_suffix = pattern_path.name[1:]  # 去掉 * 号
-                return (rel_path.parent == Path(pattern_dir) and 
-                       rel_path.name.endswith(pattern_suffix))
+                return (rel_path_obj.parent == pattern_dir and 
+                    rel_path_obj.name.endswith(pattern_suffix))
 
             return False
         except ValueError:
             return False
 
 
-    def _get_file_dates(self, file_path, config):
-        try:
-            docs_dir = Path(config['docs_dir'])
-            rel_path = str(Path(file_path).relative_to(docs_dir))
-            
-            # 尝试从缓存文件读取时间信息
-            cache_file = docs_dir / '.dates_cache.json'
-            if cache_file.exists():
-                with open(cache_file) as f:
-                    dates_cache = json.load(f)
-                    if rel_path in dates_cache:
-                        return (
-                            datetime.fromisoformat(dates_cache[rel_path]['created']),
-                            datetime.fromisoformat(dates_cache[rel_path]['modified'])
-                        )
-            
-            # 如果缓存不存在或文件不在缓存中，使用文件系统时间
-            stat = os.stat(file_path)
-            modified = datetime.fromtimestamp(stat.st_mtime)
-
-            system = platform.system().lower()
-            if system.startswith('win'):  # Windows
-                created = datetime.fromtimestamp(stat.st_ctime)
-            elif system == 'darwin':  # macOS
-                try:
-                    created = datetime.fromtimestamp(stat.st_birthtime)
-                except AttributeError:
-                    created = datetime.fromtimestamp(stat.st_ctime)
-            else:  # Linux
-                created = modified
-
-            return created, modified
-
-        except (OSError, ValueError, json.JSONDecodeError) as e:
-            current_time = datetime.now()
-            return current_time, current_time
-
-
-    def _parse_meta_date(self, date_str: str | None, default_date: datetime) -> datetime:
-        if not date_str:
-            return default_date
-
-        try:
-            return datetime.fromisoformat(str(date_str).strip("'\""))
-        except (ValueError, TypeError):
-            return default_date
-
-    def _find_meta_date(self, meta: dict, field_names: list, default_date: datetime) -> datetime:
-        """从meta中查找第一个匹配的日期字段"""
+    def _find_meta_date(self, meta: dict, field_names: list) -> Union[datetime, None]:
         for field in field_names:
             if field in meta:
-                result = self._parse_meta_date(meta[field], default_date)
-                if result != default_date:
-                    return result
-        return default_date
+                try:
+                    # 移除字符串首尾可能存在的单引号或双引号
+                    date_str = str(meta[field]).strip("'\"")
+                    return datetime.fromisoformat(date_str)
+                except (ValueError, TypeError):
+                    continue
+        return None
 
-    def _process_meta_dates(self, meta: dict, created: datetime, modified: datetime) -> tuple[datetime, datetime]:
-        """处理meta中的日期字段, 支持多种字段名"""
-        result_created = self._find_meta_date(meta, self.config['created_field_names'], created)
-        result_modified = self._find_meta_date(meta, self.config['modified_field_names'], modified)
-        return result_created, result_modified
+    def _get_git_first_commit_time(self, file_path):
+        try:
+            # 检查是否是git仓库
+            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
+                                    capture_output=True, text=True)
+            if check_git.returncode == 0:
+                # 获取文件所有提交时间，按时间正序排列
+                result = subprocess.run(
+                    ['git', 'log', '--reverse', '--format=%ad', '--date=iso', '--', file_path],
+                    capture_output=True,
+                    text=True
+                )
+                if result.returncode == 0:
+                    # 分割输出并获取第一行（最早的提交）
+                    commits = result.stdout.strip().split('\n')
+                    if commits and commits[0]:
+                        return datetime.fromisoformat(commits[0])
+        except Exception as e:
+            logging.debug(f"Error getting git first commit time for {file_path}: {e}")
+        return None
+
+    def _get_file_creation_time(self, file_path, rel_path):
+        # 优先从缓存中读取
+        if rel_path in self.dates_cache:
+            return datetime.fromisoformat(self.dates_cache[rel_path]['created'])
+        
+        # 获取文件系统时间
+        stat = os.stat(file_path)
+        system = platform.system().lower()
+        fs_time = None
+        if system.startswith('win'):  # Windows
+            fs_time = datetime.fromtimestamp(stat.st_ctime)
+        elif system == 'darwin':  # macOS
+            try:
+                fs_time = datetime.fromtimestamp(stat.st_birthtime)
+            except AttributeError:
+                fs_time = datetime.fromtimestamp(stat.st_ctime)
+        else:  # Linux, 没有创建时间，使用修改时间
+            fs_time = datetime.fromtimestamp(stat.st_mtime)
+        
+        # 获取Git首次提交时间
+        git_time = self._get_git_first_commit_time(file_path)
+        
+        # 如果有Git时间，返回两者更早的时间
+        if git_time is not None:
+            return min(fs_time, git_time)
+        return fs_time
+
+    def _get_file_modification_time(self, file_path):
+        """
+        # 从git获取最后修改时间
+        try:
+            # 检查是否是git仓库
+            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
+                                    capture_output=True, text=True)
+            if check_git.returncode == 0:
+                # 获取文件最后修改时间
+                cmd = f'git log -1 --format="%ad" --date=iso -- "{file_path}"'
+                process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+                if process.returncode == 0 and process.stdout.strip():
+                    git_time = process.stdout.strip()
+                    return datetime.fromisoformat(git_time.replace(' ', 'T').replace('Z', '+00:00'))
+        except Exception as e:
+            logging.warning(f"Failed to get git modification time: {str(e)}")
+        """
+        # 从文件系统获取最后修改时间
+        stat = os.stat(file_path)
+        return datetime.fromtimestamp(stat.st_mtime)
+
+
+    def _process_meta_author(self, meta):
+        # 1. 处理 author 对象，或 author 字符串
+        author_data = meta.get('author')
+        if author_data:
+            if isinstance(author_data, dict):
+                name = str(author_data.get('name', ''))
+                if not name:
+                    return None
+                email = str(author_data.get('email', ''))
+                # 提取扩展属性
+                extra_attrs = {k: str(v) for k, v in author_data.items() 
+                              if k not in ['name', 'email']}
+                return Author(name=name, email=email, **extra_attrs)
+            return Author(name=str(author_data))
+        
+        # 2. 处理独立字段，匹配 author_field_mapping 配置
+        name = ''
+        email = ''
+        
+        for name_field in self.config['author_field_mapping']['name']:
+            if name_field in meta:
+                name = str(meta[name_field])
+                break
+        
+        for email_field in self.config['author_field_mapping']['email']:
+            if email_field in meta:
+                email = str(meta[email_field])
+                break
+        
+        if name or email:
+            if not name and email:
+                name = email.split('@')[0]
+            return Author(name=name, email=email)
+        
+        return None
+
+    def _get_git_authors(self, file_path: str) -> Union[Author, List[Author], None]:
+        try:
+            # 先检查是否是 Git 仓库
+            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
+                                    capture_output=True, text=True)
+            if check_git.returncode != 0:
+                return None
+
+            # # 检查文件是否在 Git 中
+            # check_file = subprocess.run(f'git ls-files --error-unmatch {file_path}',
+            #                           shell=True, capture_output=True, text=True)
+            # if check_file.returncode != 0:
+            #     return None
+
+            # 获取作者信息（为了兼容性，不采用管道命令）
+            # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
+            # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'            
+            git_log_cmd = ['git', 'log', '--format=%an|%ae', '--', file_path]
+            git_log_result = subprocess.run(git_log_cmd, capture_output=True, text=True, check=False)
+            if git_log_result.returncode != 0 or not git_log_result.stdout.strip():
+                return None
+            
+            # 在Python中处理去重
+            authors = []
+            unique_entries = set()
+            
+            for line in git_log_result.stdout.strip().splitlines():
+                if not line or line in unique_entries:
+                    continue
+                
+                unique_entries.add(line)
+                name, email = line.split('|')
+                authors.append(Author(name=name, email=email))
+            
+            if not authors:
+                return None
+            
+            return authors[0] if len(authors) == 1 else authors
+
+        except Exception as e:
+            logging.warning(f"Failed to get git author info: {str(e)}")
+            return None
+
+    def _get_local_author(self):
+        try:
+            username = Path.home().name
+            return Author(name=username)
+        except Exception as e:
+            logging.warning(f"Failed to get local author info: {str(e)}")
+        return None
 
 
     def _get_timeago(self, date, t):
@@ -290,7 +468,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _get_date_info(self, created, modified):
+    def _generate_html_info(self, created, modified, author=None):
         locale = self.config['locale']
         if locale not in self.translations:
             locale = 'en'
@@ -298,7 +476,8 @@ class DocumentDatesPlugin(BasePlugin):
         
         position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
         
-        return (
+        # 构建基本的日期信息 HTML
+        html = (
             f"<div class='document-dates-plugin-wrapper {position_class}'>" 
             f"<div class='document-dates-plugin'>" 
             f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>" 
@@ -306,10 +485,34 @@ class DocumentDatesPlugin(BasePlugin):
             f"{self._get_formatted_date(created, t)}</span>" 
             f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>" 
             f"<span class='material-icons' data-icon='doc_modified'></span>" 
-            f"{self._get_formatted_date(modified, t)}</span>" 
-            f"</div>" 
-            f"</div>"
+            f"{self._get_formatted_date(modified, t)}</span>"
         )
+        
+        # 添加作者信息
+        if self.config['show_author'] and author:
+            if isinstance(author, list):
+                # 多个作者的情况
+                authors_info = ', '.join(a.name for a in author if a.name)
+                authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in author)
+                
+                html += (
+                    f"<span data-tippy-content='{t.get('authors', 'Authors')}: {authors_tooltip}'>" 
+                    f"<span class='material-icons' data-icon='doc_authors'></span>" 
+                    f"{authors_info}</span>"
+                    # f"{authors_tooltip}</span>"
+                )
+            else:
+                # 单个作者的情况
+                author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
+                html += (
+                    f"<span data-tippy-content='{t.get('author', 'Author')}: {author_tooltip}'>" 
+                    f"<span class='material-icons' data-icon='doc_author'></span>" 
+                    f"{author.name}</span>"
+                    # f"{author_tooltip}</span>"
+                )
+        
+        html += f"</div></div>"
+        return html
 
 
     def _insert_date_info(self, markdown, date_info):
@@ -319,8 +522,10 @@ class DocumentDatesPlugin(BasePlugin):
         if self.config['position'] == 'top':
             lines = markdown.splitlines()
             for i, line in enumerate(lines):
-                if line.startswith('#'):
+                if line.startswith('# '):
                     lines.insert(i + 1, date_info)
-                    return '\n'.join(lines)
+                else:
+                    lines.insert(0, date_info)
+                return '\n'.join(lines)
             return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"

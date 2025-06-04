@@ -1,111 +1,16 @@
 #!/usr/bin/env python3
 
-import os
 import sys
-import json
-import platform
-import subprocess
 import logging
-from datetime import datetime
-from pathlib import Path
 
-# 配置日志等级 (INFO WARNING ERROR)
-logging.basicConfig(
-    level=logging.WARNING,
-    format='%(levelname)s - %(message)s'
-)
-
-def find_mkdocs_projects():
-    try:
-        git_root = Path(subprocess.check_output(
-            ['git', 'rev-parse', '--show-toplevel'],
-            text=True, encoding='utf-8'
-        ).strip())
-
-        projects = []
-        for config_file in git_root.rglob('mkdocs.y*ml'):
-            if config_file.name.lower() in ('mkdocs.yml', 'mkdocs.yaml'):
-                projects.append(config_file.parent)
-
-        if not projects:
-            logging.info("No MkDocs projects found in the repository")
-        return projects
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Failed to find the Git repository root: {e}")
-        return []
-    except Exception as e:
-        logging.error(f"Unexpected error while searching for MkDocs projects: {e}")
-        return []
-
-def get_file_dates(file_path):
-    try:
-        stat = os.stat(file_path)
-        modified = datetime.fromtimestamp(stat.st_mtime)
-
-        system = platform.system().lower()
-        if system.startswith('win'):  # Windows
-            created = datetime.fromtimestamp(stat.st_ctime)
-        elif system == 'darwin':  # macOS
-            try:
-                created = datetime.fromtimestamp(stat.st_birthtime)
-            except AttributeError:
-                created = datetime.fromtimestamp(stat.st_ctime)
-                logging.warning(f"Birth time not available for {file_path}, using ctime instead")
-        else:  # Linux and other systems
-            created = modified
-            logging.info(f"Creation time not supported on {system}, using modification time for {file_path}")
-
-        return created.isoformat(), modified.isoformat()
-    except (OSError, ValueError) as e:
-        logging.error(f"Failed to get file dates for {file_path}: {e}")
-        current_time = datetime.now()
-        return current_time.isoformat(), current_time.isoformat()
-
-def update_dates_cache():
-    for project_dir in find_mkdocs_projects():
-        docs_dir = project_dir / 'docs'
-        if not docs_dir.exists():
-            logging.error(f"Document directory does not exist: {docs_dir}")
-            continue
-
-        dates_cache = {}
-        md_files = list(docs_dir.rglob("*.md"))
-        
-        if not md_files:
-            logging.info(f"No markdown files found in {docs_dir}")
-            continue
-
-        for md_file in md_files:
-            try:
-                rel_path = str(md_file.relative_to(docs_dir))
-                created, modified = get_file_dates(md_file)
-                dates_cache[rel_path] = {
-                    "created": created,
-                    "modified": modified
-                }
-            except Exception as e:
-                logging.error(f"Error processing file {md_file}: {e}")
-
-        if not dates_cache:
-            logging.warning(f"No valid dates cache generated for {project_dir}")
-            continue
-
-        cache_file = docs_dir / '.dates_cache.json'
-        try:
-            with open(cache_file, "w", encoding='utf-8') as f:
-                json.dump(dates_cache, f, indent=2, ensure_ascii=False)
-            subprocess.run(["git", "add", str(cache_file)], check=True)
-            logging.info(f"Successfully updated cache file: {cache_file}")
-        except (IOError, json.JSONDecodeError) as e:
-            logging.error(f"Failed to write cache file {cache_file}: {e}")
-            raise
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Failed to add cache file to git: {e}")
-            raise
+try:
+    from mkdocs_document_dates.cache_manager import update_cache
+except ImportError:
+    sys.exit(0)
 
 if __name__ == "__main__":
     try:
-        update_dates_cache()
+        update_cache()
     except Exception as e:
         logging.error(f"Hook execution failed: {e}")
         sys.exit(1)
