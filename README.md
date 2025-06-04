@@ -8,7 +8,7 @@ A MkDocs plugin for displaying the <mark>exact</mark> creation date and last mod
 
 ## Features
 
-- **No Git dependency**, uses filesystem timestamps directly
+- **No Git dependency**, uses filesystem timestamps, works in any environment
 - Supports manual date specification in `Front Matter`
 - Support for multiple time formats (date, datetime, timeago)
 - Support for document exclusion mode
@@ -71,7 +71,7 @@ modified: 2025-02-23
 ```
 
 - `created` can be replaced with: `created, date, creation_date, created_at, date_created`
-- `modified` can be replaced with: `modified, updated, last_modified, updated_at, date_modified, last_update`
+- `modified` can be replaced with: `modified, updated, last_modified, updated_at, last_update`
 
 ## Customization
 

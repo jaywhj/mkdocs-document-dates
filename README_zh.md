@@ -8,7 +8,7 @@
 
 ## 特性
 
-- **不依赖 Git**，直接使用文件系统的时间戳
+- **不依赖 Git**，使用文件系统时间戳，适用于任何环境
 - 支持在 `Front Matter` 中手动指定日期
 - 支持多种时间格式（date、datetime、timeago）
 - 支持文档排除模式
@@ -73,7 +73,7 @@ modified: 2025-02-23
 ```
 
 - `created` 可替换为：`created, date, creation_date, created_at, date_created`
-- `modified` 可替换为：`modified, updated, last_modified, updated_at, date_modified, last_update`
+- `modified` 可替换为：`modified, updated, last_modified, updated_at, last_update`
 
 ## 自定义
 

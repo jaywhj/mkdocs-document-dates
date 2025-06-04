@@ -14,5 +14,7 @@
     "year_ago": "1 年前",
     "years_ago": "{} 年前",
     "created_time": "作成日時",
-    "modified_time": "更新日時"
+    "modified_time": "更新日時",
+    "author": "著者",
+    "authors": "著者"
 }

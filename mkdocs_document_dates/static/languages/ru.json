@@ -14,5 +14,7 @@
     "year_ago": "год назад",
     "years_ago": "{} лет назад",
     "created_time": "Дата создания",
-    "modified_time": "Дата изменения"
+    "modified_time": "Дата изменения",
+    "author": "Автор",
+    "authors": "Авторы"
 }

@@ -14,5 +14,7 @@
     "year_ago": "منذ سنة",
     "years_ago": "منذ {} سنة",
     "created_time": "تاريخ الإنشاء",
-    "modified_time": "تاريخ التعديل"
+    "modified_time": "تاريخ التعديل",
+    "author": "المؤلف",
+    "authors": "المؤلفون"
 }

@@ -14,5 +14,7 @@
     "year_ago": "1 年前",
     "years_ago": "{} 年前",
     "created_time": "创建时间",
-    "modified_time": "最后更新"
+    "modified_time": "最后更新",
+    "author": "作者",
+    "authors": "作者"
 }

@@ -14,5 +14,7 @@
     "year_ago": "il y a un an",
     "years_ago": "il y a {} ans",
     "created_time": "Date de création",
-    "modified_time": "Date de modification"
+    "modified_time": "Date de modification",
+    "author": "Auteur",
+    "authors": "Auteurs"
 }
