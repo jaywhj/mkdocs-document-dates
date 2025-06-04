@@ -19,7 +19,6 @@ logging.basicConfig(
 
 class Author:
     def __init__(self, name="", email="", **kwargs):
-        # 基础属性
         self.name = name
         self.email = email
         # 扩展属性
@@ -171,10 +170,8 @@ class DocumentDatesPlugin(BasePlugin):
         created = self._find_meta_date(page.meta, self.config['created_field_names'])
         modified = self._find_meta_date(page.meta, self.config['modified_field_names'])
         
-        # 如果 front matter 中没有创建时间，则从缓存或文件系统获取
         if not created:
             created = self._get_file_creation_time(file_path, rel_path)
-        # 如果 front matter 中没有修改时间，则从文件系统获取
         if not modified:
             modified = self._get_file_modification_time(file_path)
   
@@ -217,7 +214,6 @@ class DocumentDatesPlugin(BasePlugin):
                 try:
                     with lang_file.open('r', encoding='utf-8') as f:
                         lang_data = json.load(f)
-                        # 自定义语言会覆盖内置语言
                         translations[lang_file.stem] = lang_data
                 except json.JSONDecodeError as e:
                     logging.error(f"Invalid JSON format in language file {lang_file}: {str(e)}")
@@ -261,7 +257,7 @@ class DocumentDatesPlugin(BasePlugin):
         for field in field_names:
             if field in meta:
                 try:
-                    # 移除字符串首尾可能存在的单引号或双引号
+                    # 移除首尾可能存在的单双引号和时区信息
                     date_str = str(meta[field]).strip("'\"")
                     return datetime.fromisoformat(date_str).replace(tzinfo=None)
                 except (ValueError, TypeError):
@@ -270,17 +266,13 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _get_git_first_commit_time(self, file_path):
         try:
-            # 检查是否是git仓库
             check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
                                     capture_output=True, text=True)
             if check_git.returncode == 0:
                 result = subprocess.run(
                     ['git', 'log', '--reverse', '--format=%aI', '--', file_path],
-                    capture_output=True,
-                    text=True
-                )
+                    capture_output=True, text=True)
                 if result.returncode == 0:
-                    # 分割输出并获取第一行（最早的提交）
                     commits = result.stdout.strip().split('\n')
                     if commits and commits[0]:
                         return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
@@ -310,7 +302,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取Git首次提交时间
         git_time = self._get_git_first_commit_time(file_path)
         
-        # 如果有Git时间，返回两者更早的时间
+        # 取两者更早的时间
         if git_time is not None:
             return min(fs_time, git_time)
         return fs_time
@@ -328,7 +320,7 @@ class DocumentDatesPlugin(BasePlugin):
                 process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
                 if process.returncode == 0 and process.stdout.strip():
                     git_time = process.stdout.strip()
-                    return datetime.fromisoformat(git_time.replace(' ', 'T').replace('Z', '+00:00'))
+                    return datetime.fromisoformat(git_time).replace(tzinfo=None)
         except Exception as e:
             logging.warning(f"Failed to get git modification time: {str(e)}")
         """
@@ -387,7 +379,7 @@ class DocumentDatesPlugin(BasePlugin):
             # if check_file.returncode != 0:
             #     return None
 
-            # 获取作者信息（为了兼容性，不采用管道命令）
+            # 获取作者信息（为了兼容性，不采用管道命令，在Python中处理去重）
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'            
             git_log_cmd = ['git', 'log', '--format=%an|%ae', '--', file_path]
@@ -395,7 +387,6 @@ class DocumentDatesPlugin(BasePlugin):
             if git_log_result.returncode != 0 or not git_log_result.stdout.strip():
                 return None
             
-            # 在Python中处理去重
             authors = []
             unique_entries = set()
             
@@ -430,7 +421,6 @@ class DocumentDatesPlugin(BasePlugin):
         diff = now - date
         seconds = diff.total_seconds()
         
-        # 时间间隔判断
         if seconds < 10:
             return t['just_now']
         elif seconds < 60:

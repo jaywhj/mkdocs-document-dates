@@ -71,7 +71,7 @@ def install():
         shebang = detect_python_interpreter()
         logging.info(f"Using shebang: {shebang}")
 
-        # 安装所有钩子文件
+        # 安装钩子文件
         hooks_installed = False
         source_hooks_dir = Path(__file__).parent / 'hooks'
         for hook_file in source_hooks_dir.glob('*'):

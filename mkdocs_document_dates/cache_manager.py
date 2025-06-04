@@ -21,7 +21,7 @@ def find_mkdocs_projects():
         ).strip())
 
         projects = []
-        # 递归遍历 git_root 及其子目录, 寻找 mkdocs.yml 文件
+        # 遍历 git_root 及子目录, 寻找 mkdocs.yml 文件
         for config_file in git_root.rglob('mkdocs.y*ml'):
             if config_file.name.lower() in ('mkdocs.yml', 'mkdocs.yaml'):
                 projects.append(config_file.parent)
@@ -114,7 +114,6 @@ def write_jsonl_cache(jsonl_file, dates_cache, tracked_files):
         with open(temp_file, "w", encoding='utf-8') as f:
             for file_path in tracked_files:
                 if file_path in dates_cache:
-                    # 每行写入一个文件的信息
                     entry = {file_path: dates_cache[file_path]}
                     f.write(json.dumps(entry, ensure_ascii=False) + '\n')
         
@@ -175,7 +174,7 @@ def update_cache():
                     if rel_path in jsonl_dates_cache:
                         continue
                     
-                    # 处理新文件或从JSON缓存迁移
+                    # 处理新文件或迁移旧JSON缓存
                     if rel_path in json_dates_cache:
                         jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
                         project_updated = True
