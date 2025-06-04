@@ -263,7 +263,7 @@ class DocumentDatesPlugin(BasePlugin):
                 try:
                     # 移除字符串首尾可能存在的单引号或双引号
                     date_str = str(meta[field]).strip("'\"")
-                    return datetime.fromisoformat(date_str)
+                    return datetime.fromisoformat(date_str).replace(tzinfo=None)
                 except (ValueError, TypeError):
                     continue
         return None
@@ -274,9 +274,8 @@ class DocumentDatesPlugin(BasePlugin):
             check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
                                     capture_output=True, text=True)
             if check_git.returncode == 0:
-                # 获取文件所有提交时间，按时间正序排列
                 result = subprocess.run(
-                    ['git', 'log', '--reverse', '--format=%ad', '--date=iso', '--', file_path],
+                    ['git', 'log', '--reverse', '--format=%aI', '--', file_path],
                     capture_output=True,
                     text=True
                 )
@@ -284,9 +283,9 @@ class DocumentDatesPlugin(BasePlugin):
                     # 分割输出并获取第一行（最早的提交）
                     commits = result.stdout.strip().split('\n')
                     if commits and commits[0]:
-                        return datetime.fromisoformat(commits[0])
+                        return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
         except Exception as e:
-            logging.debug(f"Error getting git first commit time for {file_path}: {e}")
+            logging.info(f"Error getting git first commit time for {file_path}: {e}")
         return None
 
     def _get_file_creation_time(self, file_path, rel_path):
@@ -325,7 +324,7 @@ class DocumentDatesPlugin(BasePlugin):
                                     capture_output=True, text=True)
             if check_git.returncode == 0:
                 # 获取文件最后修改时间
-                cmd = f'git log -1 --format="%ad" --date=iso -- "{file_path}"'
+                cmd = f'git log -1 --format="%aI" --date=iso -- "{file_path}"'
                 process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
                 if process.returncode == 0 and process.stdout.strip():
                     git_time = process.stdout.strip()
