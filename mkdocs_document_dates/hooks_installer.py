@@ -1,6 +1,5 @@
 import os
 import sys
-import shutil
 import logging
 import subprocess
 from pathlib import Path
@@ -17,6 +16,36 @@ def get_config_dir():
         return Path(os.getenv('APPDATA', str(Path.home() / 'AppData' / 'Roaming')))
     else:
         return Path.home() / '.config'
+
+def detect_python_interpreter():
+    # 尝试python3
+    try:
+        result = subprocess.run(
+            ["python3", "-c", "import sys; print(sys.version_info >= (3, 7))"],
+            capture_output=True, text=True, check=False
+        )
+        if result.returncode == 0 and result.stdout.strip() == 'True':
+            return '#!/usr/bin/env python3'
+        else:
+            logging.warning(f"Low python version, requires python_requires >=3.7")
+    except Exception as e:
+        logging.debug(f"Failed to check python3: {str(e)}")
+    
+    # 尝试python
+    try:
+        result = subprocess.run(
+            ["python", "-c", "import sys; print(sys.version_info >= (3, 7))"],
+            capture_output=True, text=True, check=False
+        )
+        if result.returncode == 0 and result.stdout.strip() == 'True':
+            return '#!/usr/bin/env python'
+        else:
+            logging.warning(f"Low python version, requires python_requires >=3.7")
+    except Exception as e:
+        logging.debug(f"Failed to check python: {str(e)}")
+    
+    # 使用当前运行的Python解释器
+    return f'#!{sys.executable}'
 
 def install():
     try:
@@ -38,25 +67,48 @@ def install():
             logging.error(f"Failed to create directory {config_dir}: {str(e)}")
             return False
 
-        hook_path = config_dir / 'pre-commit'
-        source_hook = Path(__file__).parent / 'hooks' / 'pre-commit'
+        # 检测Python解释器并获取合适的shebang行
+        shebang = detect_python_interpreter()
+        logging.info(f"Using shebang: {shebang}")
 
-        # 复制 hook 文件到配置目录
-        try:
-            shutil.copy2(source_hook, hook_path)
-        except PermissionError:
-            logging.error(f"No permission to copy file to: {hook_path}")
-            return False
-        except Exception as e:
-            logging.error(f"Failed to copy file to {hook_path}: {str(e)}")
+        # 安装所有钩子文件
+        hooks_installed = False
+        source_hooks_dir = Path(__file__).parent / 'hooks'
+        for hook_file in source_hooks_dir.glob('*'):
+            if hook_file.is_file() and not hook_file.name.startswith('.'):
+                target_hook_path = config_dir / hook_file.name
+                try:
+                    # 读取源文件内容
+                    with open(hook_file, 'r', encoding='utf-8') as f_in:
+                        content = f_in.read()
+                    
+                    # 修改shebang行
+                    if content.startswith('#!'):
+                        content = shebang + os.linesep + content[content.find('\n'):]
+                    else:
+                        content = shebang + os.linesep + content
+
+                    # 直接写入目标文件
+                    with open(target_hook_path, 'w', encoding='utf-8') as f_out:
+                        f_out.write(content)
+                    
+                    # 设置执行权限
+                    os.chmod(target_hook_path, 0o755)
+                    hooks_installed = True
+                    logging.info(f"Created hook with custom shebang: {hook_file.name}")
+                except Exception as e:
+                    logging.error(f"Failed to create file {target_hook_path}: {str(e)}")
+                    return False
+
+        if not hooks_installed:
+            logging.warning("No hook files found, the hooks installation failed")
             return False
 
-        # 设置文件权限
+        # 设置目录权限
         try:
             os.chmod(config_dir, 0o755)
-            os.chmod(hook_path, 0o755)
         except OSError as e:
-            logging.warning(f"Failed to set file permissions: {str(e)}")
+            logging.warning(f"Failed to set directory permissions: {str(e)}")
 
         # 配置全局 git hooks 路径
         try:
