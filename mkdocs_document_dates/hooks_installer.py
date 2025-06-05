@@ -17,34 +17,30 @@ def get_config_dir():
     else:
         return Path.home() / '.config'
 
+def check_python_version(interpreter):
+    try:
+        result = subprocess.run(
+            [interpreter, "-c", "import sys; print(sys.version_info >= (3, 7))"],
+            capture_output=True, text=True, check=False
+        )
+        if result.returncode == 0 and result.stdout.strip() == 'True':
+            return True
+        else:
+            logging.warning(f"Low python version, requires python_requires >=3.7")
+            return False
+    except Exception as e:
+        logging.debug(f"Failed to check {interpreter}: {str(e)}")
+        return False
+
 def detect_python_interpreter():
-    # 尝试python3
-    try:
-        result = subprocess.run(
-            ["python3", "-c", "import sys; print(sys.version_info >= (3, 7))"],
-            capture_output=True, text=True, check=False
-        )
-        if result.returncode == 0 and result.stdout.strip() == 'True':
-            return '#!/usr/bin/env python3'
-        else:
-            logging.warning(f"Low python version, requires python_requires >=3.7")
-    except Exception as e:
-        logging.debug(f"Failed to check python3: {str(e)}")
+    # 检查可能的Python解释器
+    python_interpreters = ['python3', 'python']
     
-    # 尝试python
-    try:
-        result = subprocess.run(
-            ["python", "-c", "import sys; print(sys.version_info >= (3, 7))"],
-            capture_output=True, text=True, check=False
-        )
-        if result.returncode == 0 and result.stdout.strip() == 'True':
-            return '#!/usr/bin/env python'
-        else:
-            logging.warning(f"Low python version, requires python_requires >=3.7")
-    except Exception as e:
-        logging.debug(f"Failed to check python: {str(e)}")
+    for interpreter in python_interpreters:
+        if check_python_version(interpreter):
+            return f'#!/usr/bin/env {interpreter}'
     
-    # 使用当前运行的Python解释器
+    # 如果都失败了，使用当前运行的Python解释器
     return f'#!{sys.executable}'
 
 def install():

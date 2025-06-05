@@ -379,7 +379,7 @@ class DocumentDatesPlugin(BasePlugin):
             # if check_file.returncode != 0:
             #     return None
 
-            # 获取作者信息（为了兼容性，不采用管道命令，在Python中处理去重）
+            # 获取作者信息（为了兼容性，不采用管道命令，在 python 中处理去重）
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'            
             git_log_cmd = ['git', 'log', '--format=%an|%ae', '--', file_path]
