@@ -104,7 +104,7 @@ email: e-name@gmail.com
 - 属性与动画：`docs/assets/document_dates/user.config.js`
 - 本地化语言：`docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改
 
-注意：由于重新设计了配置文件的更新机制，上版本中 document-dates.config 开头的配置文件取消了，换成了 user.config
+*注意：由于重新设计了配置文件的更新机制，上版本中 document-dates.config 开头的配置文件取消了，换成了 user.config*
 
 ## 其它提示
 

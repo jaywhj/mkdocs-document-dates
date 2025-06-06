@@ -103,7 +103,7 @@ The plugin supports deep customization, such as icon style, font style, theme co
 - Properties & Animations: `docs/assets/document_dates/user.config.js`
 - Localized languages: `docs/assets/document_dates/languages/` , refer to the template file `en.json` for any additions or modifications
 
-Note: Due to the redesign of the configuration file update mechanism, the configuration file starting with document-dates.config in the previous version has been canceled and replaced by user.config
+*Note: Due to the redesign of the configuration file update mechanism, the configuration file starting with document-dates.config in the previous version has been canceled and replaced by user.config*
 
 ## Other Tips
 
