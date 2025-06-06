@@ -114,6 +114,8 @@ Note: Due to the redesign of the configuration file update mechanism, the config
 - The installation of Git Hooks is automatically triggered when the plugin is installed
 - The above actions are fully automated without any manual intervention, applicable to any environment, and have been tested and validated in Git-less environments, CI/CD environments (e.g., GitHub Actions), one-person collaborations, multi-person collaborations, etc
 
+<br />
+
 ## Development Stories (Optional)
 
 A dispensable, insignificant little plug-in, friends who have time can take a look \^\_\^ 
