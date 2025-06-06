@@ -74,8 +74,8 @@ modified: 2025-02-23
 # Document Title
 ```
 
-- `created` can be replaced with: `created, date, creation_date, created_at, date_created`
-- `modified` can be replaced with: `modified, updated, last_modified, updated_at, last_update`
+- `created` can be replaced with: `created, date, creation`
+- `modified` can be replaced with: `modified, updated, last_modified, last_updated`
 
 ## Specify author manually
 

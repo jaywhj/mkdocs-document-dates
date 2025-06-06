@@ -75,8 +75,8 @@ modified: 2025-02-23
 # 文档标题
 ```
 
-- `created` 可替换为：`created, date, creation_date, created_at, date_created`
-- `modified` 可替换为：`modified, updated, last_modified, updated_at, last_update`
+- `created` 可替换为：`created, date, creation`
+- `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
 ## 手动指定作者
 
