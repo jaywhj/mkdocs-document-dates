@@ -116,7 +116,7 @@ Note: Due to the redesign of the configuration file update mechanism, the config
 
 ## Development Stories (Optional)
 
-A dispensable, insignificant little plug-in, friends who have nothing to do can take a look \^\_\^ 
+A dispensable, insignificant little plug-in, friends who have time can take a look \^\_\^ 
 
 - **Origin**:
     - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, then I don't understand why not read the file system time, but to use the git time, and raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
