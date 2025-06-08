@@ -56,8 +56,18 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
         self.translations = {}
         self.dates_cache = {}
+        self.is_git_repo = False
 
     def on_config(self, config):
+        
+        # 检查是否为 Git 仓库
+        try:
+            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], capture_output=True, text=True)
+            if check_git.returncode == 0:
+                self.is_git_repo = True
+        except subprocess.CalledProcessError as e:
+            logging.info(f"Not a Git repository: {str(e)}")
+
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 json 语言文件
@@ -265,19 +275,16 @@ class DocumentDatesPlugin(BasePlugin):
         return None
 
     def _get_git_first_commit_time(self, file_path):
-        try:
-            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
-                                    capture_output=True, text=True)
-            if check_git.returncode == 0:
-                result = subprocess.run(
-                    ['git', 'log', '--reverse', '--format=%aI', '--', file_path],
-                    capture_output=True, text=True)
+        if self.is_git_repo:
+            try:
+                # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
+                result = subprocess.run(['git', 'log', '--reverse', '--format=%aI', '--', file_path], capture_output=True, text=True)
                 if result.returncode == 0:
                     commits = result.stdout.strip().split('\n')
                     if commits and commits[0]:
                         return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
-        except Exception as e:
-            logging.info(f"Error getting git first commit time for {file_path}: {e}")
+            except Exception as e:
+                logging.info(f"Error getting git first commit time for {file_path}: {e}")
         return None
 
     def _get_file_creation_time(self, file_path, rel_path):
@@ -310,20 +317,18 @@ class DocumentDatesPlugin(BasePlugin):
     def _get_file_modification_time(self, file_path):
         """
         # 从git获取最后修改时间
-        try:
-            # 检查是否是git仓库
-            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
-                                    capture_output=True, text=True)
-            if check_git.returncode == 0:
+        if self.is_git_repo:
+            try:
                 # 获取文件最后修改时间
                 cmd = f'git log -1 --format="%aI" --date=iso -- "{file_path}"'
                 process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
                 if process.returncode == 0 and process.stdout.strip():
                     git_time = process.stdout.strip()
                     return datetime.fromisoformat(git_time).replace(tzinfo=None)
-        except Exception as e:
-            logging.warning(f"Failed to get git modification time: {str(e)}")
+            except Exception as e:
+                logging.warning(f"Failed to get git modification time: {str(e)}")
         """
+
         # 从文件系统获取最后修改时间
         stat = os.stat(file_path)
         return datetime.fromtimestamp(stat.st_mtime)
@@ -366,13 +371,10 @@ class DocumentDatesPlugin(BasePlugin):
         return None
 
     def _get_git_authors(self, file_path: str) -> Union[Author, List[Author], None]:
+        if not self.is_git_repo:
+            return None
+        
         try:
-            # 先检查是否是 Git 仓库
-            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], 
-                                    capture_output=True, text=True)
-            if check_git.returncode != 0:
-                return None
-
             # # 检查文件是否在 Git 中
             # check_file = subprocess.run(f'git ls-files --error-unmatch {file_path}',
             #                           shell=True, capture_output=True, text=True)

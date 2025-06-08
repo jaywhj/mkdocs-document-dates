@@ -53,6 +53,18 @@ def get_file_creation_time(file_path):
         logging.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
 
+def get_git_first_commit_time(file_path):
+    try:
+        # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
+        result = subprocess.run(['git', 'log', '--reverse', '--format=%aI', '--', file_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            commits = result.stdout.strip().split('\n')
+            if commits and commits[0]:
+                return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
+    except Exception as e:
+        logging.info(f"Error getting git first commit time for {file_path}: {e}")
+    return None
+
 def setup_gitattributes(docs_dir):
     gitattributes_path = docs_dir / '.gitattributes'
     union_config_line = ".dates_cache.jsonl merge=union"
@@ -180,6 +192,10 @@ def update_cache():
                         project_updated = True
                     elif full_path.exists():
                         created_time = get_file_creation_time(full_path)
+                        if not jsonl_cache_file.exists() and not json_cache_file.exists():
+                            git_time = get_git_first_commit_time(full_path)
+                            if git_time is not None:
+                                created_time = min(created_time, git_time)
                         jsonl_dates_cache[rel_path] = {
                             "created": created_time.isoformat()
                         }
