@@ -110,9 +110,7 @@ The plugin supports deep customization, such as icon style, font style, theme co
 - In order to get the exact creation time, a separate cache file is used to store the creation time of the file, located in the doc folder (hidden by default), please don't delete it:
     - `docs/.dates_cache.jsonl`, cache file (.json without the l is the old cache file and will be automatically migrated to .jsonl after any git commit)
     - `docs/.gitattributes`, configuration file (merge mechanism for cache file in case of multi-person collaboration)
-- The Git Hooks mechanism is used to automatically trigger the storing of the cache (every time executes a git commit), and the cached file is automatically committed along with it
-- The installation of Git Hooks is automatically triggered when the plugin is installed
-- The above actions are fully automated without any manual intervention, applicable to any environment, and have been tested and validated in Git-less environments, CI/CD environments (e.g., GitHub Actions), one-person collaborations, multi-person collaborations, etc
+- The Git Hooks mechanism is used to automatically trigger the storing of the cache (every time executes a git commit), and the cached file is automatically committed along with it. In addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
 
 <br />
 
@@ -125,7 +123,7 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
 - **Iteration**:
     - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information, and there are many solutions:
     - Method 1: Use the last git commit time as the last update time, and the first git commit time as the creation (there is a margin of error, but it's acceptable), mkdocs-git-revision-date-localized-plugin does this
-    - Method 2: You can cache the original time, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Existing in the Front Matter is very reasonable and simple, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
+    - Method 2: You can cache the original time, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is simple, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store raw time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
         - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific action occurs, such as every time commit is performed
