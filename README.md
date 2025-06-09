@@ -97,7 +97,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as icon style, font style, theme color, animation type, dividing line, etc. All of it can be customized by modifying the code in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value, it's super easy):
+The plugin supports deep customization, such as icon style, font style, theme color, animation type, dividing line, etc. All of it can be customized by modifying the code in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
 
 - Style & Theme: `docs/assets/document_dates/user.config.css`
 - Properties & Animations: `docs/assets/document_dates/user.config.js`
