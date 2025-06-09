@@ -43,7 +43,6 @@ desktop.ini
 
 # mkdocs 特定
 site/
-assets/document_dates.css
 
 # 测试
 .pytest_cache/
