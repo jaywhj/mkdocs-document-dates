@@ -103,13 +103,11 @@ The plugin supports deep customization, such as icon style, font style, theme co
 - Properties & Animations: `docs/assets/document_dates/user.config.js`
 - Localized languages: `docs/assets/document_dates/languages/` , refer to the template file `en.json` for any additions or modifications
 
-*Note: Due to the redesign of the configuration file update mechanism, the configuration file starting with document-dates.config in the previous version has been canceled and replaced by user.config*
-
 ## Other Tips
 
 - In order to get the exact creation time, a separate cache file is used to store the creation time of the file, located in the doc folder (hidden by default), please don't delete it:
-    - `docs/.dates_cache.jsonl`, cache file (.json without the l is the old cache file and will be automatically migrated to .jsonl after any git commit)
-    - `docs/.gitattributes`, configuration file (merge mechanism for cache file in case of multi-person collaboration)
+    - `docs/.dates_cache.jsonl`, cache file
+    - `docs/.gitattributes`, merge mechanism for cache file in case of multi-person collaboration
 - The Git Hooks mechanism is used to automatically trigger the storing of the cache (every time executes a git commit), and the cached file is automatically committed along with it. In addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
 
 <br />
