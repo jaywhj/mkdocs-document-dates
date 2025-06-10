@@ -1,5 +1,28 @@
 from setuptools import setup, find_packages
-import mkdocs_document_dates
+from setuptools.command.install import install
+import atexit
+
+def trigger_hook_install():
+    try:
+        import os
+        import sys
+        # 动态添加包路径确保导入成功
+        package_path = os.path.abspath(os.path.dirname(__file__))
+        if package_path not in sys.path:
+            sys.path.insert(0, package_path)
+        
+        # from mkdocs_document_dates.hooks_installer import install
+        # install()
+        # import mkdocs_document_dates
+        __import__('mkdocs_document_dates')
+    except Exception as e:
+        print(f"Warning: Failed to install Git hooks: {e}")
+
+class CustomInstallCommand(install):
+    def run(self):
+        # 注册在安装结束时执行 trigger_hook_install
+        atexit.register(trigger_hook_install)
+        install.run(self)
 
 try:
     with open("README.md", "r", encoding="utf-8") as fh:
@@ -26,6 +49,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    cmdclass={
+        'install': CustomInstallCommand,
+    },
     entry_points={
         'mkdocs.plugins': [
             'document-dates = mkdocs_document_dates.plugin:DocumentDatesPlugin',

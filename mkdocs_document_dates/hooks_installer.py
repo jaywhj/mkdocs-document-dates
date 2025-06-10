@@ -43,83 +43,81 @@ def detect_python_interpreter():
     # 如果都失败了，使用当前运行的Python解释器
     return f'#!{sys.executable}'
 
+def check_git_available():
+    try:
+        subprocess.run(['git', '--version'], check=True, capture_output=True, encoding='utf-8')
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logging.warning("Git not detected, skip hooks installation")
+        return False
+
+def setup_hooks_directory():
+    config_dir = get_config_dir() / 'mkdocs-document-dates' / 'hooks'
+    try:
+        config_dir.mkdir(parents=True, exist_ok=True)
+        os.chmod(config_dir, 0o755)
+        return config_dir
+    except PermissionError:
+        logging.error(f"No permission to create directory: {config_dir}")
+        return None
+    except Exception as e:
+        logging.error(f"Failed to create directory {config_dir}: {str(e)}")
+        return None
+
+def install_hook_file(source_hook, target_dir):
+    target_hook_path = target_dir / source_hook.name
+    try:
+        # 读取并更新hook文件内容
+        with open(source_hook, 'r', encoding='utf-8') as f_in:
+            content = f_in.read()
+        
+        # 更新shebang行
+        shebang = detect_python_interpreter()
+        if content.startswith('#!'):
+            content = shebang + os.linesep + content[content.find('\n'):]
+        else:
+            content = shebang + os.linesep + content
+        
+        # 写入并设置权限
+        with open(target_hook_path, 'w', encoding='utf-8') as f_out:
+            f_out.write(content)
+        os.chmod(target_hook_path, 0o755)
+        return True
+    except Exception as e:
+        logging.error(f"Failed to create hook file {target_hook_path}: {str(e)}")
+        return False
+
+def configure_git_hooks(hooks_dir):
+    try:
+        subprocess.run(
+            ['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)],
+            check=True, capture_output=True, encoding='utf-8'
+        )
+        logging.info(f"Git hooks successfully installed in: {hooks_dir}")
+        return True
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Failed to set git hooks path: {str(e)}")
+        return False
+
 def install():
     try:
-        # 检查 git 是否可用
-        try:
-            subprocess.run(['git', '--version'], check=True, capture_output=True, encoding='utf-8')
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            logging.warning("Git not detected, skip hooks installation")
-            return False
-        
-        # 准备配置目录
-        config_dir = get_config_dir() / 'mkdocs-document-dates' / 'hooks'
-        try:
-            config_dir.mkdir(parents=True, exist_ok=True)
-        except PermissionError:
-            logging.error(f"No permission to create directory: {config_dir}")
-            return False
-        except Exception as e:
-            logging.error(f"Failed to create directory {config_dir}: {str(e)}")
+        # 检查git是否可用
+        if not check_git_available():
             return False
 
-        # 检测Python解释器并获取合适的shebang行
-        shebang = detect_python_interpreter()
-        logging.info(f"Using shebang: {shebang}")
-
-        # 安装钩子文件
-        hooks_installed = False
-        source_hooks_dir = Path(__file__).parent / 'hooks'
-        for hook_file in source_hooks_dir.glob('*'):
-            if hook_file.is_file() and not hook_file.name.startswith('.'):
-                target_hook_path = config_dir / hook_file.name
-                try:
-                    # 读取源文件内容
-                    with open(hook_file, 'r', encoding='utf-8') as f_in:
-                        content = f_in.read()
-                    
-                    # 修改shebang行
-                    if content.startswith('#!'):
-                        content = shebang + os.linesep + content[content.find('\n'):]
-                    else:
-                        content = shebang + os.linesep + content
-
-                    # 直接写入目标文件
-                    with open(target_hook_path, 'w', encoding='utf-8') as f_out:
-                        f_out.write(content)
-                    
-                    # 设置执行权限
-                    os.chmod(target_hook_path, 0o755)
-                    hooks_installed = True
-                    logging.info(f"Created hook with custom shebang: {hook_file.name}")
-                except Exception as e:
-                    logging.error(f"Failed to create file {target_hook_path}: {str(e)}")
-                    return False
-
-        if not hooks_installed:
-            logging.warning("No hook files found, the hooks installation failed")
+        # 创建hooks目录
+        hooks_dir = setup_hooks_directory()
+        if not hooks_dir:
             return False
 
-        # 设置目录权限
-        try:
-            os.chmod(config_dir, 0o755)
-        except OSError as e:
-            logging.warning(f"Failed to set directory permissions: {str(e)}")
-
-        # 配置全局 git hooks 路径
-        try:
-            subprocess.run(
-                ['git', 'config', '--global', 'core.hooksPath', str(config_dir)],
-                check=True,
-                capture_output=True,
-                encoding='utf-8'
-            )
-            logging.info(f"Git hooks successfully installed in: {config_dir}")
-            return True
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Failed to set git hooks path: {str(e)}")
+        # 安装hook文件
+        source_hook = Path(__file__).parent / 'hooks' / 'pre-commit'
+        if not install_hook_file(source_hook, hooks_dir):
             return False
-            
+
+        # 配置git hooks路径
+        return configure_git_hooks(hooks_dir)
+
     except Exception as e:
         logging.error(f"Unexpected error during hooks installation: {str(e)}")
         return False
