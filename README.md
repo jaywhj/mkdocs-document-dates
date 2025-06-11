@@ -124,9 +124,13 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     - Method 2: You can cache the original time, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is simple, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
-        - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific action occurs, such as every time commit is performed
-    2. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
-        - My solution: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
+        - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific git action occurs, such as every time commit is performed
+    2. How to install Git Hooks automatically? When and how are they triggered? Installing packages from PyPI via pip doesn't have a standard post-install hook mechanism
+        - Workaround: After analyzing the flow of pip installing packages from PyPI, I found that when compiling and installing through the source package (sdist), setuptools will be called to handle it, so we can find a way to implant the installation script in the process of setuptools, i.e., we can add a custom script in setup.py
+    3. How to design a cross-platform hook? To execute a python script, we need to explicitly specify the python interpreter, and the user's python environment varies depending on the operating system, the way python is installed, and the configuration, so how can we ensure that it works properly in all environments?
+        - Solution: I considered using a shell script, but since I'd have to call back to python eventually, it's easier to use a python script. We can detect the user's python environment when the hook is installed, and then dynamically set the hook's shebang line to set the correct python interpreter
+    4. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
+        - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
 - **Improve**:
     - Since it has been re-developed, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
         - Ease of use: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
@@ -134,4 +138,4 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - Personalization: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
     - In addition, it has good compatibility and extensibility, and works well in WIN7, mobile devices, old Safari, etc
 - **The Last Secret**:
-    - I'm not a programmer, my main job is marketing, can you believe it? (Feel free to leave a comment)
+    - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
