@@ -47,7 +47,7 @@ plugins:
   - document-dates:
       position: top            # Display position: top (after title)  bottom (end of document), default: bottom
       type: date               # Date type: date  datetime  timeago, default: date
-      locale: en               # Localization: zh zh_tw en es fr de ar ja ko ru, default: en
+      locale: en               # Localization: zh zh_TW en es fr de ar ja ko ru, default: en
       date_format: '%Y-%m-%d'  # Date format, Supports all Python datetime format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format (valid only if type=datetime)
       exclude:                 # List of excluded files

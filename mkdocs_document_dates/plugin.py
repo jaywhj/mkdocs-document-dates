@@ -142,7 +142,14 @@ class DocumentDatesPlugin(BasePlugin):
             target_config = dest_dir / config_file
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
-        
+
+        # 加载 timeago.js
+        # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
+        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js
+        if self.config['type'] == 'timeago':
+            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
+            config['extra_javascript'].insert(1, 'assets/document_dates/core/timeago-load.js')
+
         # 加载 Tippy CSS 文件
         tippy_css_dir = dest_dir / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
@@ -418,43 +425,9 @@ class DocumentDatesPlugin(BasePlugin):
         return None
 
 
-    def _get_timeago(self, date, t):
-        now = datetime.now()
-        diff = now - date
-        seconds = diff.total_seconds()
-        
-        if seconds < 10:
-            return t['just_now']
-        elif seconds < 60:
-            return t['seconds_ago'].format(int(seconds))
-        elif seconds < 120:
-            return t['minute_ago']
-        elif seconds < 3600:
-            return t['minutes_ago'].format(int(seconds / 60))
-        elif seconds < 7200:
-            return t['hour_ago']
-        elif seconds < 86400:
-            return t['hours_ago'].format(int(seconds / 3600))
-        elif seconds < 172800:
-            return t['day_ago']
-        elif seconds < 604800:
-            return t['days_ago'].format(int(seconds / 86400))
-        elif seconds < 1209600:
-            return t['week_ago']
-        elif seconds < 2592000:
-            return t['weeks_ago'].format(int(seconds / 604800))
-        elif seconds < 5184000:
-            return t['month_ago']
-        elif seconds < 31536000:
-            return t['months_ago'].format(int(seconds / 2592000))
-        elif seconds < 63072000:
-            return t['year_ago']
-        else:
-            return t['years_ago'].format(int(seconds / 31536000))
-
-    def _get_formatted_date(self, date, translations):
+    def _get_formatted_date(self, date):
         if self.config['type'] == 'timeago':
-            return self._get_timeago(date, translations)
+            return ""
         elif self.config['type'] == 'datetime':
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
@@ -469,14 +442,14 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 构建基本的日期信息 HTML
         html = (
-            f"<div class='document-dates-plugin-wrapper {position_class}'>" 
-            f"<div class='document-dates-plugin'>" 
-            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>" 
-            f"<span class='material-icons' data-icon='doc_created'></span>" 
-            f"{self._get_formatted_date(created, t)}</span>" 
-            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>" 
-            f"<span class='material-icons' data-icon='doc_modified'></span>" 
-            f"{self._get_formatted_date(modified, t)}</span>"
+            f"<div class='document-dates-plugin-wrapper {position_class}'>"
+            f"<div class='document-dates-plugin'>"
+            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>"
+            f"<span class='material-icons' data-icon='doc_created'></span>"
+            f"<time datetime='{created.isoformat()}' locale='{'zh_CN' if locale == 'zh' else locale}'>{self._get_formatted_date(created)}</time></span>"
+            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>"
+            f"<span class='material-icons' data-icon='doc_modified'></span>"
+            f"<time datetime='{modified.isoformat()}' locale='{'zh_CN' if locale == 'zh' else locale}'>{self._get_formatted_date(modified)}</time></span>"
         )
         
         # 添加作者信息
@@ -487,8 +460,8 @@ class DocumentDatesPlugin(BasePlugin):
                 authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in author)
                 
                 html += (
-                    f"<span data-tippy-content='{t.get('authors', 'Authors')}: {authors_tooltip}'>" 
-                    f"<span class='material-icons' data-icon='doc_authors'></span>" 
+                    f"<span data-tippy-content='{t.get('authors', 'Authors')}: {authors_tooltip}'>"
+                    f"<span class='material-icons' data-icon='doc_authors'></span>"
                     f"{authors_info}</span>"
                     # f"{authors_tooltip}</span>"
                 )
@@ -496,8 +469,8 @@ class DocumentDatesPlugin(BasePlugin):
                 # 单个作者的情况
                 author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
                 html += (
-                    f"<span data-tippy-content='{t.get('author', 'Author')}: {author_tooltip}'>" 
-                    f"<span class='material-icons' data-icon='doc_author'></span>" 
+                    f"<span data-tippy-content='{t.get('author', 'Author')}: {author_tooltip}'>"
+                    f"<span class='material-icons' data-icon='doc_author'></span>"
                     f"{author.name}</span>"
                     # f"{author_tooltip}</span>"
                 )

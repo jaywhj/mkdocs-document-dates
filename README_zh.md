@@ -48,7 +48,7 @@ plugins:
   - document-dates:
       position: top            # 显示位置：top（标题后） bottom（文档末尾），默认：bottom
       type: date               # 时间类型：date datetime timeago，默认：date
-      locale: zh               # 本地化语言：zh zh_tw en es fr de ar ja ko ru，默认：en
+      locale: zh               # 本地化语言：zh zh_TW en es fr de ar ja ko ru，默认：en
       date_format: '%Y-%m-%d'  # 日期格式，支持所有Python日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式（仅在 type=datetime 时有效）
       exclude:                 # 排除文件列表，默认为空
