@@ -47,7 +47,7 @@ def check_git_available():
     try:
         subprocess.run(['git', '--version'], check=True, capture_output=True, encoding='utf-8')
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except Exception:
         logging.warning("Git not detected, skip hooks installation")
         return False
 
@@ -95,7 +95,7 @@ def configure_git_hooks(hooks_dir):
         )
         logging.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logging.error(f"Failed to set git hooks path: {str(e)}")
         return False
 

@@ -65,7 +65,7 @@ class DocumentDatesPlugin(BasePlugin):
             check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], capture_output=True, text=True)
             if check_git.returncode == 0:
                 self.is_git_repo = True
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             logging.info(f"Not a Git repository: {str(e)}")
 
         docs_dir_path = Path(config['docs_dir'])

@@ -87,7 +87,7 @@ def setup_gitattributes(docs_dir):
             logging.info(f"Updated .gitattributes file: {gitattributes_path}")
     except (IOError, OSError) as e:
         logging.error(f"Failed to read/write .gitattributes file: {e}")
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         logging.error(f"Failed to add .gitattributes to git: {e}")
     
     return updated
