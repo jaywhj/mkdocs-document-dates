@@ -145,7 +145,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载 timeago.js
         # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
-        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js
+        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
         if self.config['type'] == 'timeago':
             config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
             config['extra_javascript'].insert(1, 'assets/document_dates/core/timeago-load.js')
