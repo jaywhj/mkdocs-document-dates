@@ -48,7 +48,7 @@ DocumentDates.registerHook('afterInit', async (context) => {
 
 /*
     Demonstrates how to register a local language when using timeago.js
-    just change the English inside the brackets to your own language, nothing else needs to be changed!
+    Simply translate the English in parentheses into your own language, nothing else needs to be changed!
 */
 /*
 const localeFunc = (number, index) => {
@@ -72,7 +72,6 @@ const localeFunc = (number, index) => {
 const localeStr = 'whatever';
 timeago.register(localeStr, localeFunc);
 
-// Re-rendering in the language just registered
 if (typeof timeago !== 'undefined') {
     document.querySelectorAll('.document-dates-plugin time').forEach(timeElement => {
         timeElement.textContent = timeago.format(timeElement.getAttribute('datetime'), localeStr);
