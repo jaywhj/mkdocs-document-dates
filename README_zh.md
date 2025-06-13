@@ -117,7 +117,7 @@ email: e-name@gmail.com
 
 - 为了获取准确的创建时间，采用了单独的缓存文件来存储文件的创建时间，位于 doc 目录下（默认是隐藏的），请不要删除：
     - `docs/.dates_cache.jsonl`，缓存文件
-    - `docs/.gitattributes`，多人协作时缓存文件的合并机制
+    - `docs/.gitattributes`，缓存文件的合并机制
 - 采用了 Git Hooks 机制来自动触发缓存的存储（在每次执行 git commit 时），缓存文件也会随之自动提交。另外，Git Hooks 的安装在插件被安装时也会自动触发，无需任何手动干预
 
 <br />
