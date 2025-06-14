@@ -55,7 +55,7 @@ plugins:
         - private/*            # Exclude all files in private directory, including subdirectories
         - drafts/*.md          # Exclude all markdown files in the current directory drafts, but not subdirectories
       
-      show_author: true        # Whether to show author: true false, default: true
+      show_author: true        # Show author or not: true false, default: true
 
 ```
 
