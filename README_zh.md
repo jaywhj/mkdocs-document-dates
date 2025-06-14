@@ -106,7 +106,6 @@ email: e-name@gmail.com
 - timeago.js 本地化：timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
     - 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
     - 在 `mkdocs.yml` 中，添加如下两行，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
-
         ```yaml
         extra_javascript:
           - assets/document_dates/core/timeago.full.min.js
