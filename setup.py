@@ -36,6 +36,7 @@ setup(
     name="mkdocs-document-dates",
     version=VERSION,
     author="Aaron Wang",
+    author_email="aaronwqt@gmail.com",
     license="MIT",
     description="An easy-to-use, lightweight MkDocs plugin for displaying the exact creation time, last modification time and author info of markdown documents.",
     long_description=long_description,
