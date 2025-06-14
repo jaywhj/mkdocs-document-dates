@@ -48,7 +48,7 @@ plugins:
       position: top            # Display position: top (after title)  bottom (end of document), default: bottom
       type: date               # Date type: date  datetime  timeago, default: date
       locale: en               # Localization: zh zh_TW en es fr de ar ja ko ru, default: en
-      date_format: '%Y-%m-%d'  # Date format, Supports all Python datetime format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
+      date_format: '%Y-%m-%d'  # Date format, supports all python datetime format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format (valid only if type=datetime)
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
@@ -105,7 +105,6 @@ The plugin supports deep customization, such as icon style, font style, theme co
 - timeago.js localization: `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
     - In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
     - In `mkdocs.yml`, add the following two lines to configure the full version of `timeago.full.min.js` to load all languages at once
-    
         ```yaml
         extra_javascript:
           - assets/document_dates/core/timeago.full.min.js
