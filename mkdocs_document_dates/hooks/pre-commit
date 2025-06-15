@@ -4,7 +4,7 @@ import sys
 
 try:
     from mkdocs_document_dates.cache_manager import update_cache
-except ImportError:
+except Exception:
     # 正常退出（0 状态码），不影响 git 的后续动作
     sys.exit(0)
 
