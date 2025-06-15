@@ -230,7 +230,7 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _load_lang_file(self, lang_dir):
         try:
-            locale_file = lang_dir / f'{self.config['locale']}.json'
+            locale_file = lang_dir / f"{self.config['locale']}.json"
             if locale_file.exists():
                 with locale_file.open('r', encoding='utf-8') as f:
                     self.translation = json.load(f)
