@@ -54,7 +54,7 @@ class DocumentDatesPlugin(BasePlugin):
 
     def __init__(self):
         super().__init__()
-        self.translations = {}
+        self.translation = {}
         self.dates_cache = {}
         self.is_git_repo = False
 
@@ -71,7 +71,7 @@ class DocumentDatesPlugin(BasePlugin):
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 json 语言文件
-        self.translations = self._load_translations(docs_dir_path)
+        self._load_translation(docs_dir_path)
 
         # 加载日期缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
@@ -208,36 +208,36 @@ class DocumentDatesPlugin(BasePlugin):
         return self._insert_date_info(markdown, info_html)
 
 
-    def _get_translation_dirs(self, docs_dir_path):
+    def _load_translation(self, docs_dir_path):
         # 内置语言文件目录
         builtin_dir = Path(__file__).parent / 'static' / 'languages'
         # 用户自定义语言文件目录
         custom_dir = docs_dir_path / 'assets' / 'document_dates' / 'languages'
-        
+
+        # 加载语言文件
+        self._load_lang_file(builtin_dir)
+        self._load_lang_file(custom_dir)
+        if not self.translation:
+            self.config['locale'] = 'en'
+            self._load_lang_file(builtin_dir)
+
         # 复制 en.json 到用户目录作为自定义参考
         custom_en_json = custom_dir / 'en.json'
         if not custom_en_json.exists():
             custom_dir.mkdir(parents=True, exist_ok=True)
             en_json = builtin_dir / 'en.json'
             shutil.copy2(en_json, custom_en_json)
-        
-        return [builtin_dir, custom_dir]
 
-    def _load_translations(self, docs_dir_path):
-        translations = {}
-        
-        for trans_dir in self._get_translation_dirs(docs_dir_path):
-            for lang_file in trans_dir.glob('*.json'):
-                try:
-                    with lang_file.open('r', encoding='utf-8') as f:
-                        lang_data = json.load(f)
-                        translations[lang_file.stem] = lang_data
-                except json.JSONDecodeError as e:
-                    logging.error(f"Invalid JSON format in language file {lang_file}: {str(e)}")
-                except Exception as e:
-                    logging.error(f"Error loading language file {lang_file}: {str(e)}")
-
-        return translations
+    def _load_lang_file(self, lang_dir):
+        try:
+            locale_file = lang_dir / f'{self.config['locale']}.json'
+            if locale_file.exists():
+                with locale_file.open('r', encoding='utf-8') as f:
+                    self.translation = json.load(f)
+        except json.JSONDecodeError as e:
+            logging.error(f"Invalid JSON format in language file {locale_file}: {str(e)}")
+        except Exception as e:
+            logging.error(f"Error loading language file {locale_file}: {str(e)}")
 
 
     def _is_excluded(self, rel_path) -> bool:
@@ -277,7 +277,7 @@ class DocumentDatesPlugin(BasePlugin):
                     # 移除首尾可能存在的单双引号和时区信息
                     date_str = str(meta[field]).strip("'\"")
                     return datetime.fromisoformat(date_str).replace(tzinfo=None)
-                except (ValueError, TypeError):
+                except Exception:
                     continue
         return None
 
@@ -291,7 +291,7 @@ class DocumentDatesPlugin(BasePlugin):
                     if commits and commits[0]:
                         return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
             except Exception as e:
-                logging.info(f"Error getting git first commit time for {file_path}: {e}")
+                logging.warning(f"Error getting git first commit time for {file_path}: {e}")
         return None
 
     def _get_file_creation_time(self, file_path, rel_path):
@@ -342,45 +342,46 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _process_meta_author(self, meta):
-        # 1. 处理 author 对象，或 author 字符串
-        author_data = meta.get('author')
-        if author_data:
-            if isinstance(author_data, dict):
-                name = str(author_data.get('name', ''))
-                if not name:
-                    return None
-                email = str(author_data.get('email', ''))
-                # 提取扩展属性
-                extra_attrs = {k: str(v) for k, v in author_data.items() 
-                              if k not in ['name', 'email']}
-                return Author(name=name, email=email, **extra_attrs)
-            return Author(name=str(author_data))
-        
-        # 2. 处理独立字段，匹配 author_field_mapping 配置
-        name = ''
-        email = ''
-        
-        for name_field in self.config['author_field_mapping']['name']:
-            if name_field in meta:
-                name = str(meta[name_field])
-                break
-        
-        for email_field in self.config['author_field_mapping']['email']:
-            if email_field in meta:
-                email = str(meta[email_field])
-                break
-        
-        if name or email:
-            if not name and email:
-                name = email.split('@')[0]
-            return Author(name=name, email=email)
-        
+        try:
+            # 1. 处理 author 对象，或 author 字符串
+            author_data = meta.get('author')
+            if author_data:
+                if isinstance(author_data, dict):
+                    name = str(author_data.get('name', ''))
+                    if not name:
+                        return None
+                    email = str(author_data.get('email', ''))
+                    # 提取扩展属性
+                    extra_attrs = {k: str(v) for k, v in author_data.items() 
+                                if k not in ['name', 'email']}
+                    return Author(name=name, email=email, **extra_attrs)
+                return Author(name=str(author_data))
+            
+            # 2. 处理独立字段，匹配 author_field_mapping 配置
+            name = ''
+            email = ''
+            
+            for name_field in self.config['author_field_mapping']['name']:
+                if name_field in meta:
+                    name = str(meta[name_field])
+                    break
+            
+            for email_field in self.config['author_field_mapping']['email']:
+                if email_field in meta:
+                    email = str(meta[email_field])
+                    break
+            
+            if name or email:
+                if not name and email:
+                    name = email.split('@')[0]
+                return Author(name=name, email=email)
+        except Exception as e:
+            logging.warning(f"Error processing author meta: {e}")
         return None
 
     def _get_git_authors(self, file_path: str) -> Union[Author, List[Author], None]:
         if not self.is_git_repo:
             return None
-        
         try:
             # # 检查文件是否在 Git 中
             # check_file = subprocess.run(f'git ls-files --error-unmatch {file_path}',
@@ -398,11 +399,9 @@ class DocumentDatesPlugin(BasePlugin):
             
             authors = []
             unique_entries = set()
-            
             for line in git_log_result.stdout.strip().splitlines():
                 if not line or line in unique_entries:
                     continue
-                
                 unique_entries.add(line)
                 name, email = line.split('|')
                 authors.append(Author(name=name, email=email))
@@ -411,18 +410,13 @@ class DocumentDatesPlugin(BasePlugin):
                 return None
             
             return authors[0] if len(authors) == 1 else authors
-
         except Exception as e:
             logging.warning(f"Failed to get git author info: {str(e)}")
-            return None
+        return None
 
     def _get_local_author(self):
-        try:
-            username = Path.home().name
-            return Author(name=username)
-        except Exception as e:
-            logging.warning(f"Failed to get local author info: {str(e)}")
-        return None
+        username = Path.home().name
+        return Author(name=username)
 
 
     def _get_formatted_date(self, date):
@@ -433,49 +427,50 @@ class DocumentDatesPlugin(BasePlugin):
         return date.strftime(self.config['date_format'])
 
     def _generate_html_info(self, created, modified, author=None):
-        locale = self.config['locale']
-        if locale not in self.translations:
-            locale = 'en'
-        t = self.translations[locale]
+        html = ""
+        try:
+            locale = 'zh_CN' if self.config['locale'] == 'zh' else self.config['locale']
+            position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
+            
+            # 构建基本的日期信息 HTML
+            html += (
+                f"<div class='document-dates-plugin-wrapper {position_class}'>"
+                f"<div class='document-dates-plugin'>"
+                f"<span data-tippy-content='{self.translation.get('created_time', 'Created')}: {created.strftime(self.config['date_format'])}'>"
+                f"<span class='material-icons' data-icon='doc_created'></span>"
+                f"<time datetime='{created.isoformat()}' locale='{locale}'>{self._get_formatted_date(created)}</time></span>"
+                f"<span data-tippy-content='{self.translation.get('modified_time', 'Last Update')}: {modified.strftime(self.config['date_format'])}'>"
+                f"<span class='material-icons' data-icon='doc_modified'></span>"
+                f"<time datetime='{modified.isoformat()}' locale='{locale}'>{self._get_formatted_date(modified)}</time></span>"
+            )
+            
+            # 添加作者信息
+            if self.config['show_author'] and author:
+                if isinstance(author, list):
+                    # 多个作者的情况
+                    authors_info = ', '.join(a.name for a in author if a.name)
+                    authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in author)
+                    
+                    html += (
+                        f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
+                        f"<span class='material-icons' data-icon='doc_authors'></span>"
+                        f"{authors_info}</span>"
+                        # f"{authors_tooltip}</span>"
+                    )
+                else:
+                    # 单个作者的情况
+                    author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
+                    html += (
+                        f"<span data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
+                        f"<span class='material-icons' data-icon='doc_author'></span>"
+                        f"{author.name}</span>"
+                        # f"{author_tooltip}</span>"
+                    )
+            
+            html += f"</div></div>"
         
-        position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
-        
-        # 构建基本的日期信息 HTML
-        html = (
-            f"<div class='document-dates-plugin-wrapper {position_class}'>"
-            f"<div class='document-dates-plugin'>"
-            f"<span data-tippy-content='{t['created_time']}: {created.strftime(self.config['date_format'])}'>"
-            f"<span class='material-icons' data-icon='doc_created'></span>"
-            f"<time datetime='{created.isoformat()}' locale='{'zh_CN' if locale == 'zh' else locale}'>{self._get_formatted_date(created)}</time></span>"
-            f"<span data-tippy-content='{t['modified_time']}: {modified.strftime(self.config['date_format'])}'>"
-            f"<span class='material-icons' data-icon='doc_modified'></span>"
-            f"<time datetime='{modified.isoformat()}' locale='{'zh_CN' if locale == 'zh' else locale}'>{self._get_formatted_date(modified)}</time></span>"
-        )
-        
-        # 添加作者信息
-        if self.config['show_author'] and author:
-            if isinstance(author, list):
-                # 多个作者的情况
-                authors_info = ', '.join(a.name for a in author if a.name)
-                authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in author)
-                
-                html += (
-                    f"<span data-tippy-content='{t.get('authors', 'Authors')}: {authors_tooltip}'>"
-                    f"<span class='material-icons' data-icon='doc_authors'></span>"
-                    f"{authors_info}</span>"
-                    # f"{authors_tooltip}</span>"
-                )
-            else:
-                # 单个作者的情况
-                author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
-                html += (
-                    f"<span data-tippy-content='{t.get('author', 'Author')}: {author_tooltip}'>"
-                    f"<span class='material-icons' data-icon='doc_author'></span>"
-                    f"{author.name}</span>"
-                    # f"{author_tooltip}</span>"
-                )
-        
-        html += f"</div></div>"
+        except Exception as e:
+            logging.warning(f"Error generating HTML info: {e}")
         return html
 
 
