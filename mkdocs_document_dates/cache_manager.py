@@ -13,13 +13,13 @@ logging.basicConfig(
 )
 
 def find_mkdocs_projects():
+    projects = []
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             text=True, encoding='utf-8'
         ).strip())
 
-        projects = []
         # 遍历 git_root 及子目录, 寻找 mkdocs.yml 文件
         for config_file in git_root.rglob('mkdocs.y*ml'):
             if config_file.name.lower() in ('mkdocs.yml', 'mkdocs.yaml'):
@@ -27,13 +27,12 @@ def find_mkdocs_projects():
 
         if not projects:
             logging.info("No MkDocs projects found in the repository")
-        return projects
     except subprocess.CalledProcessError as e:
         logging.error(f"Failed to find the Git repository root: {e}")
-        return []
     except Exception as e:
         logging.error(f"Unexpected error while searching for MkDocs projects: {e}")
-        return []
+    
+    return projects
 
 def get_file_creation_time(file_path):
     try:

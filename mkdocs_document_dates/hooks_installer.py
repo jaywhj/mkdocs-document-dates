@@ -23,7 +23,7 @@ def check_python_version(interpreter):
             [interpreter, "-c", "import sys; print(sys.version_info >= (3, 7))"],
             capture_output=True, text=True, check=False
         )
-        if result.returncode == 0 and result.stdout.strip() == 'True':
+        if result.returncode == 0 and result.stdout.strip().lower() == 'true':
             return True
         else:
             logging.warning(f"Low python version, requires python_requires >=3.7")
