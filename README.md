@@ -140,9 +140,9 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     4. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
         - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
 - **Improve**:
-    - Since it has been re-developed, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
+    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
         - Ease of use: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
-        - Simplicity: no unnecessary configurations, the less the simpler, e.g. git account information, repo information, etc., are not required
+        - Simplicity: no unnecessary configurations, e.g. git account information, repo information, etc., are not required
         - Personalization: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
     - In addition, it has good compatibility and extensibility, and works well in WIN7, mobile devices, old Safari, etc
 - **The Last Secret**:
