@@ -38,7 +38,7 @@ class Author:
 class DocumentDatesPlugin(BasePlugin):
     config_scheme = (
         ('type', config_options.Type(str, default='date')),
-        ('locale', config_options.Type(str, default='en')),
+        ('locale', config_options.Type(str, default=None)),
         ('date_format', config_options.Type(str, default='%Y-%m-%d')),
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
         ('position', config_options.Type(str, default='bottom')),
@@ -59,6 +59,9 @@ class DocumentDatesPlugin(BasePlugin):
         self.is_git_repo = False
 
     def on_config(self, config):
+        # 设置 locale 在无配置时跟随 mkdocs 主题语言
+        if not self.config['locale']:
+            self.config['locale'] = config['theme'].get('language', 'en')
         
         # 检查是否为 Git 仓库
         try:

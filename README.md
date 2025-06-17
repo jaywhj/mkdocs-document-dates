@@ -113,7 +113,7 @@ The plugin supports deep customization, such as icon style, font style, theme co
 
 ## Other Tips
 
-- In order to get the exact creation time, a separate cache file is used to store the creation time of the file, located in the doc folder (hidden by default), please don't delete it:
+- In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the doc folder (hidden by default), please don't delete it:
     - `docs/.dates_cache.jsonl`, cache file
     - `docs/.gitattributes`, merge mechanism for cache file
 - The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it. In addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
