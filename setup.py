@@ -30,7 +30,7 @@ try:
 except FileNotFoundError:
     long_description = "An easy-to-use, lightweight MkDocs plugin for displaying the exact creation time, last modification time and author info of markdown documents."
 
-VERSION = '3.1.3'
+VERSION = '3.1.5'
 
 setup(
     name="mkdocs-document-dates",
@@ -44,7 +44,7 @@ setup(
     url="https://github.com/jaywhj/mkdocs-document-dates",
     packages=find_packages(),
     install_requires=[
-        'mkdocs>=1.0.0',
+        'mkdocs>=1.1.0',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

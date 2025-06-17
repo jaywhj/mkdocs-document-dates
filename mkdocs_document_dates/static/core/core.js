@@ -20,7 +20,16 @@ const defaultConfig = {
     }
 };
 
-let config = { ...defaultConfig };
+let dd_config = { ...defaultConfig };
+
+// Configuration API
+function setConfig(newConfig) {
+    dd_config = {
+        ...defaultConfig,
+        ...newConfig
+    };
+}
+
 
 
 // Hook System
@@ -45,27 +54,19 @@ async function executeHooks(hookName, context) {
     }
 }
 
-// Configuration API
-function setConfig(newConfig) {
-    config = {
-        ...defaultConfig,
-        ...newConfig
-    };
-}
-
 // Theme management
 function getCurrentTheme() {
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
-    return scheme === 'slate' ? config.theme.dark : config.theme.light;
+    return scheme === 'slate' ? dd_config.theme.dark : dd_config.theme.light;
 }
 
 // Main initialization
 async function init() {
-    await executeHooks('beforeInit', { config });
+    await executeHooks('beforeInit', { dd_config });
 
     // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
     const tippyInstances = tippy('[data-tippy-content]', {
-        ...config.tooltip,
+        ...dd_config.tooltip,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
 
@@ -86,80 +87,39 @@ async function init() {
         attributeFilter: ['data-md-color-scheme']
     });
 
-    await executeHooks('afterInit', { tippyInstances, observer });
-    return { tippyInstances, observer };
+    await executeHooks('afterInit', { tippyInstances });
 }
 
-
-
-const INSTANCE_KEY = Symbol('DocumentDatesInstance');
-
-class InitManager {
-    constructor() {
-        this.initPromise = null;
-    }
-
-    getInstance() {
-        if (window[INSTANCE_KEY]) {
-            return Promise.resolve(window[INSTANCE_KEY]);
+// Singleton Initialization
+const initManager = (() => {
+    let initialized = false;
+    return {
+        initialize() {
+            if (initialized) return;
+            init();
+            initialized = true;
         }
-        return this.initialize();
-    }
+    };
+})();
 
-    initialize() {
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-
-        this.initPromise = init().then(instance => {
-            window[INSTANCE_KEY] = instance;
-            return instance;
-        });
-
-        return this.initPromise;
-    }
-}
-
-const initManager = new InitManager();
-
-function setupInitializationTrigger() {
-    function checkAndInit() {
-        if (document.querySelector('[data-tippy-content]')) {
-            initManager.getInstance();
-            return true;
-        }
-        return false;
-    }
-
-    if (document.readyState !== 'loading') {
-        if (checkAndInit()) return;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (checkAndInit()) return;
-
-        const observer = new MutationObserver((mutations) => {
-            if (checkAndInit()) {
-                observer.disconnect();
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['data-tippy-content']
-        });
+// Entrance
+document.addEventListener('DOMContentLoaded', () => {
+    initManager.initialize();
+    const observer = new MutationObserver((mutations) => {
+        observer.disconnect();
     });
-}
-
-setupInitializationTrigger();
+    observer.observe(document.body, {
+        childList: true,
+        // subtree: true,
+        // attributes: true,
+        // attributeFilter: ['data-tippy-content']
+    });
+});
 
 
 
 // Export API
 window.DocumentDates = {
-    init: () => initManager.getInstance(),
     registerHook,
     setConfig
 };

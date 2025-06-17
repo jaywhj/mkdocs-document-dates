@@ -3,6 +3,12 @@
     see: https://atomiks.github.io/tippyjs/
 */
 
+/* Configure one item, like this: */
+// dd_config.theme.light = 'tomato';
+// dd_config.tooltip.placement = 'top';
+// dd_config.tooltip.arrow = false;
+
+/* Or, overrides all configuration items: */
 /*
 DocumentDates.setConfig({
     theme: {
@@ -27,10 +33,9 @@ DocumentDates.setConfig({
 });
 */
 
-
 /* 
     Hook System
-    The hook system allows users to execute custom logic at specific times, 
+    The hook system allows you to execute custom logic at specific times, 
     such as adding custom interactions before initialization and after initialization.
 */
 

@@ -59,9 +59,12 @@ class DocumentDatesPlugin(BasePlugin):
         self.is_git_repo = False
 
     def on_config(self, config):
-        # 设置 locale 在无配置时跟随 mkdocs 主题语言
-        if not self.config['locale']:
-            self.config['locale'] = config['theme'].get('language', 'en')
+        try:
+            # 设置 locale 在无配置时跟随 mkdocs 主题语言
+            if not self.config['locale']:
+                self.config['locale'] = config['theme']['language']
+        except Exception:
+            self.config['locale'] = 'en'
         
         # 检查是否为 Git 仓库
         try:
