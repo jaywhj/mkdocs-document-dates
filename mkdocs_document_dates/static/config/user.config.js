@@ -3,12 +3,12 @@
     see: https://atomiks.github.io/tippyjs/
 */
 
-/* Configure one item, like this: */
+/* Configure one by one: */
 // dd_config.theme.light = 'tomato';
 // dd_config.tooltip.placement = 'top';
 // dd_config.tooltip.arrow = false;
 
-/* Or, overrides all configuration items: */
+/* Or, override all configuration items: */
 /*
 DocumentDates.setConfig({
     theme: {
