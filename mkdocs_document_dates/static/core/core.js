@@ -103,9 +103,7 @@ const initManager = (() => {
 })();
 
 // Entrance
-document.addEventListener('DOMContentLoaded', () => {
-    initManager.initialize();
-});
+document.addEventListener('DOMContentLoaded', initManager.initialize);
 
 
 
