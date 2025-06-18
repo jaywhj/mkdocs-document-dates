@@ -97,7 +97,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as icon style, font style, theme color, animation type, dividing line, etc. All of it can be customized by modifying the code in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
+The plugin supports deep customization, such as icon style, font style, theme color, animation type, dividing line, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
 
 - Style & Theme: `docs/assets/document_dates/user.config.css`
 - Properties & Animations: `docs/assets/document_dates/user.config.js`
@@ -110,6 +110,17 @@ The plugin supports deep customization, such as icon style, font style, theme co
           - assets/document_dates/core/timeago.full.min.js
           - assets/document_dates/core/timeago-load.js
         ```
+
+**Demo Images**:
+
+![01-default-w](mkdocs_document_dates/demo_images/01-default-w.png)
+![02-change-icon](mkdocs_document_dates/demo_images/02-change-icon.png)
+![04-default-pop-up](mkdocs_document_dates/demo_images/04-default-pop-up.png)
+![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
+
+![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
+![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
+![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
 ## Other Tips
 

@@ -98,7 +98,7 @@ email: e-name@gmail.com
 
 ## 插件定制化
 
-插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的代码即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
+插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
 
 - 样式与主题：`docs/assets/document_dates/user.config.css`
 - 属性与动画：`docs/assets/document_dates/user.config.js`
@@ -111,6 +111,17 @@ email: e-name@gmail.com
           - assets/document_dates/core/timeago.full.min.js
           - assets/document_dates/core/timeago-load.js
         ```
+
+**效果图**：
+
+![01-default-w](mkdocs_document_dates/demo_images/01-default-w.png)
+![02-change-icon](mkdocs_document_dates/demo_images/02-change-icon.png)
+![04-default-pop-up](mkdocs_document_dates/demo_images/04-default-pop-up.png)
+![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
+
+![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
+![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
+![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
 ## 其它提示
 
