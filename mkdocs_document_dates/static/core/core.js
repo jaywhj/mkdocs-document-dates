@@ -105,15 +105,6 @@ const initManager = (() => {
 // Entrance
 document.addEventListener('DOMContentLoaded', () => {
     initManager.initialize();
-    const observer = new MutationObserver((mutations) => {
-        observer.disconnect();
-    });
-    observer.observe(document.body, {
-        childList: true,
-        // subtree: true,
-        // attributes: true,
-        // attributeFilter: ['data-tippy-content']
-    });
 });
 
 
