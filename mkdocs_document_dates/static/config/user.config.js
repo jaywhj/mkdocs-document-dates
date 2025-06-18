@@ -1,12 +1,12 @@
 /*
-    Configuration Override
+    Configuration Overrides for Tooltip
     see: https://atomiks.github.io/tippyjs/
 */
 
 /* Configure one by one: */
-// dd_config.theme.light = 'tomato';
-// dd_config.tooltip.placement = 'top';
-// dd_config.tooltip.arrow = false;
+// tippy_config.theme.light = 'tomato';
+// tippy_config.tooltip.placement = 'top';
+// tippy_config.tooltip.arrow = false;
 
 /* Or, override all configuration items: */
 /*
@@ -34,9 +34,9 @@ DocumentDates.setConfig({
 */
 
 /* 
-    Hook System
+    Hook System of Tooltip
     The hook system allows you to execute custom logic at specific times, 
-    such as adding custom interactions before initialization and after initialization.
+    such as adding custom interactions before the tooltip initialization and after initialization.
 */
 
 /*

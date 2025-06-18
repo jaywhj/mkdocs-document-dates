@@ -20,11 +20,11 @@ const defaultConfig = {
     }
 };
 
-let dd_config = { ...defaultConfig };
+let tippy_config = { ...defaultConfig };
 
 // Configuration API
 function setConfig(newConfig) {
-    dd_config = {
+    tippy_config = {
         ...defaultConfig,
         ...newConfig
     };
@@ -57,16 +57,16 @@ async function executeHooks(hookName, context) {
 // Theme management
 function getCurrentTheme() {
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
-    return scheme === 'slate' ? dd_config.theme.dark : dd_config.theme.light;
+    return scheme === 'slate' ? tippy_config.theme.dark : tippy_config.theme.light;
 }
 
 // Main initialization
 async function init() {
-    await executeHooks('beforeInit', { dd_config });
+    await executeHooks('beforeInit', { tippy_config });
 
     // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
     const tippyInstances = tippy('[data-tippy-content]', {
-        ...dd_config.tooltip,
+        ...tippy_config.tooltip,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
 
