@@ -6,7 +6,6 @@ import logging
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Union, List
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 
@@ -133,7 +132,7 @@ class DocumentDatesPlugin(BasePlugin):
             https://unpkg.com/tippy.js@6/themes/material.css
         """
         # 复制静态资源到用户目录
-        dest_dir = docs_dir_path / 'assets/document_dates'
+        dest_dir = docs_dir_path / 'assets' / 'document_dates'
         dest_dir.mkdir(parents=True, exist_ok=True)
         
         for dir_name in ['tippy', 'core']:
@@ -144,7 +143,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 复制配置文件模板到用户目录（如果不存在）
         config_files = ['user.config.css', 'user.config.js']
         for config_file in config_files:
-            source_config = Path(__file__).parent / 'static/config' / config_file
+            source_config = Path(__file__).parent / 'static' / 'config' / config_file
             target_config = dest_dir / config_file
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
@@ -183,7 +182,7 @@ class DocumentDatesPlugin(BasePlugin):
     def on_page_markdown(self, markdown, page, config, files):
         # 获取文件的绝对路径和相对路径
         file_path = page.file.abs_src_path
-        rel_path = page.file.src_path
+        rel_path = page.file.src_uri    # 总是以"/"分隔，不要用 page.file.src_path
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
@@ -246,13 +245,13 @@ class DocumentDatesPlugin(BasePlugin):
             logging.error(f"Error loading language file {locale_file}: {str(e)}")
 
 
-    def _is_excluded(self, rel_path) -> bool:
+    def _is_excluded(self, rel_path):
         for pattern in self.config['exclude']:
             if self._matches_exclude_pattern(rel_path, pattern):
                 return True
         return False
 
-    def _matches_exclude_pattern(self, rel_path, pattern) -> bool:
+    def _matches_exclude_pattern(self, rel_path, pattern):
         try:
             # 情况1：匹配具体文件路径
             if '*' not in pattern:
@@ -260,15 +259,14 @@ class DocumentDatesPlugin(BasePlugin):
 
             # 情况2：匹配目录下所有文件（包含子目录）
             if pattern.endswith('/*'):
-                return rel_path.startswith(pattern[:-1])
+                return rel_path.startswith(pattern[:-2])
 
             # 情况3：匹配指定目录下的特定类型文件（不包含子目录）
             if '*.' in pattern:
                 pattern_path = Path(pattern)
                 rel_path_obj = Path(rel_path)
-                pattern_dir = pattern_path.parent
-                pattern_suffix = pattern_path.name[1:]  # 去掉 * 号
-                return (rel_path_obj.parent == pattern_dir and 
+                pattern_suffix = pattern_path.name[1:]
+                return (rel_path_obj.parent == pattern_path.parent and 
                     rel_path_obj.name.endswith(pattern_suffix))
 
             return False
@@ -276,7 +274,7 @@ class DocumentDatesPlugin(BasePlugin):
             return False
 
 
-    def _find_meta_date(self, meta: dict, field_names: list) -> Union[datetime, None]:
+    def _find_meta_date(self, meta, field_names):
         for field in field_names:
             if field in meta:
                 try:
@@ -293,9 +291,9 @@ class DocumentDatesPlugin(BasePlugin):
                 # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
                 result = subprocess.run(['git', 'log', '--reverse', '--format=%aI', '--', file_path], capture_output=True, text=True)
                 if result.returncode == 0:
-                    commits = result.stdout.strip().split('\n')
-                    if commits and commits[0]:
-                        return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
+                    first_line = result.stdout.partition('\n')[0].strip()
+                    if first_line:
+                        return datetime.fromisoformat(first_line).replace(tzinfo=None)
             except Exception as e:
                 logging.warning(f"Error getting git first commit time for {file_path}: {e}")
         return None
@@ -385,7 +383,7 @@ class DocumentDatesPlugin(BasePlugin):
             logging.warning(f"Error processing author meta: {e}")
         return None
 
-    def _get_git_authors(self, file_path: str) -> Union[Author, List[Author], None]:
+    def _get_git_authors(self, file_path):
         if not self.is_git_repo:
             return None
         try:
@@ -403,19 +401,16 @@ class DocumentDatesPlugin(BasePlugin):
             if git_log_result.returncode != 0 or not git_log_result.stdout.strip():
                 return None
             
-            authors = []
-            unique_entries = set()
-            for line in git_log_result.stdout.strip().splitlines():
-                if not line or line in unique_entries:
+            # 使用字典去重和存储作者
+            authors_map = {}
+            for line in git_log_result.stdout.splitlines():
+                if not line.strip() or line in authors_map:
                     continue
-                unique_entries.add(line)
                 name, email = line.split('|')
-                authors.append(Author(name=name, email=email))
-            
-            if not authors:
-                return None
-            
-            return authors[0] if len(authors) == 1 else authors
+                authors_map[line] = Author(name=name, email=email)
+
+            authors = list(authors_map.values())
+            return authors[0] if len(authors) == 1 else authors or None
         except Exception as e:
             logging.warning(f"Failed to get git author info: {str(e)}")
         return None

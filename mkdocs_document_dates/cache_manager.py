@@ -56,9 +56,9 @@ def get_git_first_commit_time(file_path):
         # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
         result = subprocess.run(['git', 'log', '--reverse', '--format=%aI', '--', file_path], capture_output=True, text=True)
         if result.returncode == 0:
-            commits = result.stdout.strip().split('\n')
-            if commits and commits[0]:
-                return datetime.fromisoformat(commits[0]).replace(tzinfo=None)
+            first_line = result.stdout.partition('\n')[0].strip()
+            if first_line:
+                return datetime.fromisoformat(first_line).replace(tzinfo=None)
     except Exception as e:
         logging.info(f"Error getting git first commit time for {file_path}: {e}")
     return None
@@ -163,7 +163,7 @@ def update_cache():
                 cmd = ["git", "ls-files", "*.md"]
                 result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, text=True, check=True)
                 tracked_files = result.stdout.splitlines() if result.stdout else []
-                
+
                 if not tracked_files:
                     logging.info(f"No tracked markdown files found in {docs_dir}")
                     continue
@@ -175,17 +175,17 @@ def update_cache():
                 # 读取新的JSONL缓存文件（如果存在）
                 jsonl_cache_file = docs_dir / '.dates_cache.jsonl'
                 jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
-                
+
                 # 根据 git已跟踪的文件来更新
                 for file_path in tracked_files:
                     try:
                         rel_path = file_path
                         full_path = docs_dir / rel_path
-                        
+
                         # 如果文件已在JSONL缓存中，跳过
                         if rel_path in jsonl_dates_cache:
                             continue
-                        
+
                         # 处理新文件或迁移旧JSON缓存
                         if rel_path in json_dates_cache:
                             jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
