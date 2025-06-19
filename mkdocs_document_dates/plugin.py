@@ -182,7 +182,7 @@ class DocumentDatesPlugin(BasePlugin):
     def on_page_markdown(self, markdown, page, config, files):
         # 获取文件的绝对路径和相对路径
         file_path = page.file.abs_src_path
-        rel_path = page.file.src_uri    # 总是以"/"分隔，不要用 page.file.src_path
+        rel_path = page.file.src_uri    # src_uri 总是以"/"分隔，不要用 src_path
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
