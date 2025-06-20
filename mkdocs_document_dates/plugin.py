@@ -247,11 +247,16 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _is_excluded(self, rel_path):
         for pattern in self.config['exclude']:
-            if '*' not in pattern:
-                return rel_path == pattern
-            else:
-                return rel_path.startswith(pattern.partition('/*')[0])
+            # if fnmatch.fnmatch(rel_path, pattern):
+            if self._matches_exclude_pattern(rel_path, pattern):
+                return True
         return False
+
+    def _matches_exclude_pattern(self, rel_path, pattern):
+        if '*' not in pattern:
+            return rel_path == pattern
+        else:
+            return rel_path.startswith(pattern.partition('/*')[0])
 
 
     def _find_meta_date(self, meta, field_names):

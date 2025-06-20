@@ -53,7 +53,6 @@ plugins:
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - private/*            # Exclude all files in private directory, including subdirectories
-        - drafts/*.md          # Exclude all markdown files in the current directory drafts, but not subdirectories
       
       show_author: true        # Show author or not: true false, default: true
 

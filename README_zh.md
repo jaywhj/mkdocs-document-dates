@@ -54,7 +54,6 @@ plugins:
       exclude:                 # 排除文件列表，默认为空
         - temp.md              # 排除指定文件
         - private/*            # 排除 private 目录下的所有文件，包括子目录
-        - drafts/*.md          # 排除当前目录 drafts 下的所有 markdown 文件，不包括子目录
       
       show_author: true        # 是否显示作者信息：true false，默认：true
 
