@@ -63,7 +63,7 @@ plugins:
 
 插件会自动获取文档的准确时间信息，会自动缓存创建时间，当然，你也可以在 `Front Matter` 中手动指定
 
-优先级：`Front Matter` > `缓存文件` > `文件系统时间戳` 
+优先级顺序：`Front Matter` > `缓存文件` > `文件系统时间戳` 
 
 ```yaml
 ---
@@ -81,7 +81,7 @@ modified: 2025-02-23
 
 插件会自动获取文档的作者信息，会解析邮件后做链接，你也可以在 `Front Matter` 中手动指定
 
-优先级：`Front Matter` > `Git作者信息` > `PC用户名` 
+优先级顺序：`Front Matter` > `Git作者信息` > `PC用户名` 
 
 ```yaml
 ---

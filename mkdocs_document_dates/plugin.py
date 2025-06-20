@@ -64,7 +64,7 @@ class DocumentDatesPlugin(BasePlugin):
                 self.config['locale'] = config['theme']['language']
         except Exception:
             self.config['locale'] = 'en'
-        
+
         # 检查是否为 Git 仓库
         try:
             check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], capture_output=True, text=True)

@@ -62,7 +62,7 @@ plugins:
 
 The plugin will automatically get the exact time of the document, will automatically cache the creation time, but of course, you can also specify it manually in `Front Matter`
 
-Priority: `Front Matter` > `Cache Files` > `File System Timestamps`
+Priority order: `Front Matter` > `Cache Files` > `File System Timestamps`
 
 ```yaml
 ---
@@ -80,7 +80,7 @@ modified: 2025-02-23
 
 The plugin will automatically get the author of the document, will parse the email and make a link, also you can specify it manually in `Front Matter`
 
-Priority: `Front Matter` > `Git Author Info` > `PC Username`
+Priority order: `Front Matter` > `Git Author Info` > `PC Username`
 
 ```yaml
 ---
