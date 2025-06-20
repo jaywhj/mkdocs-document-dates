@@ -207,7 +207,7 @@ class DocumentDatesPlugin(BasePlugin):
                     # 读 mkdocs.yml 中的 site_author
                     if config.site_author:
                         author = Author(name=config.site_author)
-                    if not author:
+                    else:
                         author = self._get_local_author()
         
         # 生成日期和作者信息 HTML
