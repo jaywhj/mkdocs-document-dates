@@ -114,6 +114,7 @@ The plugin supports deep customization, such as icon style, font style, theme co
 
 ![01-default-w](mkdocs_document_dates/demo_images/01-default-w.png)
 ![02-change-icon](mkdocs_document_dates/demo_images/02-change-icon.png)
+![02-change-icon-color](mkdocs_document_dates/demo_images/02-change-icon-color.png)
 ![04-default-pop-up](mkdocs_document_dates/demo_images/04-default-pop-up.png)
 ![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
 
