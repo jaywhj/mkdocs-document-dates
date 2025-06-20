@@ -180,9 +180,9 @@ class DocumentDatesPlugin(BasePlugin):
         return config
 
     def on_page_markdown(self, markdown, page, config, files):
-        # 获取文件的绝对路径和相对路径
+        # 获取相对路径，src_uri 总是以"/"分隔，不要用 src_path
+        rel_path = page.file.src_uri
         file_path = page.file.abs_src_path
-        rel_path = page.file.src_uri    # src_uri 总是以"/"分隔，不要用 src_path
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
@@ -247,31 +247,11 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _is_excluded(self, rel_path):
         for pattern in self.config['exclude']:
-            if self._matches_exclude_pattern(rel_path, pattern):
-                return True
-        return False
-
-    def _matches_exclude_pattern(self, rel_path, pattern):
-        try:
-            # 情况1：匹配具体文件路径
             if '*' not in pattern:
                 return rel_path == pattern
-
-            # 情况2：匹配目录下所有文件（包含子目录）
-            if pattern.endswith('/*'):
-                return rel_path.startswith(pattern[:-2])
-
-            # 情况3：匹配指定目录下的特定类型文件（不包含子目录）
-            if '*.' in pattern:
-                pattern_path = Path(pattern)
-                rel_path_obj = Path(rel_path)
-                pattern_suffix = pattern_path.name[1:]
-                return (rel_path_obj.parent == pattern_path.parent and 
-                    rel_path_obj.name.endswith(pattern_suffix))
-
-            return False
-        except ValueError:
-            return False
+            else:
+                return rel_path.startswith(pattern.partition('/*')[0])
+        return False
 
 
     def _find_meta_date(self, meta, field_names):
