@@ -63,7 +63,7 @@ class DocumentDatesPlugin(BasePlugin):
             if not self.config['locale']:
                 self.config['locale'] = config['theme']['language']
         except Exception:
-            self.config['locale'] = config.theme.locale
+            self.config['locale'] = config.theme.locale.language
 
         # 检查是否为 Git 仓库
         try:
