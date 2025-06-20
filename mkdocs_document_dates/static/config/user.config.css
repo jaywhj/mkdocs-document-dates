@@ -50,10 +50,6 @@
     including theme, arrow, font, color, background color, etc
     */
 
-/* .tippy-box {
-    font-size: 12px;
-} */
-
 /* Demo of the custom theme 'sorrel' and 'sublime', you can configure it in user.config.js (optional) */
 /* 
 .tippy-box[data-theme~='sorrel'] {
