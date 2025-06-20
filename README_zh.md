@@ -81,7 +81,7 @@ modified: 2025-02-23
 
 插件会自动获取文档的作者信息，会解析邮件后做链接，你也可以在 `Front Matter` 中手动指定
 
-优先级顺序：`Front Matter` > `Git作者信息` > `PC用户名` 
+优先级顺序：`Front Matter` > `Git作者` > `site_author（mkdocs.yml）` > `PC用户名` 
 
 ```yaml
 ---

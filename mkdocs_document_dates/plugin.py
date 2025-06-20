@@ -59,11 +59,11 @@ class DocumentDatesPlugin(BasePlugin):
 
     def on_config(self, config):
         try:
-            # 设置 locale 在无配置时跟随 mkdocs 主题语言
+            # 设置 locale 在无配置时跟随主题语言，优先 language，其次 locale
             if not self.config['locale']:
                 self.config['locale'] = config['theme']['language']
         except Exception:
-            self.config['locale'] = 'en'
+            self.config['locale'] = config.theme.locale
 
         # 检查是否为 Git 仓库
         try:
@@ -204,7 +204,11 @@ class DocumentDatesPlugin(BasePlugin):
             if not author:
                 author = self._get_git_authors(file_path)
                 if not author:
-                    author = self._get_local_author()
+                    # 读 mkdocs.yml 中的 site_author
+                    if config.site_author:
+                        author = Author(name=config.site_author)
+                    if not author:
+                        author = self._get_local_author()
         
         # 生成日期和作者信息 HTML
         info_html = self._generate_html_info(created, modified, author)
