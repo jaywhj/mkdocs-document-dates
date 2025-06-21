@@ -103,7 +103,7 @@ email: e-name@gmail.com
 | :--------- | ---------------------------------------------- |
 | **样式与主题** | `docs/assets/document_dates/user.config.css` |
 | **属性与功能** | `docs/assets/document_dates/user.config.js`  |
-| **本地化语言** | `docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改 |
+| **本地化语言** | `docs/assets/document_dates/languages/` <br />可参考模板文件 `en.json` 任意新增或修改 |
 
 **提示**：当设置 `type: timeago` 时，会启用 timeago.js 来动态渲染时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
 
