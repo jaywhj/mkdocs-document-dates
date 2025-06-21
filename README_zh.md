@@ -8,8 +8,8 @@
 
 ## 特性
 
-- 适用于任何环境，适配无 Git 环境、CI/CD 环境（比如 GitHub Actions）、一人协作、多人协作等所有场景
-- 支持在 `Front Matter` 中手动指定时间和作者信息
+- 始终显示文档的准确元信息，适用于任意环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
+- 支持在 `Front Matter` 中手动指定时间和作者
 - 支持多种时间格式（date、datetime、timeago）
 - 支持文档排除模式
 - 灵活的显示位置（顶部或底部）
@@ -48,14 +48,14 @@ plugins:
   - document-dates:
       position: top            # 显示位置：top（标题后） bottom（文档末尾），默认：bottom
       type: date               # 时间类型：date datetime timeago，默认：date
-      locale: zh               # 本地化语言：zh zh_TW en es fr de ar ja ko ru，默认：en
-      date_format: '%Y-%m-%d'  # 日期格式，支持所有Python日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
+      locale: zh               # 本地化语言：en zh zh_TW es fr de ar ja ko ru，默认：en
+      date_format: '%Y-%m-%d'  # 日期格式，支持所有Python日期格式，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式（仅在 type=datetime 时有效）
       exclude:                 # 排除文件列表，默认为空
         - temp.md              # 排除指定文件
-        - private/*            # 排除 private 目录下的所有文件，包括子目录
+        - private/*            # 排除 private 目录下所有文件，包括子目录
       
-      show_author: true        # 是否显示作者信息：true false，默认：true
+      show_author: true        # 是否显示作者信息，默认：true
 
 ```
 
@@ -99,10 +99,10 @@ email: e-name@gmail.com
 
 插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
 
-- 样式与主题：`docs/assets/document_dates/user.config.css`
-- 属性与动画：`docs/assets/document_dates/user.config.js`
-- 本地化语言：`docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改
-- timeago.js 本地化：timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
+- **样式与主题**：`docs/assets/document_dates/user.config.css`
+- **属性与功能**：`docs/assets/document_dates/user.config.js`
+- **本地化语言**：`docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改
+- **timeago.js 本地化**：timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
     - 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
     - 在 `mkdocs.yml` 中，添加如下两行，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
         ```yaml
@@ -128,7 +128,7 @@ email: e-name@gmail.com
 - 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 doc 目录下（默认是隐藏的），请不要删除：
     - `docs/.dates_cache.jsonl`，缓存文件
     - `docs/.gitattributes`，缓存文件的合并机制
-- 采用了 Git Hooks 机制来自动触发缓存的存储（在每次执行 git commit 时），缓存文件也会随之自动提交。另外，Git Hooks 的安装在插件被安装时也会自动触发，无需任何手动干预
+- 采用了 Git Hooks 机制来自动触发缓存的存储（在每次执行 git commit 时），缓存文件也会随之自动提交，并且 Git Hooks 的安装在插件被安装时也会自动触发，全程无需任何手动干预
 
 <br />
 
@@ -137,11 +137,11 @@ email: e-name@gmail.com
 一个可有可无、微不足道的小插件，没事的朋友可以看看 \^\_\^ 
 
 - **起源**：
-    - 是因为 [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin) ，一个很棒的项目。在2024年底使用时，发现我这本地用不了，因为我的 mkdocs 文档没有纳入 git 管理，然后我就不理解为什么不读取文件系统的时间，而要用 git 时间，还给作者提了 issue，结果等了一周左右没得到回复（后面作者回复了，人不错，估计他当时在忙没来得及），然后就想，过年期间没啥事，现在 AI 这么火，要不借助 AI 自己试试，就诞生了，诞生于2025年2月
+    - 是因为 [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin) ，一个很棒的项目。在2024年底使用时，发现我这本地用不了，因为我的 mkdocs 文档没有纳入 git 管理，然后我就不理解为什么不读取文件系统的时间，而要用 git 时间，而且文件系统时间更准确，还给作者提了 issue，结果等了一周左右没得到回复（后面作者回复了，人不错，估计他当时在忙没来得及），然后就想，过年期间没啥事，现在 AI 这么火，要不借助 AI 自己试试，就诞生了，诞生于2025年2月
 - **迭代**：
     - 开发后，就理解了为什么不采用文件系统时间，因为文件在经过 git checkout 或 clone 时会被重建，从而导致原始时间戳信息丢失，解决办法有很多：
     - 方法 1，采用最近一次 git commit 时间作为文档的最后更新时间，采用首次 git commit 时间作为文档的创建时间（虽然有误差，但能接受），mkdocs-git-revision-date-localized-plugin 就是这么做的
-    - 方法 2，可以缓存原始时间信息，后续读缓存就可以了。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理和简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
+    - 方法 2，可以提前缓存原始时间，后续读缓存就可以了。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理且更简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
 - **难点**：
     1. 什么时候去读取和存储原始时间？这只是 mkdocs 的一个插件，入口和权限非常有限，mkdocs 提供的只有 build 和 serve，那万一用户不执行 build 或 serve 而直接 commit 呢（比如使用 CI/CD 构建系统时），那就拿不到文件的时间信息了，更别说缓存了
         - 直接说结论：在 AI 的提示下，找到了 Git Hooks 机制，能在特定的 git 动作发生时触发自定义脚本，比如每次 commit 时
@@ -154,7 +154,7 @@ email: e-name@gmail.com
 - **精进**：
     - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、个性化**
         - 易用性：能不让用户手动操作的就不让手动，比如自动安装 Git Hooks、自动缓存、自动 commit，提供自定义模板等
-        - 简洁性：无任何多余的不必要的配置，比如 git 账户信息、repo 信息等，都不需要
+        - 简洁性：无任何不必要的配置，无 Git 依赖，无 CI/CD 配置依赖，无其他包依赖
         - 个性化：几乎所有地方都可以自定义，无论是图标、样式、主题，还是功能，都可实现完全定制化
     - 此外还有很好的兼容性和扩展性，在 WIN7、移动设备、旧版 Safari 等环境下均能正常运行
 - **最后的秘密**：

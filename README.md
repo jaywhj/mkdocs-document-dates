@@ -8,8 +8,8 @@ An easy-to-use, lightweight MkDocs plugin for displaying the <mark>exact</mark> 
 
 ## Features
 
-- Work in any environment, for Git-less environments, CI/CD environments (e.g. GitHub Actions), one-person collaboration, multi-person collaboration, etc
-- Support for manually specifying time and author info in `Front Matter`
+- Always display exact meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc)
+- Support for manually specifying time and author in `Front Matter`
 - Support for multiple time formats (date, datetime, timeago)
 - Support for document exclusion mode
 - Flexible display position (top or bottom)
@@ -47,14 +47,14 @@ plugins:
   - document-dates:
       position: top            # Display position: top (after title)  bottom (end of document), default: bottom
       type: date               # Date type: date  datetime  timeago, default: date
-      locale: en               # Localization: zh zh_TW en es fr de ar ja ko ru, default: en
+      locale: en               # Localization: en zh zh_TW es fr de ar ja ko ru, default: en
       date_format: '%Y-%m-%d'  # Date format, supports all python datetime format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format (valid only if type=datetime)
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - private/*            # Exclude all files in private directory, including subdirectories
       
-      show_author: true        # Show author or not: true false, default: true
+      show_author: true        # Show author or not, default: true
 
 ```
 
@@ -96,12 +96,12 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as icon style, font style, theme color, animation type, dividing line, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
+The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
 
-- Style & Theme: `docs/assets/document_dates/user.config.css`
-- Properties & Animations: `docs/assets/document_dates/user.config.js`
-- Localized languages: `docs/assets/document_dates/languages/` , refer to the template file `en.json` for any additions or modifications
-- timeago.js localization: `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
+- **Style & Theme**: `docs/assets/document_dates/user.config.css`
+- **Properties & Functions**: `docs/assets/document_dates/user.config.js`
+- **Localized languages**: `docs/assets/document_dates/languages/` , refer to the template file `en.json` for any additions or modifications
+- **timeago.js localization**: `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
     - In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
     - In `mkdocs.yml`, add the following two lines to configure the full version of `timeago.full.min.js` to load all languages at once
         ```yaml
@@ -127,7 +127,7 @@ The plugin supports deep customization, such as icon style, font style, theme co
 - In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the doc folder (hidden by default), please don't delete it:
     - `docs/.dates_cache.jsonl`, cache file
     - `docs/.gitattributes`, merge mechanism for cache file
-- The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it. In addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
+- The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it, in addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
 
 <br />
 
@@ -136,11 +136,11 @@ The plugin supports deep customization, such as icon style, font style, theme co
 A dispensable, insignificant little plug-in, friends who have time can take a look \^\_\^ 
 
 - **Origin**:
-    - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, then I don't understand why not read the file system time, but to use the git time, and raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
+    - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, I don't understand why not read the file system time, but to use the git time, and the filesystem time is more accurate, then raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
 - **Iteration**:
     - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information, and there are many solutions:
     - Method 1: Use the last git commit time as the last update time, and the first git commit time as the creation (there is a margin of error, but it's acceptable), mkdocs-git-revision-date-localized-plugin does this
-    - Method 2: You can cache the original time, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is simple, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
+    - Method 2: You can cache the original time in advance, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
         - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific git action occurs, such as every time commit is performed
@@ -153,7 +153,7 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
 - **Improve**:
     - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
         - Ease of use: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
-        - Simplicity: no unnecessary configurations, e.g. git account information, repo information, etc., are not required
+        - Simplicity: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
         - Personalization: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
     - In addition, it has good compatibility and extensibility, and works well in WIN7, mobile devices, old Safari, etc
 - **The Last Secret**:
