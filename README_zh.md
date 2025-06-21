@@ -99,13 +99,13 @@ email: e-name@gmail.com
 
 插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
 
-|    功能    | 位置                                          |
-| :--------: | -------------------------------------------- |
-| 样式与主题： | docs/assets/document_dates/user.config.css   |
-| 属性与功能： | docs/assets/document_dates/user.config.js    |
-| 本地化语言： | docs/assets/document_dates/languages/ ，可参考模板文件 `en.json` 任意新增或修改 |
+|    功能：    | 位置：                                         |
+| :--------- | ---------------------------------------------- |
+| **样式与主题** | `docs/assets/document_dates/user.config.css` |
+| **属性与功能** | `docs/assets/document_dates/user.config.js`  |
+| **本地化语言** | `docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改 |
 
-备注：当设置 `type: timeago` 时，会启用 timeago.js 来动态渲染时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
+**提示**：当设置 `type: timeago` 时，会启用 timeago.js 来动态渲染时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
 
 - 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
 - 在 `mkdocs.yml` 中，添加如下两行，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
@@ -157,9 +157,9 @@ email: e-name@gmail.com
         - 我的方案：采用 JSONL（JSON Lines）代替 JSON，配合并集的合并策略 merge=union
 - **精进**：
     - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、个性化**
-        - 易用性：能不让用户手动操作的就不让手动，比如自动安装 Git Hooks、自动缓存、自动 commit，提供自定义模板等
-        - 简洁性：无任何不必要的配置，无 Git 依赖，无 CI/CD 配置依赖，无其他包依赖
-        - 个性化：几乎所有地方都可以自定义，无论是图标、样式、主题，还是功能，都可实现完全定制化
+        - **易用性**：能不让用户手动操作的就不让手动，比如自动安装 Git Hooks、自动缓存、自动 commit，提供自定义模板等
+        - **简洁性**：无任何不必要的配置，无 Git 依赖，无 CI/CD 配置依赖，无其他包依赖
+        - **个性化**：几乎所有地方都可以自定义，无论是图标、样式、主题，还是功能，都可实现完全定制化
     - 此外还有很好的兼容性和扩展性，在 WIN7、移动设备、旧版 Safari 等环境下均能正常运行
 - **最后的秘密**：
     - 编程是业余爱好，我是一名从业八年的市场营销人员（欢迎留言）

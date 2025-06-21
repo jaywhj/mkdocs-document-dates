@@ -98,13 +98,13 @@ email: e-name@gmail.com
 
 The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
 
-|        Function        | Location                                  |
-| :--------------------: | ----------------------------------------- |
-|     Style & Theme:     | docs/assets/document_dates/user.config.css |
-| Properties & Functions: | docs/assets/document_dates/user.config.js |
-| Localized languages: | docs/assets/document_dates/languages/ , refer to the template file `en.json` for any additions or modifications |
+|        Function：        | Location：                               |
+| :----------------------: | ---------------------------------------- |
+|     **Style & Theme**     | `docs/assets/document_dates/user.config.css` |
+| **Properties & Functions** | `docs/assets/document_dates/user.config.js` |
+| **Localized languages** | `docs/assets/document_dates/languages/`, refer to the template file `en.json` for any additions or modifications |
 
-Note: when `type: timeago` is set, timeago.js is enabled to render time dynamically, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
+**Tip**: when `type: timeago` is set, timeago.js is enabled to render time dynamically, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
 
 - In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
 - In `mkdocs.yml`, add the following two lines to configure the full version of `timeago.full.min.js` to load all languages at once
@@ -156,9 +156,9 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
 - **Improve**:
     - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
-        - Ease of use: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
-        - Simplicity: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
-        - Personalization: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
+        - **Ease of use**: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
+        - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
+        - **Personalization**: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
     - In addition, it has good compatibility and extensibility, and works well in WIN7, mobile devices, old Safari, etc
 - **The Last Secret**:
     - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
