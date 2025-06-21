@@ -99,11 +99,11 @@ email: e-name@gmail.com
 
 插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
 
-|    功能    | 位置                                            |
-| :--------: | ---------------------------------------------- |
-| 样式与主题： | `docs/assets/document_dates/user.config.css`   |
-| 属性与功能： | `docs/assets/document_dates/user.config.js`    |
-| 本地化语言： | `docs/assets/document_dates/languages/` ，可参考模板文件 `en.json` 任意新增或修改 |
+|    功能    | 位置                                          |
+| :--------: | -------------------------------------------- |
+| 样式与主题： | docs/assets/document_dates/user.config.css   |
+| 属性与功能： | docs/assets/document_dates/user.config.js    |
+| 本地化语言： | docs/assets/document_dates/languages/ ，可参考模板文件 `en.json` 任意新增或修改 |
 
 备注：当设置 `type: timeago` 时，会启用 timeago.js 来动态渲染时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
 

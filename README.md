@@ -100,9 +100,9 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 
 |        Function        | Location                                  |
 | :--------------------: | ----------------------------------------- |
-|     Style & Theme:     | `docs/assets/document_dates/user.config.css` |
-| Properties & Functions: | `docs/assets/document_dates/user.config.js` |
-| Localized languages: | `docs/assets/document_dates/languages/` , refer to the template file `en.json` for any additions or modifications |
+|     Style & Theme:     | docs/assets/document_dates/user.config.css |
+| Properties & Functions: | docs/assets/document_dates/user.config.js |
+| Localized languages: | docs/assets/document_dates/languages/ , refer to the template file `en.json` for any additions or modifications |
 
 Note: when `type: timeago` is set, timeago.js is enabled to render time dynamically, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
 
