@@ -19,10 +19,10 @@
     group:      group, groups */
 /* 
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
-    content: "add_circle";
+    content: "more_time";
 }
 .document-dates-plugin .material-icons[data-icon="doc_modified"]::before {
-    content: "update";
+    content: "refresh";
 }
 .document-dates-plugin .material-icons[data-icon="doc_author"]::before {
     content: "person";

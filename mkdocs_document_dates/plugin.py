@@ -187,10 +187,6 @@ class DocumentDatesPlugin(BasePlugin):
             rel_path = page.file.src_path
             if os.sep != '/':
                 rel_path = rel_path.replace(os.sep, '/')
-
-        # 检查是否需要排除
-        if self._is_excluded(rel_path):
-            return markdown
         
         # 获取时间信息，优先从 front matter 获取
         created = self._find_meta_date(page.meta, self.config['created_field_names'])
@@ -200,22 +196,21 @@ class DocumentDatesPlugin(BasePlugin):
             created = self._get_file_creation_time(file_path, rel_path)
         if not modified:
             modified = self._get_file_modification_time(file_path)
-  
+        
         # 获取作者信息
-        author = None
-        if self.config['show_author']:
-            author = self._process_meta_author(page.meta)
-            if not author:
-                author = self._get_git_authors(file_path)
-                if not author:
-                    # 读 mkdocs.yml 中的 site_author
-                    if config.get('site_author'):
-                        author = Author(name=config.get('site_author'))
-                    else:
-                        author = self._get_local_author()
+        authors = self._get_author_info(file_path, page, config)
+        
+        # 在排除前暴露 meta 信息给前端使用
+        page.meta['document_dates_created'] = created.isoformat()
+        page.meta['document_dates_modified'] = modified.isoformat()
+        page.meta['document_dates_authors'] = authors
+        
+        # 检查是否需要排除
+        if self._is_excluded(rel_path):
+            return markdown
         
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, modified, author)
+        info_html = self._generate_html_info(created, modified, authors)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
@@ -338,6 +333,20 @@ class DocumentDatesPlugin(BasePlugin):
         return datetime.fromtimestamp(stat.st_mtime)
 
 
+    def _get_author_info(self, file_path, page, config):
+        if not self.config['show_author']:
+            return None
+        # 1. meta author
+        authors = self._process_meta_author(page.meta)
+        if authors:
+            return authors
+        # 2. git author
+        authors = self._get_git_authors(file_path)
+        if authors:
+            return authors
+        # 3. site_author 或 PC username
+        return [Author(name=config.get('site_author') or Path.home().name)]
+
     def _process_meta_author(self, meta):
         try:
             # 1. 处理 author 对象，或 author 字符串
@@ -351,8 +360,8 @@ class DocumentDatesPlugin(BasePlugin):
                     # 提取扩展属性
                     extra_attrs = {k: str(v) for k, v in author_data.items() 
                                 if k not in ['name', 'email']}
-                    return Author(name=name, email=email, **extra_attrs)
-                return Author(name=str(author_data))
+                    return [Author(name=name, email=email, **extra_attrs)]
+                return [Author(name=str(author_data))]
             
             # 2. 处理独立字段，匹配 author_field_mapping 配置
             name = ''
@@ -371,7 +380,7 @@ class DocumentDatesPlugin(BasePlugin):
             if name or email:
                 if not name and email:
                     name = email.split('@')[0]
-                return Author(name=name, email=email)
+                return [Author(name=name, email=email)]
         except Exception as e:
             logging.warning(f"Error processing author meta: {e}")
         return None
@@ -402,15 +411,10 @@ class DocumentDatesPlugin(BasePlugin):
                 name, email = line.split('|')
                 authors_map[line] = Author(name=name, email=email)
 
-            authors = list(authors_map.values())
-            return authors[0] if len(authors) == 1 else authors or None
+            return list(authors_map.values()) or None
         except Exception as e:
             logging.warning(f"Failed to get git author info: {str(e)}")
         return None
-
-    def _get_local_author(self):
-        username = Path.home().name
-        return Author(name=username)
 
 
     def _get_formatted_date(self, date):
@@ -420,7 +424,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created, modified, author=None):
+    def _generate_html_info(self, created, modified, authors=None):
         html = ""
         try:
             locale = 'zh_CN' if self.config['locale'] == 'zh' else self.config['locale']
@@ -439,26 +443,26 @@ class DocumentDatesPlugin(BasePlugin):
             )
             
             # 添加作者信息
-            if self.config['show_author'] and author:
-                if isinstance(author, list):
-                    # 多个作者的情况
-                    authors_info = ', '.join(a.name for a in author if a.name)
-                    authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in author)
-                    
-                    html += (
-                        f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
-                        f"<span class='material-icons' data-icon='doc_authors'></span>"
-                        f"{authors_info}</span>"
-                        # f"{authors_tooltip}</span>"
-                    )
-                else:
-                    # 单个作者的情况
+            if self.config['show_author'] and authors:
+                if len(authors) == 1:
+                    author, = authors
                     author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
                     html += (
                         f"<span data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_author'></span>"
                         f"{author.name}</span>"
                         # f"{author_tooltip}</span>"
+                    )
+                else:
+                    # 多个作者的情况
+                    authors_info = ', '.join(a.name for a in authors if a.name)
+                    authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in authors)
+                    
+                    html += (
+                        f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
+                        f"<span class='material-icons' data-icon='doc_authors'></span>"
+                        f"{authors_info}</span>"
+                        # f"{authors_tooltip}</span>"
                     )
             
             html += f"</div></div>"

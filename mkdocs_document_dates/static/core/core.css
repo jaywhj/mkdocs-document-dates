@@ -24,21 +24,22 @@
 }
 
 /* Customized icons, just change the icon name.
-    Google Fonts Icons (2500+): https://fonts.google.com/icons  */
+    Google Fonts Icons (2500+): https://fonts.google.com/icons
+
+    add_circle: add_circle, add_circle, note_add, more_time
+    update:     update, check_circle, task, refresh
+    person:     person, account_circle
+    group:      group, groups */
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
-    /* add_circle, add_circle, note_add, add */
-    content: "add_circle";
+    content: "more_time";
 }
 .document-dates-plugin .material-icons[data-icon="doc_modified"]::before {
-    /* update, check_circle, task, refresh */
-    content: "update";
+    content: "refresh";
 }
 .document-dates-plugin .material-icons[data-icon="doc_author"]::before {
-    /* person, account_circle */
     content: "person";
 }
 .document-dates-plugin .material-icons[data-icon="doc_authors"]::before {
-    /* group, groups */
     content: "group";
 }
 
