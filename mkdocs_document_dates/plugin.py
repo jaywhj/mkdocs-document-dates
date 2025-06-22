@@ -264,7 +264,7 @@ class DocumentDatesPlugin(BasePlugin):
         if '*' not in pattern:
             return rel_path == pattern
         else:
-            return rel_path.startswith(pattern.partition('/*')[0])
+            return rel_path.startswith(pattern.partition('*')[0])
 
 
     def _find_meta_date(self, meta, field_names):
