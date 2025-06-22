@@ -49,8 +49,8 @@ plugins:
       position: top            # 显示位置：top（标题后） bottom（文档末尾），默认：bottom
       type: date               # 时间类型：date datetime timeago，默认：date
       locale: zh               # 本地化语言：en zh zh_TW es fr de ar ja ko ru，默认：en
-      date_format: '%Y-%m-%d'  # 日期格式，支持所有Python日期格式，例如：%Y年%m月%d日、%b %d, %Y
-      time_format: '%H:%M:%S'  # 时间格式（仅在 type=datetime 时有效）
+      date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
+      time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
       exclude:                 # 排除文件列表，默认为空
         - temp.md              # 排除指定文件
         - private/*            # 排除 private 目录下所有文件，包括子目录
@@ -129,7 +129,7 @@ email: e-name@gmail.com
 
 ## 其它提示
 
-- 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 doc 目录下（默认是隐藏的），请不要删除：
+- 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 docs 目录下（默认是隐藏的），请不要删除：
     - `docs/.dates_cache.jsonl`，缓存文件
     - `docs/.gitattributes`，缓存文件的合并机制
 - 采用了 Git Hooks 机制来自动触发缓存的存储（在每次执行 git commit 时），缓存文件也会随之自动提交，并且 Git Hooks 的安装在插件被安装时也会自动触发，全程无需任何手动干预

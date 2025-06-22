@@ -48,8 +48,8 @@ plugins:
       position: top            # Display position: top (after title)  bottom (end of document), default: bottom
       type: date               # Date type: date  datetime  timeago, default: date
       locale: en               # Localization: en zh zh_TW es fr de ar ja ko ru, default: en
-      date_format: '%Y-%m-%d'  # Date format, supports all python datetime format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
-      time_format: '%H:%M:%S'  # Time format (valid only if type=datetime)
+      date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
+      time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - private/*            # Exclude all files in private directory, including subdirectories
@@ -128,7 +128,7 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 
 ## Other Tips
 
-- In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the doc folder (hidden by default), please don't delete it:
+- In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the docs folder (hidden by default), please don't delete it:
     - `docs/.dates_cache.jsonl`, cache file
     - `docs/.gitattributes`, merge mechanism for cache file
 - The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it, in addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
