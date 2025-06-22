@@ -59,11 +59,11 @@ class DocumentDatesPlugin(BasePlugin):
 
     def on_config(self, config):
         try:
-            # 设置 locale 在无配置时跟随主题语言，优先 language，其次 locale
+            # 设置 locale 在无配置时跟随主题语言
             if not self.config['locale']:
                 self.config['locale'] = config['theme']['language']
         except Exception:
-            self.config['locale'] = config.theme.locale.language
+            self.config['locale'] = 'en'
 
         # 检查是否为 Git 仓库
         try:
@@ -180,10 +180,14 @@ class DocumentDatesPlugin(BasePlugin):
         return config
 
     def on_page_markdown(self, markdown, page, config, files):
-        # 获取相对路径，src_uri 总是以"/"分隔，不要用 src_path
-        rel_path = page.file.src_uri
         file_path = page.file.abs_src_path
-        
+        # 获取相对路径，src_uri 总是以"/"分隔
+        rel_path = getattr(page.file, 'src_uri', None)
+        if not rel_path:
+            rel_path = page.file.src_path
+            if os.sep != '/':
+                rel_path = rel_path.replace(os.sep, '/')
+
         # 检查是否需要排除
         if self._is_excluded(rel_path):
             return markdown
@@ -205,8 +209,8 @@ class DocumentDatesPlugin(BasePlugin):
                 author = self._get_git_authors(file_path)
                 if not author:
                     # 读 mkdocs.yml 中的 site_author
-                    if config.site_author:
-                        author = Author(name=config.site_author)
+                    if config.get('site_author'):
+                        author = Author(name=config.get('site_author'))
                     else:
                         author = self._get_local_author()
         
