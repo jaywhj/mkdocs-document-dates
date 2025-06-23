@@ -389,12 +389,6 @@ class DocumentDatesPlugin(BasePlugin):
         if not self.is_git_repo:
             return None
         try:
-            # # 检查文件是否在 Git 中
-            # check_file = subprocess.run(f'git ls-files --error-unmatch {file_path}',
-            #                           shell=True, capture_output=True, text=True)
-            # if check_file.returncode != 0:
-            #     return None
-
             # 获取作者信息（为了兼容性，不采用管道命令，在 python 中处理去重）
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
             # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'            

@@ -126,6 +126,39 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 ![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
+## Use in templates
+
+You can access the meta-info of a document in a template using the following variables:
+
+- page.meta.document_dates_created
+- page.meta.document_dates_modified
+- page.meta.document_dates_authors
+
+For example like this:
+
+```jinja2
+{% set created = page.meta.document_dates_created %}
+{% set modified = page.meta.document_dates_modified %}
+{% set authors = page.meta.document_dates_authors %}
+
+<div><span>{{ created }}</span></div>
+<div><span>{{ modified }}</span></div>
+
+{% if authors %}
+<div>
+{% for author in authors %}
+    {% if author.email %}
+    <a href="mailto:{{ author.email }}">{{ author.name }}</a>
+    {% else %}
+    <span>{{ author.name }}</span>
+    {% endif %}
+{% endfor %}
+</div>
+{% endif %}
+```
+
+**Full example**: set the correct lastmod for [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/sitemap.xml) so that search engines can better handle SEO and thus increase your site's exposure (override path: `docs/overrides/sitemap.xml`)
+
 ## Other Tips
 
 - In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the docs folder (hidden by default), please don't remove it:
@@ -144,7 +177,7 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
 - **Iteration**:
     - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information, and there are many solutions:
     - Method 1: Use the last git commit time as the last update time and the first git commit time as the creation time, mkdocs-git-revision-date-localized-plugin does this. (This way, there will be a margin of error and dependency on git)
-    - Method 2: You can cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
+    - Method 2: Cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
         - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific git action occurs, such as every time commit is performed

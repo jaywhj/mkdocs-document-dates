@@ -127,6 +127,39 @@ email: e-name@gmail.com
 ![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
+## 在模板中使用
+
+你可以在模板中使用如下变量访问文档的元信息：
+
+- page.meta.document_dates_created
+- page.meta.document_dates_modified
+- page.meta.document_dates_authors
+
+比如像这样：
+
+```jinja2
+{% set created = page.meta.document_dates_created %}
+{% set modified = page.meta.document_dates_modified %}
+{% set authors = page.meta.document_dates_authors %}
+
+<div><span>{{ created }}</span></div>
+<div><span>{{ modified }}</span></div>
+
+{% if authors %}
+<div>
+{% for author in authors %}
+    {% if author.email %}
+    <a href="mailto:{{ author.email }}">{{ author.name }}</a>
+    {% else %}
+    <span>{{ author.name }}</span>
+    {% endif %}
+{% endfor %}
+</div>
+{% endif %}
+```
+
+**完整示例**：为 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/sitemap.xml) 设置正确的 lastmod，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（覆盖路径：`docs/overrides/sitemap.xml`）
+
 ## 其它提示
 
 - 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 docs 目录下（默认是隐藏的），请不要删除：
