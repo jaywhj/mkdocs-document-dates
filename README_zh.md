@@ -17,8 +17,6 @@
 - 支持 Tooltip 悬浮提示
   - 智能位置调整，始终以最佳方式浮动在视图中
   - 支持主题跟随 Material 亮/暗配色变化而变化
-  - 支持自定义主题、样式、动画等
-  - 兼容鼠标、键盘和**触摸**（移动端）触发 hover
 - 多语言支持，跨平台支持（Windows、macOS、Linux）
 
 
@@ -54,9 +52,7 @@ plugins:
       exclude:                 # 排除文件列表，默认为空
         - temp.md              # 排除指定文件
         - private/*            # 排除 private 目录下所有文件，包括子目录
-      
       show_author: true        # 是否显示作者信息，默认：true
-
 ```
 
 ## 手动指定时间
@@ -124,7 +120,6 @@ email: e-name@gmail.com
 ![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
 
 ![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
-![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
 ## 在模板中使用
@@ -138,22 +133,15 @@ email: e-name@gmail.com
 比如像这样：
 
 ```jinja2
-{% set created = page.meta.document_dates_created %}
-{% set modified = page.meta.document_dates_modified %}
+<div><span>{{ page.meta.document_dates_created }}</span></div>
+<div><span>{{ page.meta.document_dates_modified }}</span></div>
 {% set authors = page.meta.document_dates_authors %}
-
-<div><span>{{ created }}</span></div>
-<div><span>{{ modified }}</span></div>
-
 {% if authors %}
 <div>
-{% for author in authors %}
-    {% if author.email %}
-    <a href="mailto:{{ author.email }}">{{ author.name }}</a>
-    {% else %}
-    <span>{{ author.name }}</span>
-    {% endif %}
-{% endfor %}
+    {% for author in authors %}
+    {% if author.email %}<a href="mailto:{{ author.email }}">{{ author.name }}</a>
+    {% else %}<span>{{ author.name }}</span>{% endif %}
+    {% endfor %}
 </div>
 {% endif %}
 ```

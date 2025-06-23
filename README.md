@@ -17,8 +17,6 @@ An easy-to-use, lightweight MkDocs plugin for displaying the <mark>exact</mark> 
 - Supports Tooltip Hover Tips
   - Intelligent repositioning to always float optimally in view
   - Supports automatic theme switching following Material's light/dark color scheme
-  - Support for customizing themes, styles, animations
-  - Compatible with mouse, keyboard and **touch** (mobile) to trigger hover
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
 
 ## Showcases
@@ -53,9 +51,7 @@ plugins:
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - private/*            # Exclude all files in private directory, including subdirectories
-      
       show_author: true        # Show author or not, default: true
-
 ```
 
 ## Specify time manually
@@ -123,7 +119,6 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 ![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
 
 ![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
-![07-pop-up-from-top](mkdocs_document_dates/demo_images/07-pop-up-from-top.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
 ## Use in templates
@@ -137,22 +132,15 @@ You can access the meta-info of a document in a template using the following var
 For example like this:
 
 ```jinja2
-{% set created = page.meta.document_dates_created %}
-{% set modified = page.meta.document_dates_modified %}
+<div><span>{{ page.meta.document_dates_created }}</span></div>
+<div><span>{{ page.meta.document_dates_modified }}</span></div>
 {% set authors = page.meta.document_dates_authors %}
-
-<div><span>{{ created }}</span></div>
-<div><span>{{ modified }}</span></div>
-
 {% if authors %}
 <div>
-{% for author in authors %}
-    {% if author.email %}
-    <a href="mailto:{{ author.email }}">{{ author.name }}</a>
-    {% else %}
-    <span>{{ author.name }}</span>
-    {% endif %}
-{% endfor %}
+    {% for author in authors %}
+    {% if author.email %}<a href="mailto:{{ author.email }}">{{ author.name }}</a>
+    {% else %}<span>{{ author.name }}</span>{% endif %}
+    {% endfor %}
 </div>
 {% endif %}
 ```
