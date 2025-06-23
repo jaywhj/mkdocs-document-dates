@@ -96,7 +96,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code and comments, you just need to turn on the switch and change the value):
+The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code, you just need to turn on the uncomment switch:
 
 |        Function：        | Location：                               |
 | :----------------------: | ---------------------------------------- |
@@ -104,7 +104,7 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 | **Properties & Functions** | `docs/assets/document_dates/user.config.js` |
 | **Localized languages** | `docs/assets/document_dates/languages/` <br />refer to the template file `en.json` for any additions or modifications |
 
-**Tip**: when `type: timeago` is set, timeago.js is enabled to render time dynamically, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
+**Tip**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
 
 - In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
 - In `mkdocs.yml`, add the following two lines to configure the full version of `timeago.full.min.js` to load all languages at once
@@ -140,11 +140,11 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 A dispensable, insignificant little plug-in, friends who have time can take a look \^\_\^ 
 
 - **Origin**:
-    - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, I don't understand why not read the file system time, but to use the git time, and the filesystem time is more accurate, then raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
+    - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, I don't understand why not read the file system time, but to use the git time, and the filesystem time is exact, then raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
 - **Iteration**:
     - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information, and there are many solutions:
-    - Method 1: Use the last git commit time as the last update time, and the first git commit time as the creation (there is a margin of error, but it's acceptable), mkdocs-git-revision-date-localized-plugin does this
-    - Method 2: You can cache the original time in advance, and then read the cache subsequently. The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
+    - Method 1: Use the last git commit time as the last update time, and the first git commit time as the creation mkdocs-git-revision-date-localized-plugin does this. (This way, there will be a margin of error and dependency on git)
+    - Method 2: You can cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
         - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific git action occurs, such as every time commit is performed

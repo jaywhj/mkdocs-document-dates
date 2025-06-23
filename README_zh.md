@@ -97,7 +97,7 @@ email: e-name@gmail.com
 
 ## 插件定制化
 
-插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码和注释，你只需要打开开关，改个值就行）：
+插件支持深度自定义，比如**图标样式、字体风格、主题颜色、动画类型、分割线**等等，所有的一切都可以自定义，修改对应文件中的预设值即可（我已经写好了代码，你只需要打开取消注释开关即可）：
 
 |    功能：    | 位置：                                         |
 | :--------- | ---------------------------------------------- |
@@ -105,7 +105,7 @@ email: e-name@gmail.com
 | **属性与功能** | `docs/assets/document_dates/user.config.js`  |
 | **本地化语言** | `docs/assets/document_dates/languages/` <br />可参考模板文件 `en.json` 任意新增或修改 |
 
-**提示**：当设置 `type: timeago` 时，会启用 timeago.js 来动态渲染时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
+**提示**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
 
 - 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
 - 在 `mkdocs.yml` 中，添加如下两行，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
@@ -144,8 +144,8 @@ email: e-name@gmail.com
     - 是因为 [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin) ，一个很棒的项目。在2024年底使用时，发现我这本地用不了，因为我的 mkdocs 文档没有纳入 git 管理，然后我就不理解为什么不读取文件系统的时间，而要用 git 时间，而且文件系统时间更准确，还给作者提了 issue，结果等了一周左右没得到回复（后面作者回复了，人不错，估计他当时在忙没来得及），然后就想，过年期间没啥事，现在 AI 这么火，要不借助 AI 自己试试，就诞生了，诞生于2025年2月
 - **迭代**：
     - 开发后，就理解了为什么不采用文件系统时间，因为文件在经过 git checkout 或 clone 时会被重建，从而导致原始时间戳信息丢失，解决办法有很多：
-    - 方法 1，采用最近一次 git commit 时间作为文档的最后更新时间，采用首次 git commit 时间作为文档的创建时间（虽然有误差，但能接受），mkdocs-git-revision-date-localized-plugin 就是这么做的
-    - 方法 2，可以提前缓存原始时间，后续读缓存就可以了。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理且更简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
+    - 方法 1，采用最近一次 git commit 时间作为文档的最后更新时间，采用首次 git commit 时间作为文档的创建时间，mkdocs-git-revision-date-localized-plugin 就是这么做的（这种方式，存在一定的误差且无法在无Git环境中使用）
+    - 方法 2，可以提前缓存原始时间，后续读缓存就可以了（时间准确且不依赖任何环境）。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理且更简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
 - **难点**：
     1. 什么时候去读取和存储原始时间？这只是 mkdocs 的一个插件，入口和权限非常有限，mkdocs 提供的只有 build 和 serve，那万一用户不执行 build 或 serve 而直接 commit 呢（比如使用 CI/CD 构建系统时），那就拿不到文件的时间信息了，更别说缓存了
         - 直接说结论：在 AI 的提示下，找到了 Git Hooks 机制，能在特定的 git 动作发生时触发自定义脚本，比如每次 commit 时
