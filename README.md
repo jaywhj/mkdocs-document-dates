@@ -128,7 +128,7 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 
 ## Other Tips
 
-- In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the docs folder (hidden by default), please don't delete it:
+- In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the docs folder (hidden by default), please don't remove it:
     - `docs/.dates_cache.jsonl`, cache file
     - `docs/.gitattributes`, merge mechanism for cache file
 - The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it, in addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
@@ -143,7 +143,7 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, I don't understand why not read the file system time, but to use the git time, and the filesystem time is exact, then raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
 - **Iteration**:
     - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information, and there are many solutions:
-    - Method 1: Use the last git commit time as the last update time, and the first git commit time as the creation mkdocs-git-revision-date-localized-plugin does this. (This way, there will be a margin of error and dependency on git)
+    - Method 1: Use the last git commit time as the last update time and the first git commit time as the creation time, mkdocs-git-revision-date-localized-plugin does this. (This way, there will be a margin of error and dependency on git)
     - Method 2: You can cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
