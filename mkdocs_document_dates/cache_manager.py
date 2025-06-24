@@ -98,7 +98,7 @@ def read_json_cache(cache_file):
             with open(cache_file, "r", encoding='utf-8') as f:
                 dates_cache = json.load(f)
         except (IOError, json.JSONDecodeError) as e:
-            logging.error(f"Failed to read existing JSON cache file: {e}")
+            logging.warning(f"Error reading from '.dates_cache.json': {str(e)}")
     return dates_cache
 
 def read_jsonl_cache(jsonl_file):
@@ -115,7 +115,7 @@ def read_jsonl_cache(jsonl_file):
                     except (json.JSONDecodeError, StopIteration) as e:
                         logging.warning(f"Skipping invalid JSONL line: {e}")
         except IOError as e:
-            logging.error(f"Failed to read existing JSONL cache file: {e}")
+            logging.warning(f"Error reading from '.dates_cache.jsonl': {str(e)}")
     return dates_cache
 
 def write_jsonl_cache(jsonl_file, dates_cache, tracked_files):
@@ -194,7 +194,7 @@ def update_cache():
                             created_time = get_file_creation_time(full_path)
                             if not jsonl_cache_file.exists() and not json_cache_file.exists():
                                 git_time = get_git_first_commit_time(full_path)
-                                if git_time is not None:
+                                if git_time:
                                     created_time = min(created_time, git_time)
                             jsonl_dates_cache[rel_path] = {
                                 "created": created_time.isoformat()

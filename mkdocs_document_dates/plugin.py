@@ -1,13 +1,13 @@
 import os
 import json
 import shutil
-import platform
 import logging
 import subprocess
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
+from .cache_manager import read_json_cache, read_jsonl_cache, get_file_creation_time, get_git_first_commit_time
 
 # 配置日志等级 (INFO WARNING ERROR)
 logging.basicConfig(
@@ -80,31 +80,13 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载日期缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
-        if jsonl_cache_file.exists():
-            try:
-                with open(jsonl_cache_file, "r", encoding='utf-8') as f:
-                    for line in f:
-                        try:
-                            entry = json.loads(line.strip())
-                            if entry and isinstance(entry, dict) and len(entry) == 1:
-                                file_path, file_info = next(iter(entry.items()))
-                                self.dates_cache[file_path] = file_info
-                        except (json.JSONDecodeError, StopIteration) as e:
-                            logging.warning(f"Skipping invalid JSONL line: {e}")
-                logging.info(f"Loaded cache from JSONL file: {jsonl_cache_file}")
-            except IOError as e:
-                logging.warning(f"Error reading from '.dates_cache.jsonl': {str(e)}")
-        
+        self.dates_cache = read_jsonl_cache(jsonl_cache_file)
+
         # 兼容旧版缓存文件
-        json_cache_file = docs_dir_path / '.dates_cache.json'
-        if not self.dates_cache and json_cache_file.exists():
-            try:
-                with open(json_cache_file, "r", encoding='utf-8') as f:
-                    self.dates_cache = json.load(f)
-                logging.info(f"Loaded cache from JSON file: {json_cache_file}")
-            except (json.JSONDecodeError, KeyError) as e:
-                logging.warning(f"Error reading from '.dates_cache.json': {str(e)}")        
-        
+        if not self.dates_cache:
+            json_cache_file = docs_dir_path / '.dates_cache.json'
+            self.dates_cache = read_json_cache(json_cache_file)
+
         """
         Tippy.js
         # core
@@ -269,44 +251,20 @@ class DocumentDatesPlugin(BasePlugin):
                     continue
         return None
 
-    def _get_git_first_commit_time(self, file_path):
-        if self.is_git_repo:
-            try:
-                # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
-                result = subprocess.run(['git', 'log', '--reverse', '--format=%aI', '--', file_path], capture_output=True, text=True)
-                if result.returncode == 0:
-                    first_line = result.stdout.partition('\n')[0].strip()
-                    if first_line:
-                        return datetime.fromisoformat(first_line).replace(tzinfo=None)
-            except Exception as e:
-                logging.warning(f"Error getting git first commit time for {file_path}: {e}")
-        return None
-
     def _get_file_creation_time(self, file_path, rel_path):
         # 优先从缓存中读取
         if rel_path in self.dates_cache:
             return datetime.fromisoformat(self.dates_cache[rel_path]['created'])
         
-        # 获取文件系统时间
-        stat = os.stat(file_path)
-        system = platform.system().lower()
-        fs_time = None
-        if system.startswith('win'):  # Windows
-            fs_time = datetime.fromtimestamp(stat.st_ctime)
-        elif system == 'darwin':  # macOS
-            try:
-                fs_time = datetime.fromtimestamp(stat.st_birthtime)
-            except AttributeError:
-                fs_time = datetime.fromtimestamp(stat.st_ctime)
-        else:  # Linux, 没有创建时间，使用修改时间
-            fs_time = datetime.fromtimestamp(stat.st_mtime)
+        # 从文件系统获取
+        fs_time = get_file_creation_time(file_path)
         
         # 获取Git首次提交时间
-        git_time = self._get_git_first_commit_time(file_path)
-        
-        # 取两者更早的时间
-        if git_time is not None:
-            return min(fs_time, git_time)
+        if self.is_git_repo:
+            git_time = get_git_first_commit_time(file_path)
+            # 取两者更早的时间
+            if git_time:
+                return min(fs_time, git_time)
         return fs_time
 
     def _get_file_modification_time(self, file_path):
