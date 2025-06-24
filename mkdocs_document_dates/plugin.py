@@ -188,10 +188,9 @@ class DocumentDatesPlugin(BasePlugin):
             if os.sep != '/':
                 rel_path = rel_path.replace(os.sep, '/')
         
-        # 获取时间信息，优先从 front matter 获取
+        # 获取时间信息
         created = self._find_meta_date(page.meta, self.config['created_field_names'])
         modified = self._find_meta_date(page.meta, self.config['modified_field_names'])
-        
         if not created:
             created = self._get_file_creation_time(file_path, rel_path)
         if not modified:
