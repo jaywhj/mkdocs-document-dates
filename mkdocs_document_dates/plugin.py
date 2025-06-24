@@ -105,14 +105,8 @@ class DocumentDatesPlugin(BasePlugin):
             except (json.JSONDecodeError, KeyError) as e:
                 logging.warning(f"Error reading from '.dates_cache.json': {str(e)}")        
         
-        
-        # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
-        material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
-        if material_icons_url not in config['extra_css']:
-            config['extra_css'].append(material_icons_url)
-        
-        # 加载 Tooltip 资源：Tippy.js
         """
+        Tippy.js
         # core
             https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js
             https://unpkg.com/tippy.js@6/dist/tippy.umd.min.js
@@ -143,6 +137,12 @@ class DocumentDatesPlugin(BasePlugin):
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
 
+        
+        # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
+        material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
+        if material_icons_url not in config['extra_css']:
+            config['extra_css'].append(material_icons_url)
+        
         # 加载 timeago.js
         # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
         # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
@@ -177,13 +177,13 @@ class DocumentDatesPlugin(BasePlugin):
         return config
 
     def on_page_markdown(self, markdown, page, config, files):
-        file_path = page.file.abs_src_path
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', None)
         if not rel_path:
             rel_path = page.file.src_path
             if os.sep != '/':
                 rel_path = rel_path.replace(os.sep, '/')
+        file_path = page.file.abs_src_path
         
         # 获取时间信息
         created = self._find_meta_date(page.meta, self.config['created_field_names'])
