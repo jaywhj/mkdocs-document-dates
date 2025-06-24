@@ -379,7 +379,7 @@ class DocumentDatesPlugin(BasePlugin):
             
             if name or email:
                 if not name and email:
-                    name = email.split('@')[0]
+                    name = email.partition('@')[0]
                 return [Author(name=name, email=email)]
         except Exception as e:
             logging.warning(f"Error processing author meta: {e}")
