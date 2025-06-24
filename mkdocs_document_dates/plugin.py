@@ -106,11 +106,6 @@ class DocumentDatesPlugin(BasePlugin):
                 logging.warning(f"Error reading from '.dates_cache.json': {str(e)}")        
         
         
-        if 'extra_css' not in config:
-            config['extra_css'] = []
-        if 'extra_javascript' not in config:
-            config['extra_javascript'] = []
-        
         # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
         material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         if material_icons_url not in config['extra_css']:
@@ -152,8 +147,10 @@ class DocumentDatesPlugin(BasePlugin):
         # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
         # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
         if self.config['type'] == 'timeago':
-            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
-            config['extra_javascript'].insert(1, 'assets/document_dates/core/timeago-load.js')
+            config['extra_javascript'][0:0] = [
+                'assets/document_dates/core/timeago.min.js',
+                'assets/document_dates/core/timeago-load.js'
+            ]
 
         # 加载 Tippy CSS 文件
         tippy_css_dir = dest_dir / 'tippy'

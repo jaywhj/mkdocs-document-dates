@@ -45,6 +45,7 @@ desktop.ini
 site/
 
 # 测试
+tests/
 .pytest_cache/
 .coverage
 htmlcov/
