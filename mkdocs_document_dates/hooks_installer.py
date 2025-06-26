@@ -87,8 +87,8 @@ def configure_git_hooks(hooks_dir):
         )
         logging.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
-    except Exception as e:
-        logging.warning(f"Git not detected, failed to set git hooks path: {str(e)}")
+    except Exception:
+        logging.warning("Git not detected, failed to set git hooks path")
         return False
 
 def install():
