@@ -43,14 +43,6 @@ def detect_python_interpreter():
     # 如果都失败了，使用当前运行的Python解释器
     return f'#!{sys.executable}'
 
-def check_git_available():
-    try:
-        subprocess.run(['git', '--version'], check=True, capture_output=True, encoding='utf-8')
-        return True
-    except Exception:
-        logging.warning("Git not detected, skip hooks installation")
-        return False
-
 def setup_hooks_directory():
     config_dir = get_config_dir() / 'mkdocs-document-dates' / 'hooks'
     try:
@@ -96,15 +88,11 @@ def configure_git_hooks(hooks_dir):
         logging.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
     except Exception as e:
-        logging.error(f"Failed to set git hooks path: {str(e)}")
+        logging.warning(f"Git not detected, failed to set git hooks path: {str(e)}")
         return False
 
 def install():
     try:
-        # 检查git是否可用
-        if not check_git_available():
-            return False
-
         # 创建hooks目录
         hooks_dir = setup_hooks_directory()
         if not hooks_dir:
