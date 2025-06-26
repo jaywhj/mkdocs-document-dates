@@ -11,7 +11,6 @@ An easy-to-use, lightweight MkDocs plugin for displaying the <mark>exact</mark> 
 - Always display exact meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc)
 - Support for manually specifying time and author in `Front Matter`
 - Support for multiple time formats (date, datetime, timeago)
-- Support for document exclusion mode
 - Flexible display position (top or bottom)
 - Elegant styling (fully customizable)
 - Supports Tooltip Hover Tips
@@ -92,7 +91,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. All of it can be customized by modifying the preset values in the corresponding file (I've already written the code, you just need to turn on the uncomment switch:
+The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. Everything is customizable (I've already written the code, you just need to turn on the uncomment switch):
 
 |        Function：        | Location：                               |
 | :----------------------: | ---------------------------------------- |
@@ -121,7 +120,7 @@ The plugin supports deep customization, such as **icon style, font style, theme 
 ![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
-## Use in templates
+## Used in templates
 
 You can access the meta-info of a document in a template using the following variables:
 
