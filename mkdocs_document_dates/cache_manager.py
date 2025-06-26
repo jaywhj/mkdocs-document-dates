@@ -26,7 +26,7 @@ def find_mkdocs_projects():
                 projects.append(config_file.parent)
 
         if not projects:
-            logging.info("No MkDocs projects found in the repository")
+            logging.warning("No MkDocs projects found in the repository")
     except subprocess.CalledProcessError as e:
         logging.error(f"Failed to find the Git repository root: {e}")
     except Exception as e:
