@@ -6,7 +6,6 @@ def trigger_hook_install():
     try:
         import os
         import sys
-        # 动态添加包路径确保导入成功
         package_path = os.path.abspath(os.path.dirname(__file__))
         if package_path not in sys.path:
             sys.path.insert(0, package_path)
