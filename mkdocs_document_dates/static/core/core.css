@@ -26,10 +26,10 @@
 /* Customized icons, just change the icon name.
     Google Fonts Icons (2500+): https://fonts.google.com/icons
 
-    add_circle: add_circle, add_circle, note_add, more_time
-    update:     update, check_circle, task, refresh
-    person:     person, account_circle
-    group:      group, groups */
+    doc_created:  add_circle, add_circle, note_add, more_time
+    doc_modified: update, check_circle, task, refresh
+    doc_author:   person, account_circle
+    doc_authors:  group, groups */
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
     content: "more_time";
 }
