@@ -67,7 +67,7 @@ def setup_gitattributes(docs_dir):
     updated = False
     try:
         gitattributes_path = docs_dir / '.gitattributes'
-        union_config_line = ".dates_cache.jsonl merge=union"        
+        union_config_line = ".dates_cache.jsonl merge=union"
         if gitattributes_path.exists():
             with open(gitattributes_path, 'r', encoding='utf-8') as f:
                 content = f.read()
