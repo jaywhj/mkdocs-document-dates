@@ -144,86 +144,81 @@ def write_jsonl_cache(jsonl_file, dates_cache, tracked_files):
 
 def update_cache():
     global_updated = False
-    try:
-        for project_dir in find_mkdocs_projects():
-            try:
-                project_updated = False
 
-                docs_dir = project_dir / 'docs'
-                if not docs_dir.exists():
-                    logging.error(f"Document directory does not exist: {docs_dir}")
-                    continue
+    for project_dir in find_mkdocs_projects():
+        try:
+            project_updated = False
 
-                # 设置.gitattributes文件
-                gitattributes_updated = setup_gitattributes(docs_dir)
-                if gitattributes_updated:
-                    global_updated = True
+            docs_dir = project_dir / 'docs'
+            if not docs_dir.exists():
+                logging.error(f"Document directory does not exist: {docs_dir}")
+                continue
 
-                # 获取docs目录下已跟踪(tracked)的markdown文件
-                cmd = ["git", "ls-files", "*.md"]
-                result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, text=True, check=True)
-                tracked_files = result.stdout.splitlines() if result.stdout else []
+            # 设置.gitattributes文件
+            gitattributes_updated = setup_gitattributes(docs_dir)
+            if gitattributes_updated:
+                global_updated = True
 
-                if not tracked_files:
-                    logging.info(f"No tracked markdown files found in {docs_dir}")
-                    continue
+            # 获取docs目录下已跟踪(tracked)的markdown文件
+            cmd = ["git", "ls-files", "*.md"]
+            result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, text=True, check=True)
+            tracked_files = result.stdout.splitlines() if result.stdout else []
 
-                # 读取旧的JSON缓存文件（如果存在）
-                json_cache_file = docs_dir / '.dates_cache.json'
-                json_dates_cache = read_json_cache(json_cache_file)
+            if not tracked_files:
+                logging.info(f"No tracked markdown files found in {docs_dir}")
+                continue
 
-                # 读取新的JSONL缓存文件（如果存在）
-                jsonl_cache_file = docs_dir / '.dates_cache.jsonl'
-                jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
+            # 读取旧的JSON缓存文件（如果存在）
+            json_cache_file = docs_dir / '.dates_cache.json'
+            json_dates_cache = read_json_cache(json_cache_file)
 
-                # 根据 git已跟踪的文件来更新
-                for rel_path in tracked_files:
-                    try:
-                        # 如果文件已在JSONL缓存中，跳过
-                        if rel_path in jsonl_dates_cache:
-                            continue
+            # 读取新的JSONL缓存文件（如果存在）
+            jsonl_cache_file = docs_dir / '.dates_cache.jsonl'
+            jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
 
-                        full_path = docs_dir / rel_path
-                        # 处理新文件或迁移旧JSON缓存
-                        if rel_path in json_dates_cache:
-                            jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
-                            project_updated = True
-                        elif full_path.exists():
-                            created_time = get_file_creation_time(full_path)
-                            if not jsonl_cache_file.exists() and not json_cache_file.exists():
-                                git_time = get_git_first_commit_time(full_path)
-                                if git_time:
-                                    created_time = min(created_time, git_time)
-                            jsonl_dates_cache[rel_path] = {
-                                "created": created_time.isoformat()
-                            }
-                            project_updated = True
-                    except Exception as e:
-                        logging.error(f"Error processing file {rel_path}: {e}")
+            # 根据 git已跟踪的文件来更新
+            for rel_path in tracked_files:
+                try:
+                    # 如果文件已在JSONL缓存中，跳过
+                    if rel_path in jsonl_dates_cache:
                         continue
 
-                # 标记删除不再跟踪的文件
-                files_to_remove = set(jsonl_dates_cache.keys()) - set(tracked_files)
-                if files_to_remove:
-                    project_updated = True
-                    logging.info(f"Removing {len(files_to_remove)} untracked files from cache")
+                    full_path = docs_dir / rel_path
+                    # 处理新文件或迁移旧JSON缓存
+                    if rel_path in json_dates_cache:
+                        jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
+                        project_updated = True
+                    elif full_path.exists():
+                        created_time = get_file_creation_time(full_path)
+                        if not jsonl_cache_file.exists() and not json_cache_file.exists():
+                            git_time = get_git_first_commit_time(full_path)
+                            if git_time:
+                                created_time = min(created_time, git_time)
+                        jsonl_dates_cache[rel_path] = {
+                            "created": created_time.isoformat()
+                        }
+                        project_updated = True
+                except Exception as e:
+                    logging.error(f"Error processing file {rel_path}: {e}")
+                    continue
 
-                # 如果有更新，写入JSONL缓存文件
-                if project_updated or not jsonl_cache_file.exists():
-                    if write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files):
-                        global_updated = True
-                else:
-                    logging.info(f"No updates needed for {jsonl_cache_file}")
-            except subprocess.CalledProcessError as e:
-                logging.error(f"Failed to execute git command: {e}")
-                continue
-            except Exception as e:
-                logging.error(f"Error processing project directory {project_dir}: {e}")
-                continue
+            # 标记删除不再跟踪的文件
+            files_to_remove = set(jsonl_dates_cache.keys()) - set(tracked_files)
+            if files_to_remove:
+                project_updated = True
+                logging.info(f"Removing {len(files_to_remove)} untracked files from cache")
 
-    except Exception as e:
-        logging.error(f"Unexpected error in update_cache: {e}")
-    
+            # 如果有更新，写入JSONL缓存文件
+            if project_updated or not jsonl_cache_file.exists():
+                if write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files):
+                    global_updated = True
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to execute git command: {e}")
+            continue
+        except Exception as e:
+            logging.error(f"Error processing project directory {project_dir}: {e}")
+            continue
+
     return global_updated
 
 
