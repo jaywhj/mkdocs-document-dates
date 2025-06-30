@@ -177,15 +177,13 @@ def update_cache():
                 jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
 
                 # 根据 git已跟踪的文件来更新
-                for file_path in tracked_files:
+                for rel_path in tracked_files:
                     try:
-                        rel_path = file_path
-                        full_path = docs_dir / rel_path
-
                         # 如果文件已在JSONL缓存中，跳过
                         if rel_path in jsonl_dates_cache:
                             continue
 
+                        full_path = docs_dir / rel_path
                         # 处理新文件或迁移旧JSON缓存
                         if rel_path in json_dates_cache:
                             jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
@@ -201,7 +199,7 @@ def update_cache():
                             }
                             project_updated = True
                     except Exception as e:
-                        logging.error(f"Error processing file {file_path}: {e}")
+                        logging.error(f"Error processing file {rel_path}: {e}")
                         continue
 
                 # 标记删除不再跟踪的文件
