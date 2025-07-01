@@ -102,7 +102,7 @@ The plugin supports deep customization, such as **icon style, theme color, font,
 **Tip**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
 
 - In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
-- In `mkdocs.yml`, add the following two lines to configure the full version of `timeago.full.min.js` to load all languages at once
+- In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to load all languages at once
     ```yaml
     extra_javascript:
       - assets/document_dates/core/timeago.full.min.js
