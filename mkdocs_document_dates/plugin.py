@@ -2,36 +2,14 @@ import os
 import json
 import shutil
 import logging
-import subprocess
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
-from .cache_manager import read_json_cache, read_jsonl_cache, get_file_creation_time, get_git_first_commit_time
+from .utils import Author, read_json_cache, read_jsonl_cache, check_git_repo, get_file_creation_time, get_git_first_commit_time, get_git_authors
 
-# 配置日志等级 (INFO WARNING ERROR)
-logging.basicConfig(
-    level=logging.WARNING,
-    format='%(levelname)s: %(message)s'
-)
-
-
-class Author:
-    def __init__(self, name="", email="", **kwargs):
-        self.name = name
-        self.email = email
-        # 扩展属性
-        self.attributes = kwargs
-    
-    def __getattr__(self, name):
-        return self.attributes.get(name)
-    
-    def to_dict(self):
-        return {
-            'name': self.name,
-            'email': self.email,
-            **self.attributes
-        }
+logger = logging.getLogger("mkdocs.plugins.document_dates")
+logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class DocumentDatesPlugin(BasePlugin):
@@ -66,12 +44,7 @@ class DocumentDatesPlugin(BasePlugin):
             self.config['locale'] = 'en'
 
         # 检查是否为 Git 仓库
-        try:
-            check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], capture_output=True, text=True)
-            if check_git.returncode == 0:
-                self.is_git_repo = True
-        except Exception as e:
-            logging.info(f"Not a Git repository: {str(e)}")
+        self.is_git_repo = check_git_repo()
 
         docs_dir_path = Path(config['docs_dir'])
 
@@ -221,9 +194,9 @@ class DocumentDatesPlugin(BasePlugin):
                 with locale_file.open('r', encoding='utf-8') as f:
                     self.translation = json.load(f)
         except json.JSONDecodeError as e:
-            logging.error(f"Invalid JSON format in language file {locale_file}: {str(e)}")
+            logger.error(f"Invalid JSON format in language file {locale_file}: {str(e)}")
         except Exception as e:
-            logging.error(f"Error loading language file {locale_file}: {str(e)}")
+            logger.error(f"Error loading language file {locale_file}: {str(e)}")
 
 
     def _is_excluded(self, rel_path):
@@ -268,19 +241,10 @@ class DocumentDatesPlugin(BasePlugin):
         return fs_time
 
     def _get_file_modification_time(self, file_path):
-        """
+        
         # 从git获取最后修改时间
-        if self.is_git_repo:
-            try:
-                # 获取文件最后修改时间
-                cmd = f'git log -1 --format="%aI" --date=iso -- "{file_path}"'
-                process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-                if process.returncode == 0 and process.stdout.strip():
-                    git_time = process.stdout.strip()
-                    return datetime.fromisoformat(git_time).replace(tzinfo=None)
-            except Exception as e:
-                logging.warning(f"Failed to get git modification time: {str(e)}")
-        """
+        # if self.is_git_repo:
+        #     return get_git_last_commit_time(file_path)
 
         # 从文件系统获取最后修改时间
         stat = os.stat(file_path)
@@ -295,9 +259,10 @@ class DocumentDatesPlugin(BasePlugin):
         if authors:
             return authors
         # 2. git author
-        authors = self._get_git_authors(file_path)
-        if authors:
-            return authors
+        if self.is_git_repo:
+            authors = get_git_authors(file_path)
+            if authors:
+                return authors
         # 3. site_author 或 PC username
         return [Author(name=config.get('site_author') or Path.home().name)]
 
@@ -336,32 +301,7 @@ class DocumentDatesPlugin(BasePlugin):
                     name = email.partition('@')[0]
                 return [Author(name=name, email=email)]
         except Exception as e:
-            logging.warning(f"Error processing author meta: {e}")
-        return None
-
-    def _get_git_authors(self, file_path):
-        if not self.is_git_repo:
-            return None
-        try:
-            # 获取作者信息（为了兼容性，不采用管道命令，在 python 中处理去重）
-            # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
-            # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'            
-            git_log_cmd = ['git', 'log', '--format=%an|%ae', '--', file_path]
-            git_log_result = subprocess.run(git_log_cmd, capture_output=True, text=True, check=False)
-            if git_log_result.returncode != 0 or not git_log_result.stdout.strip():
-                return None
-            
-            # 使用字典去重和存储作者
-            authors_map = {}
-            for line in git_log_result.stdout.splitlines():
-                if not line.strip() or line in authors_map:
-                    continue
-                name, email = line.split('|')
-                authors_map[line] = Author(name=name, email=email)
-
-            return list(authors_map.values()) or None
-        except Exception as e:
-            logging.warning(f"Failed to get git author info: {str(e)}")
+            logger.warning(f"Error processing author meta: {e}")
         return None
 
 
@@ -416,7 +356,7 @@ class DocumentDatesPlugin(BasePlugin):
             html += f"</div></div>"
         
         except Exception as e:
-            logging.warning(f"Error generating HTML info: {e}")
+            logger.warning(f"Error generating HTML info: {e}")
         return html
 
 

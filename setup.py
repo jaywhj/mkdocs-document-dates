@@ -28,7 +28,7 @@ try:
 except FileNotFoundError:
     long_description = "An easy-to-use, lightweight MkDocs plugin for displaying the exact creation time, last modification time and author info of markdown documents."
 
-VERSION = '3.1.6'
+VERSION = '3.2'
 
 setup(
     name="mkdocs-document-dates",

@@ -5,11 +5,8 @@ import subprocess
 from pathlib import Path
 import platform
 
-# 配置日志等级 (INFO WARNING ERROR)
-logging.basicConfig(
-    level=logging.WARNING,
-    format='%(levelname)s: %(message)s'
-)
+logger = logging.getLogger("mkdocs.plugins.document_dates")
+logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 def get_config_dir():
     if platform.system().lower().startswith('win'):
@@ -21,16 +18,14 @@ def check_python_version(interpreter):
     try:
         result = subprocess.run(
             [interpreter, "-c", "import sys; print(sys.version_info >= (3, 7))"],
-            capture_output=True, text=True, check=False
-        )
+            capture_output=True, text=True)
         if result.returncode == 0 and result.stdout.strip().lower() == 'true':
             return True
         else:
-            logging.warning(f"Low python version, requires python_requires >=3.7")
-            return False
+            logger.warning(f"Low python version, requires python_requires >=3.7")
     except Exception as e:
-        logging.debug(f"Failed to check {interpreter}: {str(e)}")
-        return False
+        logger.debug(f"Failed to check {interpreter}: {str(e)}")
+    return False
 
 def detect_python_interpreter():
     # 检查可能的Python解释器
@@ -50,11 +45,10 @@ def setup_hooks_directory():
         os.chmod(config_dir, 0o755)
         return config_dir
     except PermissionError:
-        logging.error(f"No permission to create directory: {config_dir}")
-        return None
+        logger.error(f"No permission to create directory: {config_dir}")
     except Exception as e:
-        logging.error(f"Failed to create directory {config_dir}: {str(e)}")
-        return None
+        logger.error(f"Failed to create directory {config_dir}: {str(e)}")
+    return None
 
 def install_hook_file(source_hook, target_dir):
     target_hook_path = target_dir / source_hook.name
@@ -76,20 +70,17 @@ def install_hook_file(source_hook, target_dir):
         os.chmod(target_hook_path, 0o755)
         return True
     except Exception as e:
-        logging.error(f"Failed to create hook file {target_hook_path}: {str(e)}")
-        return False
+        logger.error(f"Failed to create hook file {target_hook_path}: {str(e)}")
+    return False
 
 def configure_git_hooks(hooks_dir):
     try:
-        subprocess.run(
-            ['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)],
-            check=True, capture_output=True, encoding='utf-8'
-        )
-        logging.info(f"Git hooks successfully installed in: {hooks_dir}")
+        subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)], check=True)
+        logger.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
     except Exception:
-        logging.warning("Git not detected, failed to set git hooks path")
-        return False
+        logger.warning("Git not detected, failed to set git hooks path")
+    return False
 
 def install():
     try:
@@ -107,7 +98,7 @@ def install():
         return configure_git_hooks(hooks_dir)
 
     except Exception as e:
-        logging.error(f"Unexpected error during hooks installation: {str(e)}")
+        logger.error(f"Unexpected error during hooks installation: {str(e)}")
         return False
 
 if __name__ == '__main__':
