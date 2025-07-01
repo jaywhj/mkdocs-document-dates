@@ -93,7 +93,7 @@ email: e-name@gmail.com
 
 The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. Everything is customizable (I've already written the code, you just need to turn on the uncomment switch):
 
-|        Function：        | Location：                               |
+|        Category:        | Location:                               |
 | :----------------------: | ---------------------------------------- |
 |     **Style & Theme**     | `docs/assets/document_dates/user.config.css` |
 | **Properties & Functions** | `docs/assets/document_dates/user.config.js` |
