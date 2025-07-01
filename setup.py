@@ -19,7 +19,6 @@ def trigger_hook_install():
 
 class CustomInstallCommand(install):
     def run(self):
-        # 注册在安装结束时执行 trigger_hook_install
         atexit.register(trigger_hook_install)
         install.run(self)
 
@@ -58,7 +57,7 @@ setup(
             'document-dates = mkdocs_document_dates.plugin:DocumentDatesPlugin',
         ],
         'console_scripts': [
-            # 提供手动执行 hooks 的入口
+            # 提供手动安装 hooks 的入口
             'mkdocs-document-dates-hooks=mkdocs_document_dates.hooks_installer:install'
         ],
     },
