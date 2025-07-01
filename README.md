@@ -91,7 +91,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as **icon style, font style, theme color, animation type, dividing line**, etc. Everything is customizable (I've already written the code, you just need to turn on the uncomment switch):
+The plugin supports deep customization, such as **icon style, theme color, font, animation, dividing line**, etc. Everything is customizable (I've already written the code, you just need to turn on the uncomment switch):
 
 |        Category:        | Location:                               |
 | :----------------------: | ---------------------------------------- |
