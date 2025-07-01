@@ -92,7 +92,7 @@ email: e-name@gmail.com
 
 ## 插件定制化
 
-插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分割线**等等，一切都可以自定义（我已经写好了代码，你只需要打开取消注释开关即可）：
+插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分界线**等等，一切都可以自定义（我已经写好了代码，你只需要打开取消注释开关即可）：
 
 |    类别：    | 位置：                                         |
 | :---------: | ---------------------------------------------- |
@@ -104,6 +104,7 @@ email: e-name@gmail.com
 
 - 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
 - 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
+
     ```yaml
     extra_javascript:
       - assets/document_dates/core/timeago.full.min.js
