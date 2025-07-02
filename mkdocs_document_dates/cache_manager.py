@@ -32,12 +32,12 @@ def setup_gitattributes(docs_dir):
     updated = False
     try:
         gitattributes_path = docs_dir / '.gitattributes'
-        union_config_line = ".dates_cache.jsonl merge=union"
+        union_merge_line = ".dates_cache.jsonl merge=union"
         content = gitattributes_path.read_text(encoding='utf-8') if gitattributes_path.exists() else ""
-        if union_config_line not in content:
+        if union_merge_line not in content:
             if content and not content.endswith('\n'):
                 content += '\n'
-            content += f"{union_config_line}\n"
+            content += f"{union_merge_line}\n"
             gitattributes_path.write_text(content, encoding='utf-8')
             subprocess.run(["git", "add", str(gitattributes_path)], check=True)
             updated = True
