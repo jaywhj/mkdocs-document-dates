@@ -50,24 +50,24 @@ def setup_hooks_directory():
         logger.error(f"Failed to create directory {config_dir}: {str(e)}")
     return None
 
-def install_hook_file(source_hook, target_dir):
-    target_hook_path = target_dir / source_hook.name
+def install_hook_file(source_dir, target_dir):
     try:
-        # 读取并更新hook文件内容
-        with open(source_hook, 'r', encoding='utf-8') as f_in:
-            content = f_in.read()
-        
-        # 更新shebang行
         shebang = detect_python_interpreter()
-        if content.startswith('#!'):
-            content = shebang + os.linesep + content[content.find('\n'):]
-        else:
-            content = shebang + os.linesep + content
-        
-        # 写入并设置权限
-        with open(target_hook_path, 'w', encoding='utf-8') as f_out:
-            f_out.write(content)
-        os.chmod(target_hook_path, 0o755)
+        for item in source_dir.iterdir():
+            # 跳过隐藏文件和目录
+            if item.name.startswith('.') or not item.is_file():
+                continue
+
+            content = item.read_text(encoding='utf-8')
+            if content.startswith('#!'):
+                content = shebang + os.linesep + content[content.find('\n')+1:]
+            else:
+                content = shebang + os.linesep + content
+
+            target_hook_path = target_dir / item.name
+            target_hook_path.write_text(content, encoding='utf-8')
+            os.chmod(target_hook_path, 0o755)
+
         return True
     except Exception as e:
         logger.error(f"Failed to create hook file {target_hook_path}: {str(e)}")
@@ -85,17 +85,17 @@ def configure_git_hooks(hooks_dir):
 def install():
     try:
         # 创建hooks目录
-        hooks_dir = setup_hooks_directory()
-        if not hooks_dir:
+        target_dir = setup_hooks_directory()
+        if not target_dir:
             return False
 
         # 安装hook文件
-        source_hook = Path(__file__).parent / 'hooks' / 'pre-commit'
-        if not install_hook_file(source_hook, hooks_dir):
+        source_dir = Path(__file__).parent / 'hooks'
+        if not install_hook_file(source_dir, target_dir):
             return False
 
         # 配置git hooks路径
-        return configure_git_hooks(hooks_dir)
+        return configure_git_hooks(target_dir)
 
     except Exception as e:
         logger.error(f"Unexpected error during hooks installation: {str(e)}")

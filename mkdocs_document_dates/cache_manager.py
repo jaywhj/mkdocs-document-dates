@@ -33,21 +33,14 @@ def setup_gitattributes(docs_dir):
     try:
         gitattributes_path = docs_dir / '.gitattributes'
         union_config_line = ".dates_cache.jsonl merge=union"
-        if gitattributes_path.exists():
-            with open(gitattributes_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            if union_config_line not in content:
-                with open(gitattributes_path, 'a', encoding='utf-8') as f:
-                    f.write(f"\n{union_config_line}\n")
-                updated = True
-        else:
-            with open(gitattributes_path, 'w', encoding='utf-8') as f:
-                f.write(f"{union_config_line}\n")
-            updated = True
-        
-        if updated:
+        content = gitattributes_path.read_text(encoding='utf-8') if gitattributes_path.exists() else ""
+        if union_config_line not in content:
+            if content and not content.endswith('\n'):
+                content += '\n'
+            content += f"{union_config_line}\n"
+            gitattributes_path.write_text(content, encoding='utf-8')
             subprocess.run(["git", "add", str(gitattributes_path)], check=True)
+            updated = True
             logger.info(f"Updated .gitattributes file: {gitattributes_path}")
     except (IOError, OSError) as e:
         logger.error(f"Failed to read/write .gitattributes file: {e}")
