@@ -24,7 +24,7 @@ def check_python_version(interpreter):
         else:
             logger.warning(f"Low python version, requires python_requires >=3.7")
     except Exception as e:
-        logger.debug(f"Failed to check {interpreter}: {str(e)}")
+        logger.info(f"Failed to check {interpreter}: {str(e)}")
     return False
 
 def detect_python_interpreter():

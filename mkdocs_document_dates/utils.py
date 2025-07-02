@@ -77,7 +77,7 @@ def get_git_last_commit_time(file_path):
 
 def get_git_authors(file_path):
     try:
-        # 获取作者信息（为了兼容性，不采用管道命令，在 python 中处理去重）
+        # 为了兼容性，不采用管道命令，在 python 中处理去重
         # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
         # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'
         cmd_list = ['git', 'log', '--format=%an|%ae', '--', file_path]
