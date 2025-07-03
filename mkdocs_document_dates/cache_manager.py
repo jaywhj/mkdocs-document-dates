@@ -110,10 +110,8 @@ def update_cache():
                     continue
 
             # 标记删除不再跟踪的文件
-            files_to_remove = set(jsonl_dates_cache.keys()) - set(tracked_files)
-            if files_to_remove:
+            if len(jsonl_dates_cache) > len(tracked_files):
                 project_updated = True
-                logger.info(f"Removing {len(files_to_remove)} untracked files from cache")
 
             # 如果有更新，写入JSONL缓存文件
             if project_updated or not jsonl_cache_file.exists():
