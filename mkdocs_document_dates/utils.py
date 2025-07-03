@@ -142,7 +142,6 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
         return True
     except (IOError, json.JSONDecodeError) as e:
         logger.error(f"Failed to write JSONL cache file {jsonl_file}: {e}")
-        return False
     except Exception as e:
         logger.error(f"Failed to add JSONL cache file to git: {e}")
-        return False
+    return False

@@ -29,7 +29,6 @@ def find_mkdocs_projects():
     return projects
 
 def setup_gitattributes(docs_dir: Path):
-    updated = False
     try:
         gitattributes_path = docs_dir / '.gitattributes'
         union_merge_line = ".dates_cache.jsonl merge=union"
@@ -41,14 +40,13 @@ def setup_gitattributes(docs_dir: Path):
             content += f"{union_merge_line}\n"
             gitattributes_path.write_text(content, encoding='utf-8')
             subprocess.run(["git", "add", str(gitattributes_path)], check=True)
-            updated = True
             logger.info(f"Updated .gitattributes file: {gitattributes_path}")
+            return True
     except (IOError, OSError) as e:
         logger.error(f"Failed to read/write .gitattributes file: {e}")
     except Exception as e:
         logger.error(f"Failed to add .gitattributes to git: {e}")
-    
-    return updated
+    return False
 
 def update_cache():
     global_updated = False
@@ -63,8 +61,7 @@ def update_cache():
                 continue
 
             # 设置.gitattributes文件
-            if setup_gitattributes(docs_dir):
-                global_updated = True
+            global_updated = setup_gitattributes(docs_dir)
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
             cmd = ["git", "ls-files", "*.md"]
@@ -115,15 +112,13 @@ def update_cache():
 
             # 如果有更新，写入JSONL缓存文件
             if project_updated or not jsonl_cache_file.exists():
-                if write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files):
-                    global_updated = True
+                global_updated = write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files)
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to execute git command: {e}")
             continue
         except Exception as e:
             logger.error(f"Error processing project directory {project_dir}: {e}")
             continue
-
     return global_updated
 
 

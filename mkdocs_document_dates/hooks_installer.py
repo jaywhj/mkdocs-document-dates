@@ -56,7 +56,7 @@ def install_hook_file(source_dir: Path, target_dir: Path):
             # 跳过隐藏文件和目录
             if item.name.startswith('.') or not item.is_file():
                 continue
-
+            # 添加 shebang 行
             content = item.read_text(encoding='utf-8')
             if content.startswith('#!'):
                 content = shebang + os.linesep + content[content.find('\n')+1:]
