@@ -49,7 +49,7 @@ def setup_hooks_directory():
         logger.error(f"Failed to create directory {config_dir}: {str(e)}")
     return None
 
-def install_hook_file(source_dir, target_dir):
+def install_hook_file(source_dir: Path, target_dir: Path):
     try:
         shebang = detect_python_interpreter()
         for item in source_dir.iterdir():
@@ -83,7 +83,7 @@ def configure_git_hooks(hooks_dir):
         logger.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
     except Exception:
-        logger.warning("Git not detected, failed to set git hooks path")
+        logger.warning("Git not detected, using plugin in a no-Git environment")
     return False
 
 def install():

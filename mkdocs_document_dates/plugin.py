@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
+from mkdocs.structure.pages import Page
 from .utils import Author, read_json_cache, read_jsonl_cache, check_git_repo, get_file_creation_time, get_git_first_commit_time, get_git_authors
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
@@ -131,7 +132,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
-    def on_page_markdown(self, markdown, page, config, files):
+    def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', None)
         if not rel_path:
@@ -167,7 +168,7 @@ class DocumentDatesPlugin(BasePlugin):
         return self._insert_date_info(markdown, info_html)
 
 
-    def _load_translation(self, docs_dir_path):
+    def _load_translation(self, docs_dir_path: Path):
         # 内置语言文件目录
         builtin_dir = Path(__file__).parent / 'static' / 'languages'
         # 用户自定义语言文件目录
@@ -187,7 +188,7 @@ class DocumentDatesPlugin(BasePlugin):
             en_json = builtin_dir / 'en.json'
             shutil.copy2(en_json, custom_en_json)
 
-    def _load_lang_file(self, lang_dir):
+    def _load_lang_file(self, lang_dir: Path):
         try:
             locale_file = lang_dir / f"{self.config['locale']}.json"
             if locale_file.exists():
@@ -206,7 +207,7 @@ class DocumentDatesPlugin(BasePlugin):
                 return True
         return False
 
-    def _matches_exclude_pattern(self, rel_path, pattern):
+    def _matches_exclude_pattern(self, rel_path: str, pattern: str):
         if '*' not in pattern:
             return rel_path == pattern
         else:
@@ -241,7 +242,6 @@ class DocumentDatesPlugin(BasePlugin):
         return fs_time
 
     def _get_file_modification_time(self, file_path):
-        
         # 从git获取最后修改时间
         # if self.is_git_repo:
         #     return get_git_last_commit_time(file_path)
@@ -305,14 +305,14 @@ class DocumentDatesPlugin(BasePlugin):
         return None
 
 
-    def _get_formatted_date(self, date):
+    def _get_formatted_date(self, date: datetime):
         if self.config['type'] == 'timeago':
             return ""
         elif self.config['type'] == 'datetime':
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created, modified, authors=None):
+    def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
         html = ""
         try:
             locale = 'zh_CN' if self.config['locale'] == 'zh' else self.config['locale']

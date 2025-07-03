@@ -3,6 +3,7 @@ import platform
 import json
 import logging
 import subprocess
+from pathlib import Path
 from datetime import datetime
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
@@ -95,7 +96,7 @@ def get_git_authors(file_path):
         logger.warning(f"Failed to get git author info: {str(e)}")
     return None
 
-def read_json_cache(cache_file):
+def read_json_cache(cache_file: Path):
     dates_cache = {}
     if cache_file.exists():
         try:
@@ -105,7 +106,7 @@ def read_json_cache(cache_file):
             logger.warning(f"Error reading from '.dates_cache.json': {str(e)}")
     return dates_cache
 
-def read_jsonl_cache(jsonl_file):
+def read_jsonl_cache(jsonl_file: Path):
     dates_cache = {}
     if jsonl_file.exists():
         try:
@@ -122,7 +123,7 @@ def read_jsonl_cache(jsonl_file):
             logger.warning(f"Error reading from '.dates_cache.jsonl': {str(e)}")
     return dates_cache
 
-def write_jsonl_cache(jsonl_file, dates_cache, tracked_files):
+def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
     try:
         # 使用临时文件写入，然后替换原文件，避免写入过程中的问题
         temp_file = jsonl_file.with_suffix('.jsonl.tmp')

@@ -28,7 +28,7 @@ def find_mkdocs_projects():
     
     return projects
 
-def setup_gitattributes(docs_dir):
+def setup_gitattributes(docs_dir: Path):
     updated = False
     try:
         gitattributes_path = docs_dir / '.gitattributes'
@@ -63,8 +63,7 @@ def update_cache():
                 continue
 
             # 设置.gitattributes文件
-            gitattributes_updated = setup_gitattributes(docs_dir)
-            if gitattributes_updated:
+            if setup_gitattributes(docs_dir):
                 global_updated = True
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
