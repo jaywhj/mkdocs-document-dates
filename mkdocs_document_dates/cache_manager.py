@@ -33,6 +33,7 @@ def setup_gitattributes(docs_dir):
     try:
         gitattributes_path = docs_dir / '.gitattributes'
         union_merge_line = ".dates_cache.jsonl merge=union"
+        # custom_merge_line = ".dates_cache.json merge=custom_json_merge"
         content = gitattributes_path.read_text(encoding='utf-8') if gitattributes_path.exists() else ""
         if union_merge_line not in content:
             if content and not content.endswith('\n'):

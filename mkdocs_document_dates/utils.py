@@ -54,7 +54,7 @@ def check_git_repo():
 
 def get_git_first_commit_time(file_path):
     try:
-        # git log --reverse --format="%aI" --date=iso -- {file_path} | head -n 1
+        # git log --reverse --format="%aI" -- {file_path} | head -n 1
         cmd_list = ['git', 'log', '--reverse', '--format=%aI', '--', file_path]
         process = subprocess.run(cmd_list, capture_output=True, text=True)
         if process.returncode == 0 and process.stdout.strip():
@@ -78,8 +78,8 @@ def get_git_last_commit_time(file_path):
 def get_git_authors(file_path):
     try:
         # 为了兼容性，不采用管道命令，在 python 中处理去重
-        # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | sort | uniq'
-        # git_log_cmd = f'git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq'
+        # git log --format="%an|%ae" -- {file_path} | sort | uniq
+        # git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq
         cmd_list = ['git', 'log', '--format=%an|%ae', '--', file_path]
         process = subprocess.run(cmd_list, capture_output=True, text=True)
         if process.returncode == 0 and process.stdout.strip():

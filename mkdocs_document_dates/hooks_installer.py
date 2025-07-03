@@ -30,7 +30,6 @@ def check_python_version(interpreter):
 def detect_python_interpreter():
     # 检查可能的Python解释器
     python_interpreters = ['python3', 'python']
-    
     for interpreter in python_interpreters:
         if check_python_version(interpreter):
             return f'#!/usr/bin/env {interpreter}'
@@ -75,6 +74,11 @@ def install_hook_file(source_dir, target_dir):
 
 def configure_git_hooks(hooks_dir):
     try:
+        # 配置自定义合并驱动
+        # script_path = hooks_dir / 'json_merge_driver.py'
+        # subprocess.run(['git', 'config', '--global', 'merge.custom_json_merge.name', 'Custom JSON merge driver'], check=True)
+        # subprocess.run(['git', 'config', '--global', 'merge.custom_json_merge.driver', f'"{sys.executable}" "{script_path}" %O %A %B'], check=True)
+
         subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)], check=True)
         logger.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
