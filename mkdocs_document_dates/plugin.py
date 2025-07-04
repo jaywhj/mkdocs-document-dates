@@ -361,7 +361,7 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _insert_date_info(self, markdown: str, date_info: str):
         if self.config['position'] == 'top':
-            before, _, after = markdown.strip().partition('\n')
+            before, _, after = markdown.lstrip().partition('\n')
             if before.startswith('# '):
                 return f"{before}\n{date_info}\n{after}"
             else:
