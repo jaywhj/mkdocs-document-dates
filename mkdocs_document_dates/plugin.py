@@ -345,7 +345,6 @@ class DocumentDatesPlugin(BasePlugin):
                     # 多个作者的情况
                     authors_info = ', '.join(a.name for a in authors if a.name)
                     authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in authors)
-                    
                     html += (
                         f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_authors'></span>"
@@ -360,17 +359,11 @@ class DocumentDatesPlugin(BasePlugin):
         return html
 
 
-    def _insert_date_info(self, markdown, date_info):
-        if not markdown.strip():
-            return markdown
-
+    def _insert_date_info(self, markdown: str, date_info: str):
         if self.config['position'] == 'top':
-            lines = markdown.splitlines()
-            for i, line in enumerate(lines):
-                if line.startswith('# '):
-                    lines.insert(i + 1, date_info)
-                else:
-                    lines.insert(0, date_info)
-                return '\n'.join(lines)
-            return f"{date_info}\n{markdown}"
+            before, _, after = markdown.strip().partition('\n')
+            if before.startswith('# '):
+                return f"{before}\n{date_info}\n{after}"
+            else:
+                return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"
