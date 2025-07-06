@@ -57,7 +57,7 @@ def update_cache():
 
             docs_dir = project_dir / 'docs'
             if not docs_dir.exists():
-                logger.error(f"Document directory does not exist: {docs_dir}")
+                logger.warning(f"Document directory does not exist: {docs_dir}")
                 continue
 
             # 设置.gitattributes文件
