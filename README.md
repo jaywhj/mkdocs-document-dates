@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 
 
-An easy-to-use, lightweight MkDocs plugin for displaying the <mark>exact</mark> creation time, last modification time and author info of markdown documents.
+A new generation MkDocs plugin for displaying exact meta-info of documents, such as **creation time, last update time, authors, email**, etc.
 
 ## Features
 
