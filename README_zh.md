@@ -121,7 +121,7 @@ email: e-name@gmail.com
 ![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
-## 在模板中使用
+## 模板变量
 
 你可以在模板中使用如下变量访问文档的元信息：
 

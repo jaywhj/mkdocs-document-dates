@@ -120,7 +120,7 @@ The plugin supports deep customization, such as **icon style, theme color, font,
 ![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
 ![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
 
-## Used in templates
+## Template Variables
 
 You can access the meta-info of a document in a template using the following variables:
 
