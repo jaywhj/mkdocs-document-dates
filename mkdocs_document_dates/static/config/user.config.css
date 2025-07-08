@@ -34,11 +34,12 @@
 
 
 /* 2. Plug-in wrapper styles
-    including divider, margin, padding, etc
+    including divider line, margin, padding, etc
+    for example, remove the divider line like below:
     */
 /* 
 .document-dates-plugin-wrapper.document-dates-top {
-    border-bottom: 1px solid rgba(142, 142, 142, 0.15);
+    border-bottom: none;
 }
 .document-dates-plugin-wrapper.document-dates-bottom {
     border-bottom: none;

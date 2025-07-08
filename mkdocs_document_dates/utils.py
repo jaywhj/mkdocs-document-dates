@@ -93,7 +93,7 @@ def get_git_authors(file_path):
                 authors_map[line] = Author(name=name, email=email)
             return list(authors_map.values()) or None
     except Exception as e:
-        logger.warning(f"Failed to get git author info: {str(e)}")
+        logger.info(f"Failed to get git author info: {str(e)}")
     return None
 
 def read_json_cache(cache_file: Path):
@@ -141,7 +141,7 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
         logger.info(f"Successfully updated JSONL cache file: {jsonl_file}")
         return True
     except (IOError, json.JSONDecodeError) as e:
-        logger.error(f"Failed to write JSONL cache file {jsonl_file}: {e}")
+        logger.warning(f"Failed to write JSONL cache file {jsonl_file}: {e}")
     except Exception as e:
-        logger.error(f"Failed to add JSONL cache file to git: {e}")
+        logger.warning(f"Failed to add JSONL cache file to git: {e}")
     return False

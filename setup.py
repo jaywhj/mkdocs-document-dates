@@ -26,9 +26,9 @@ try:
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 except FileNotFoundError:
-    long_description = "An easy-to-use, lightweight MkDocs plugin for displaying the exact creation time, last modification time and author info of markdown documents."
+    long_description = "A new generation MkDocs plugin for displaying exact meta-info of documents, such as creation time, last update time, authors, email, etc."
 
-VERSION = '3.2'
+VERSION = '3.2.1'
 
 setup(
     name="mkdocs-document-dates",
@@ -36,7 +36,7 @@ setup(
     author="Aaron Wang",
     author_email="aaronwqt@gmail.com",
     license="MIT",
-    description="An easy-to-use, lightweight MkDocs plugin for displaying the exact creation time, last modification time and author info of markdown documents.",
+    description="A new generation MkDocs plugin for displaying exact meta-info of documents, such as creation time, last update time, authors, email, etc.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jaywhj/mkdocs-document-dates",
