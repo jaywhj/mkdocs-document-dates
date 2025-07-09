@@ -2,11 +2,11 @@
     including icons, fonts, colors, etc
     */
 /* 
-.document-dates-plugin {
+.md-main .document-dates-plugin {
     color: rgba(109, 157, 204, 0.7);
     font-size: 0.75rem;
 }
-.document-dates-plugin .material-icons {
+.md-main .document-dates-plugin .material-icons {
     font-size: 0.9rem;
 } */
 
@@ -38,10 +38,8 @@
     for example, remove the divider line like below:
     */
 /* 
-.document-dates-plugin-wrapper.document-dates-top {
-    border-bottom: none;
-}
-.document-dates-plugin-wrapper.document-dates-bottom {
+.md-main .document-dates-plugin-wrapper.document-dates-top,
+.md-main .document-dates-plugin-wrapper.document-dates-bottom {
     border-bottom: none;
 } */
 

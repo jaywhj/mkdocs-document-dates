@@ -361,9 +361,46 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _insert_date_info(self, markdown: str, date_info: str):
         if self.config['position'] == 'top':
-            before, _, after = markdown.lstrip().partition('\n')
-            if before.startswith('# '):
-                return f"{before}\n{date_info}\n{after}"
+            first_line, insert_pos = self.find_markdown_body_start(markdown)
+            if first_line.startswith('# '):
+                return markdown[:insert_pos] + date_info + '\n' + markdown[insert_pos:]
             else:
                 return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"
+
+    def find_markdown_body_start(self, text: str):
+        pos = 0
+        length = len(text)
+        in_comment = False
+        WHITESPACE = {' ', '\t', '\r', '\n'}
+
+        while pos < length:
+            next_newline = text.find('\n', pos)
+            if next_newline == -1:
+                next_newline = length
+
+            start = pos
+            while start < next_newline and text[start] in WHITESPACE:
+                start += 1
+
+            if start < next_newline:
+                if not in_comment:
+                    if text.startswith('<!--', start):
+                        in_comment = True
+                        start += 4
+                
+                if in_comment:
+                    comment_end = text.find('-->', start, next_newline)
+                    if comment_end != -1:
+                        in_comment = False
+                        pos = comment_end + 3
+                        continue
+                    pos = next_newline + 1
+                    continue
+
+                # 找到正文行
+                return text[start:next_newline], next_newline + 1 if next_newline < length else length
+
+            pos = next_newline + 1
+
+        return '', length
