@@ -337,7 +337,11 @@ class DocumentDatesPlugin(BasePlugin):
             if self.config['show_author'] and authors:
                 if len(authors) == 1:
                     author, = authors
-                    author_tooltip = f'<a href="mailto:{author.email}">{author.name}</a>' if author.email else author.name
+                    # 使用HTML实体编码避免转义问题
+                    if author.email:
+                        author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
+                    else:
+                        author_tooltip = author.name
                     html += (
                         f"<span data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_author'></span>"
@@ -347,7 +351,13 @@ class DocumentDatesPlugin(BasePlugin):
                 else:
                     # 多个作者的情况
                     authors_info = ', '.join(a.name for a in authors if a.name)
-                    authors_tooltip = ',&nbsp;'.join(f'<a href="mailto:{a.email}">{a.name}</a>' if a.email else a.name for a in authors)
+                    authors_tooltip_parts = []
+                    for a in authors:
+                        if a.email:
+                            authors_tooltip_parts.append(f'&lt;a href="mailto:{a.email}"&gt;{a.name}&lt;/a&gt;')
+                        else:
+                            authors_tooltip_parts.append(a.name)
+                    authors_tooltip = ',&nbsp;'.join(authors_tooltip_parts)
                     html += (
                         f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_authors'></span>"
