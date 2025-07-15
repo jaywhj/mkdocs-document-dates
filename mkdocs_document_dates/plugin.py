@@ -337,8 +337,8 @@ class DocumentDatesPlugin(BasePlugin):
             if self.config['show_author'] and authors:
                 if len(authors) == 1:
                     author, = authors
-                    # 使用HTML实体编码避免转义问题
                     if author.email:
+                        # 使用HTML实体编码避免转义问题
                         author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                     else:
                         author_tooltip = author.name
