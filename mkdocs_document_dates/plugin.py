@@ -7,10 +7,28 @@ from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
-from .utils import Author, read_json_cache, read_jsonl_cache, check_git_repo, get_file_creation_time, get_git_first_commit_time, get_git_authors
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+
+class Author:
+    def __init__(self, name="", email="", **kwargs):
+        self.name = name
+        self.email = email
+        # 扩展属性
+        self.attributes = kwargs
+    
+    def __getattr__(self, name):
+        return self.attributes.get(name)
+    
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'email': self.email,
+            **self.attributes
+        }
 
 
 class DocumentDatesPlugin(BasePlugin):
@@ -34,7 +52,6 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
         self.translation = {}
         self.dates_cache = {}
-        self.is_git_repo = False
 
     def on_config(self, config):
         try:
@@ -44,22 +61,20 @@ class DocumentDatesPlugin(BasePlugin):
         except Exception:
             self.config['locale'] = 'en'
 
-        # 检查是否为 Git 仓库
-        self.is_git_repo = check_git_repo()
-
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 json 语言文件
         self._load_translation(docs_dir_path)
 
-        # 加载日期缓存
+        # 加载 git 缓存
+        self.dates_cache = load_git_cache(docs_dir_path)
+        # 加载 jsonl 缓存覆盖
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
-        self.dates_cache = read_jsonl_cache(jsonl_cache_file)
-
-        # 兼容旧版缓存文件
-        if not self.dates_cache:
-            json_cache_file = docs_dir_path / '.dates_cache.json'
-            self.dates_cache = read_json_cache(json_cache_file)
+        if jsonl_cache_file.exists():
+            jsonl_cache = read_jsonl_cache(jsonl_cache_file)
+            for filename, new_info in jsonl_cache.items():
+                if filename in self.dates_cache:
+                    self.dates_cache[filename].update(new_info)
 
         """
         Tippy.js
@@ -83,7 +98,11 @@ class DocumentDatesPlugin(BasePlugin):
         for dir_name in ['tippy', 'core']:
             source_dir = Path(__file__).parent / 'static' / dir_name
             target_dir = dest_dir / dir_name
-            shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+            # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            for item in source_dir.iterdir():
+                if item.is_file():
+                    shutil.copy2(item, target_dir / item.name)
         
         # 复制配置文件模板到用户目录（如果不存在）
         config_files = ['user.config.css', 'user.config.js']
@@ -150,7 +169,7 @@ class DocumentDatesPlugin(BasePlugin):
             modified = self._get_file_modification_time(file_path)
         
         # 获取作者信息
-        authors = self._get_author_info(file_path, page, config)
+        authors = self._get_author_info(rel_path, page, config)
         
         # 在排除前暴露 meta 信息给前端使用
         page.meta['document_dates_created'] = created.isoformat()
@@ -202,16 +221,13 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _is_excluded(self, rel_path):
         for pattern in self.config['exclude']:
-            # if fnmatch.fnmatch(rel_path, pattern):
-            if self._matches_exclude_pattern(rel_path, pattern):
-                return True
+            if pattern.endswith('*'):
+                if rel_path.startswith(pattern.partition('*')[0]):
+                    return True
+            else:
+                if rel_path == pattern:
+                    return True
         return False
-
-    def _matches_exclude_pattern(self, rel_path: str, pattern: str):
-        if '*' not in pattern:
-            return rel_path == pattern
-        else:
-            return rel_path.startswith(pattern.partition('*')[0])
 
 
     def _find_meta_date(self, meta, field_names):
@@ -229,29 +245,16 @@ class DocumentDatesPlugin(BasePlugin):
         # 优先从缓存中读取
         if rel_path in self.dates_cache:
             return datetime.fromisoformat(self.dates_cache[rel_path]['created'])
-        
         # 从文件系统获取
-        fs_time = get_file_creation_time(file_path)
-        
-        # 获取Git首次提交时间
-        if self.is_git_repo:
-            git_time = get_git_first_commit_time(file_path)
-            # 取两者更早的时间
-            if git_time:
-                return min(fs_time, git_time)
-        return fs_time
+        return get_file_creation_time(file_path).astimezone()
 
     def _get_file_modification_time(self, file_path):
-        # 从git获取最后修改时间
-        # if self.is_git_repo:
-        #     return get_git_last_commit_time(file_path)
-
         # 从文件系统获取最后修改时间
         stat = os.stat(file_path)
-        return datetime.fromtimestamp(stat.st_mtime)
+        return datetime.fromtimestamp(stat.st_mtime).astimezone()
 
 
-    def _get_author_info(self, file_path, page, config):
+    def _get_author_info(self, rel_path, page, config):
         if not self.config['show_author']:
             return None
         # 1. meta author
@@ -259,10 +262,10 @@ class DocumentDatesPlugin(BasePlugin):
         if authors:
             return authors
         # 2. git author
-        if self.is_git_repo:
-            authors = get_git_authors(file_path)
-            if authors:
-                return authors
+        if rel_path in self.dates_cache:
+            authors_list = self.dates_cache[rel_path].get('authors')
+            if authors_list:
+                return [Author(**dict) for dict in authors_list]
         # 3. site_author 或 PC username
         return [Author(name=config.get('site_author') or Path.home().name)]
 

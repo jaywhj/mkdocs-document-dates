@@ -5,27 +5,54 @@ import logging
 import subprocess
 from pathlib import Path
 from datetime import datetime
+from collections import defaultdict
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class Author:
-    def __init__(self, name="", email="", **kwargs):
-        self.name = name
-        self.email = email
-        # 扩展属性
-        self.attributes = kwargs
-    
-    def __getattr__(self, name):
-        return self.attributes.get(name)
-    
-    def to_dict(self):
-        return {
-            'name': self.name,
-            'email': self.email,
-            **self.attributes
-        }
 
+def load_git_cache(docs_dir_path: Path):
+    dates_cache = {}
+    try:
+        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', '--', '*.md']
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+        if process.returncode == 0:
+            git_root = Path(subprocess.check_output(
+                ['git', 'rev-parse', '--show-toplevel'],
+                cwd=docs_dir_path,
+                text=True, encoding='utf-8'
+            ).strip())
+
+            authors_dict = defaultdict(set)
+            first_commit = {}
+            current_commit = None
+
+            for line in process.stdout.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if '|' in line:
+                    name, email, created = line.split('|', 2)
+                    current_commit = {'name': name, 'email': email, 'created': created}
+                elif line.endswith('.md') and current_commit:
+                    docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
+                    if line.startswith(docs_prefix + '/'):
+                        line = line[len(docs_prefix) + 1:]
+                    authors_dict[line].add((current_commit['name'], current_commit['email']))
+                    if line not in first_commit:
+                        first_commit[line] = current_commit['created']
+
+            for file_path in sorted(first_commit):
+                dates_cache[file_path] = {
+                    'created': first_commit[file_path],
+                    'authors': [
+                        {'name': name, 'email': email}
+                        for name, email in sorted(authors_dict[file_path])
+                        ]
+                }
+    except Exception as e:
+        logger.info(f"Error getting git info in {docs_dir_path}: {e}")
+    return dates_cache
 
 def get_file_creation_time(file_path):
     try:
@@ -43,58 +70,6 @@ def get_file_creation_time(file_path):
     except (OSError, ValueError) as e:
         logger.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
-
-def check_git_repo():
-    try:
-        check_git = subprocess.run(['git', 'rev-parse', '--is-inside-work-tree'], capture_output=True, text=True)
-        if check_git.returncode == 0:
-            return True
-    except Exception as e:
-        logger.info(f"Not a Git repository: {str(e)}")
-    return False
-
-def get_git_first_commit_time(file_path):
-    try:
-        # git log --reverse --format="%aI" -- {file_path} | head -n 1
-        cmd_list = ['git', 'log', '--reverse', '--format=%aI', '--', file_path]
-        process = subprocess.run(cmd_list, capture_output=True, text=True)
-        if process.returncode == 0 and process.stdout.strip():
-            first_line = process.stdout.partition('\n')[0].strip()
-            return datetime.fromisoformat(first_line).replace(tzinfo=None)
-    except Exception as e:
-        logger.info(f"Error getting git first commit time for {file_path}: {e}")
-    return None
-
-def get_git_last_commit_time(file_path):
-    try:
-        cmd_list = ['git', 'log', '-1', '--format=%aI', '--', file_path]
-        process = subprocess.run(cmd_list, capture_output=True, text=True)
-        if process.returncode == 0 and process.stdout.strip():
-            git_time = process.stdout.strip()
-            return datetime.fromisoformat(git_time).replace(tzinfo=None)
-    except Exception as e:
-        logger.info(f"Error getting git last commit time for {file_path}: {e}")
-    return None
-
-def get_git_authors(file_path):
-    try:
-        # 为了兼容性，不采用管道命令，在 python 中处理去重
-        # git log --format="%an|%ae" -- {file_path} | sort | uniq
-        # git log --format="%an|%ae" -- {file_path} | grep -vE "bot|noreply|ci|github-actions|dependabot|renovate" | sort | uniq
-        cmd_list = ['git', 'log', '--format=%an|%ae', '--', file_path]
-        process = subprocess.run(cmd_list, capture_output=True, text=True)
-        if process.returncode == 0 and process.stdout.strip():
-            # 使用字典去重和存储作者
-            authors_map = {}
-            for line in process.stdout.splitlines():
-                if not line.strip() or line in authors_map:
-                    continue
-                name, email = line.split('|')
-                authors_map[line] = Author(name=name, email=email)
-            return list(authors_map.values()) or None
-    except Exception as e:
-        logger.info(f"Failed to get git author info: {str(e)}")
-    return None
 
 def read_json_cache(cache_file: Path):
     dates_cache = {}
