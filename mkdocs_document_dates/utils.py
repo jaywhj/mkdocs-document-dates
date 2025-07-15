@@ -22,6 +22,7 @@ def load_git_cache(docs_dir_path: Path):
                 cwd=docs_dir_path,
                 text=True, encoding='utf-8'
             ).strip())
+            docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
 
             authors_dict = defaultdict(set)
             first_commit = {}
@@ -35,7 +36,6 @@ def load_git_cache(docs_dir_path: Path):
                     name, email, created = line.split('|', 2)
                     current_commit = {'name': name, 'email': email, 'created': created}
                 elif line.endswith('.md') and current_commit:
-                    docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
                     if line.startswith(docs_prefix + '/'):
                         line = line[len(docs_prefix) + 1:]
                     authors_dict[line].add((current_commit['name'], current_commit['email']))
