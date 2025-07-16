@@ -84,7 +84,7 @@ function formatTimeagoElements() {
     }
 }
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    // Use Material's document$ observable for both initial load and navigation.instant
+    // Compatible with Material for MkDocs 'navigation.instant'
     window.document$.subscribe(formatTimeagoElements);
 } else {
     // Fallback to standard DOMContentLoaded for other themes
