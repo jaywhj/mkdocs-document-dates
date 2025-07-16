@@ -77,7 +77,7 @@ class DocumentDatesPlugin(BasePlugin):
                     self.dates_cache[filename].update(new_info)
 
         """
-        Tippy.js
+        Tippy.js, for Tooltip
         # core
             https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js
             https://unpkg.com/tippy.js@6/dist/tippy.umd.min.js
@@ -338,7 +338,7 @@ class DocumentDatesPlugin(BasePlugin):
                 if len(authors) == 1:
                     author, = authors
                     if author.email:
-                        # 使用HTML实体编码避免转义问题
+                        # 使用 HTML 实体编码避免 Tippy.js 转义问题
                         author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                     else:
                         author_tooltip = author.name

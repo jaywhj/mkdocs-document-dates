@@ -17,6 +17,7 @@ A new generation MkDocs plugin for displaying exact meta-info of documents, such
   - Intelligent repositioning to always float optimally in view
   - Supports automatic theme switching following Material's light/dark color scheme
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
+- Ultimate build efficiency O(1), typically less than 0.2 seconds, regardless of whether the number of documents is 1,000 or 10,000
 
 ## Showcases
 
@@ -57,7 +58,7 @@ plugins:
 
 The plugin will automatically get the exact time of the document, will automatically cache the creation time, but of course, you can also specify it manually in `Front Matter`
 
-Priority order: `Front Matter` > `Cache Files` > `File System Timestamps`
+Priority order: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
 
 ```yaml
 ---
@@ -75,7 +76,7 @@ modified: 2025-02-23
 
 The plugin will automatically get the author of the document, will parse the email and make a link, also you can specify it manually in `Front Matter`
 
-Priority order: `Front Matter` > `Git Author` > `site_author (mkdocs.yml)` > `PC Username`
+Priority order: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
 
 ```yaml
 ---
@@ -91,7 +92,7 @@ email: e-name@gmail.com
 
 ## Customization
 
-The plugin supports deep customization, such as **icon style, theme color, font, animation, dividing line**, etc. Everything is customizable (I've already written the code, you just need to turn on the uncomment switch):
+The plugin supports deep customization, such as **icon style, theme color, font, animation, dividing line**, etc. Everything is customizable (Find the file below and turn on the uncomment switch):
 
 |        Category:        | Location:                               |
 | :----------------------: | ---------------------------------------- |
