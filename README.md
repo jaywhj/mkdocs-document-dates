@@ -50,7 +50,7 @@ plugins:
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
-        - private/*            # Exclude all files in private directory, including subdirectories
+        - private/*            # Exclude all files in private folder, including subfolders
       show_author: true        # Show author or not, default: true
 ```
 
