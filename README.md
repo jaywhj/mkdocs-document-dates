@@ -17,7 +17,7 @@ A new generation MkDocs plugin for displaying exact meta-info of documents, such
   - Intelligent repositioning to always float optimally in view
   - Supports automatic theme switching following Material's light/dark color scheme
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
-- Ultimate build efficiency O(1), typically less than 0.2 seconds, regardless of whether the number of documents is 1,000 or 10,000
+- **Ultimate build efficiency**: O(1), typically less than 0.2 seconds, regardless of whether the number of documents is 1,000 or 10,000
 
 ## Showcases
 
