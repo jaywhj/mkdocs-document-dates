@@ -28,7 +28,7 @@ try:
 except FileNotFoundError:
     long_description = "A new generation MkDocs plugin for displaying exact meta-info of documents, such as creation time, last update time, authors, email, etc."
 
-VERSION = '3.2.1'
+VERSION = '3.2.2'
 
 setup(
     name="mkdocs-document-dates",

@@ -1,0 +1,40 @@
+<div class="document-dates-plugin">
+
+    <!-- Render authors -->
+    {% if page.meta.document_dates_authors %}
+        {% if page.meta.document_dates_authors|length == 1 %}
+            {% set author = page.meta.document_dates_authors[0] %}
+            <span data-tippy-content="{{ page.meta.document_dates_translation.author }}: {% if author.email %}&lt;a href=&quot;mailto:{{ author.email }}&quot;&gt;{{ author.name }}&lt;/a&gt;{% else %}{{ author.name }}{% endif %}">
+                <span class="material-icons" data-icon="doc_author"></span>
+                {{ author.name }}
+            </span>
+        {% else %}
+            {% set authors_info = page.meta.document_dates_authors|map(attribute='name')|join(', ') %}
+            {% set authors_tooltip = [] %}
+            {% for author in page.meta.document_dates_authors %}
+                {% if author.email %}
+                    {% set _ = authors_tooltip.append('&lt;a href=&quot;mailto:' ~ author.email ~ '&quot;&gt;' ~ author.name ~ '&lt;/a&gt;') %}
+                {% else %}
+                    {% set _ = authors_tooltip.append(author.name) %}
+                {% endif %}
+            {% endfor %}
+            <span data-tippy-content="{{ page.meta.document_dates_translation.authors }}: {{ authors_tooltip|join(',&nbsp;') }}">
+                <span class="material-icons" data-icon="doc_authors"></span>
+                {{ authors_info }}
+            </span>
+        {% endif %}
+    {% endif %}
+    
+    <!-- Render date of creation -->
+    <span data-tippy-content="{{ page.meta.document_dates_translation.created_time }}: {{ page.meta.document_dates_created[:10]|e }}">
+        <span class="material-icons" data-icon="doc_created"></span>
+        <time datetime="{{ page.meta.document_dates_created|e }}" locale="{{ page.meta.document_dates_locale }}">{{ page.meta.document_dates_created[:10]|e }}</time>
+    </span>
+    
+    <!-- Render date of last update -->
+    <span data-tippy-content="{{ page.meta.document_dates_translation.modified_time }}: {{ page.meta.document_dates_modified[:10]|e }}">
+        <span class="material-icons" data-icon="doc_modified"></span>
+        <time datetime="{{ page.meta.document_dates_modified|e }}" locale="{{ page.meta.document_dates_locale }}">{{ page.meta.document_dates_modified[:10]|e }}</time>
+    </span>
+
+</div>
