@@ -128,6 +128,8 @@ You can access the meta-info of a document in a template using the following var
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
+- page.meta.document_dates_locale
+- page.meta.document_dates_translation
 
 For example like this:
 
@@ -145,7 +147,8 @@ For example like this:
 {% endif %}
 ```
 
-**Full example**: set the correct lastmod for [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/sitemap.xml) so that search engines can better handle SEO and thus increase your site's exposure (override path: `docs/overrides/sitemap.xml`)
+- **Example 1**: Set the correct `lastmod` for your site's `sitemap.xml` so that search engines can better handle SEO and thus increase your site's exposure (download sitemap.xml and override this path: `docs/overrides/sitemap.xml`)
+- **Example 2**: Using the template to re-customize the plugin, you have full control over the rendering logic and the plugin is only responsible for providing the data (download source-file.html and override this path: `docs/overrides/partials/source-file.html`).
 
 ## Other Tips
 

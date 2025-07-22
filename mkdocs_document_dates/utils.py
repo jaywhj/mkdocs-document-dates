@@ -6,10 +6,23 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
+from urllib.parse import urlparse
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+
+def extract_github_username(url):
+    try:
+        parsed = urlparse(url)
+        if parsed.netloc != 'github.com':
+            return None
+        path_parts = [p for p in parsed.path.split('/') if p]
+        if path_parts:
+            return path_parts[0]
+    except Exception as e:
+        logger.info(f"Error parsing URL: {e}")
+    return None
 
 def load_git_cache(docs_dir_path: Path):
     dates_cache = {}

@@ -8,16 +8,16 @@
     padding: 0.2rem 0;
     display: flex;
     align-items: center;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.6rem;
 }
 .md-main .document-dates-plugin {
     color: rgba(142, 142, 142, 0.7);
     font-size: 0.75rem;
 }
-.document-dates-plugin span:not(:first-child) {
+.document-dates-plugin > span:not(:first-child) {
     margin-left: 1.5rem;
 }
-.document-dates-plugin span {
+.document-dates-plugin > span {
     display: inline-flex;
     align-items: center;
 }
@@ -59,7 +59,6 @@
 .document-dates-plugin-wrapper.document-dates-top,
 .document-dates-plugin-wrapper.document-dates-bottom {
     margin: 1rem 0;
-    padding-bottom: 0.3rem;
     border-bottom: 1px solid rgba(142, 142, 142, 0.15);
 }
 .md-main .document-dates-plugin-wrapper.document-dates-top {
@@ -103,4 +102,42 @@ Recommended Colors:
     -webkit-transform: scale(0.75);
     -ms-transform: scale(0.75);
     transform: scale(0.75);
+}
+
+
+
+/* 4. Author Avatar styles */
+.avatar-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: -0.15rem 0 -0.15rem 0.15rem;
+}
+.avatar-group .avatar {
+    margin: 0.15rem 0.3rem 0.15rem 0;
+}
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    text-transform: capitalize;
+    opacity: 0.7;
+    filter: grayscale(90%);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+.avatar img,
+.avatar[src] {
+    object-fit: cover;
+}
+.avatar:hover {
+    transform: scale(1.08);
+    filter: grayscale(0%);
+    cursor: pointer;
 }

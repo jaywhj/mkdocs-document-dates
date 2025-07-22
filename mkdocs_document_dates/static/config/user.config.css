@@ -34,13 +34,20 @@
 
 
 /* 2. Plug-in wrapper styles
-    including divider line, margin, padding, etc
-    for example, remove the divider line like below:
+    including divider line, margin, padding, and the hiding of this plugin, etc
     */
+/* Remove the divider line: */
 /* 
 .md-main .document-dates-plugin-wrapper.document-dates-top,
 .md-main .document-dates-plugin-wrapper.document-dates-bottom {
     border-bottom: none;
+} */
+
+/* Hide this plugin (default build version):
+    and then you can reformulate the plugin's arbitrary display position and style based on template variables */
+/* 
+.document-dates-plugin-wrapper {
+    display: none;
 } */
 
 

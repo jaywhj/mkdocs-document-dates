@@ -128,6 +128,8 @@ email: e-name@gmail.com
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
+- page.meta.document_dates_locale
+- page.meta.document_dates_translation
 
 比如像这样：
 
@@ -145,7 +147,8 @@ email: e-name@gmail.com
 {% endif %}
 ```
 
-**完整示例**：为 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/sitemap.xml) 设置正确的 lastmod，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（覆盖路径：`docs/overrides/sitemap.xml`）
+- **示例1**：为你站点的 `sitemap.xml` 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 sitemap.xml 后覆盖：`docs/overrides/sitemap.xml`）
+- **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 source-file.html 后覆盖：`docs/overrides/partials/source-file.html`）
 
 ## 其它提示
 

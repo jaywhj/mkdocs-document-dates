@@ -160,3 +160,39 @@ window.DocumentDates = {
     registerHook,
     setConfig
 };
+
+
+
+/* Automatically generate avatars based on text */
+
+function isLatin(name) {
+    return /^[A-Za-z\s]+$/.test(name.trim());
+}
+function extractInitials(name) {
+    name = name.trim();
+    if (!name) return '?';
+    if (isLatin(name)) {
+        const parts = name.toUpperCase().split(/\s+/).filter(Boolean);
+        return parts.length >= 2 ? parts[0][0] + parts[parts.length - 1][0] : parts[0][0];
+    } else {
+        return name[0];
+    }
+}
+function nameToHSL(name, s = 50, l = 55) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const hue = hash % 360;
+    return `hsl(${hue}, ${s}%, ${l}%)`;
+}
+document.querySelectorAll('.avatar-group .avatar').forEach(el => {
+    if (el.tagName.toLowerCase() === 'img' && el.src) return;
+
+    const name = el.dataset.name || '';
+    const initials = extractInitials(name);
+    const bgColor = nameToHSL(name);
+
+    el.textContent = initials;
+    el.style.backgroundColor = bgColor;
+});

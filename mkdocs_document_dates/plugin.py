@@ -7,7 +7,7 @@ from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache, extract_github_username
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -37,7 +37,7 @@ class DocumentDatesPlugin(BasePlugin):
         ('locale', config_options.Type(str, default=None)),
         ('date_format', config_options.Type(str, default='%Y-%m-%d')),
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
-        ('position', config_options.Type(str, default='bottom')),
+        ('position', config_options.Type(str, default='top')),
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
@@ -52,6 +52,7 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
         self.translation = {}
         self.dates_cache = {}
+        self.github_username = None
 
     def on_config(self, config):
         try:
@@ -60,6 +61,8 @@ class DocumentDatesPlugin(BasePlugin):
                 self.config['locale'] = config['theme']['language']
         except Exception:
             self.config['locale'] = 'en'
+
+        self.github_username = extract_github_username(config.get('repo_url'))
 
         docs_dir_path = Path(config['docs_dir'])
 
@@ -149,6 +152,9 @@ class DocumentDatesPlugin(BasePlugin):
             'assets/document_dates/user.config.js'
         ])
 
+        if self.config['locale'] == 'zh':
+            self.config['locale'] = 'zh_CN'
+        
         return config
 
     def on_page_markdown(self, markdown, page: Page, config, files):
@@ -175,6 +181,8 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_created'] = created.isoformat()
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
+        page.meta['document_dates_locale'] = self.config['locale']
+        page.meta['document_dates_translation'] = self.translation
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
@@ -318,52 +326,63 @@ class DocumentDatesPlugin(BasePlugin):
     def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
         html = ""
         try:
-            locale = 'zh_CN' if self.config['locale'] == 'zh' else self.config['locale']
-            position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
-            
             # 构建基本的日期信息 HTML
+            position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
             html += (
                 f"<div class='document-dates-plugin-wrapper {position_class}'>"
                 f"<div class='document-dates-plugin'>"
                 f"<span data-tippy-content='{self.translation.get('created_time', 'Created')}: {created.strftime(self.config['date_format'])}'>"
                 f"<span class='material-icons' data-icon='doc_created'></span>"
-                f"<time datetime='{created.isoformat()}' locale='{locale}'>{self._get_formatted_date(created)}</time></span>"
+                f"<time datetime='{created.isoformat()}' locale='{self.config['locale']}'>{self._get_formatted_date(created)}</time></span>"
                 f"<span data-tippy-content='{self.translation.get('modified_time', 'Last Update')}: {modified.strftime(self.config['date_format'])}'>"
                 f"<span class='material-icons' data-icon='doc_modified'></span>"
-                f"<time datetime='{modified.isoformat()}' locale='{locale}'>{self._get_formatted_date(modified)}</time></span>"
+                f"<time datetime='{modified.isoformat()}' locale='{self.config['locale']}'>{self._get_formatted_date(modified)}</time></span>"
             )
             
             # 添加作者信息
             if self.config['show_author'] and authors:
                 if len(authors) == 1:
                     author, = authors
-                    if author.email:
-                        # 使用 HTML 实体编码避免 Tippy.js 转义问题
+                    # 使用 HTML 实体编码避免 Tippy.js 转义问题
+                    if author.url:
+                        author_tooltip = f'&lt;a href="{author.url}"&gt;{author.name}&lt;/a&gt;'
+                    elif author.email:
                         author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                     else:
                         author_tooltip = author.name
+                    
+                    if author.avatar:
+                        avatar_html = f"<img class='avatar' src='{author.avatar}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}' />"
+                    elif self.github_username:
+                        avatar_html = f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}' />"
+                    else:
+                        avatar_html = f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'></span>"
+                    
                     html += (
-                        f"<span data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_author'></span>"
-                        f"{author.name}</span>"
-                        # f"{author_tooltip}</span>"
+                        f"<div class='avatar-group'>"
+                        f"{avatar_html}"
+                        f"</div>"
                     )
                 else:
                     # 多个作者的情况
-                    authors_info = ', '.join(a.name for a in authors if a.name)
-                    authors_tooltip_parts = []
-                    for a in authors:
-                        if a.email:
-                            authors_tooltip_parts.append(f'&lt;a href="mailto:{a.email}"&gt;{a.name}&lt;/a&gt;')
-                        else:
-                            authors_tooltip_parts.append(a.name)
-                    authors_tooltip = ',&nbsp;'.join(authors_tooltip_parts)
                     html += (
-                        f"<span data-tippy-content='{self.translation.get('authors', 'Authors')}: {authors_tooltip}'>"
                         f"<span class='material-icons' data-icon='doc_authors'></span>"
-                        f"{authors_info}</span>"
-                        # f"{authors_tooltip}</span>"
+                        f"<div class='avatar-group'>"
                     )
+                    for author in authors:
+                        if author.url:
+                            author_tooltip = f'&lt;a href="{author.url}"&gt;{author.name}&lt;/a&gt;'
+                        elif author.email:
+                            author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
+                        else:
+                            author_tooltip = author.name
+                        
+                        if author.avatar:
+                            html += f"<img class='avatar' src='{author.avatar}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}' />"
+                        else:
+                            html += f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'></span>"
+                    html += f"</div>"
             
             html += f"</div></div>"
         
