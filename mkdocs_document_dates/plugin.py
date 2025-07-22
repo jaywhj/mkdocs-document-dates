@@ -14,20 +14,20 @@ logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Author:
-    def __init__(self, name="", email="", **kwargs):
+    def __init__(self, name="", email="", avatar="", url="", desc=""):
         self.name = name
         self.email = email
-        # 扩展属性
-        self.attributes = kwargs
-    
-    def __getattr__(self, name):
-        return self.attributes.get(name)
+        self.avatar = avatar
+        self.url = url
+        self.desc = desc
     
     def to_dict(self):
         return {
             'name': self.name,
             'email': self.email,
-            **self.attributes
+            'avatar': self.avatar,
+            'url': self.url,
+            'desc': self.desc
         }
 
 
@@ -41,11 +41,7 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
-        ('show_author', config_options.Type(bool, default=True)),
-        ('author_field_mapping', config_options.Type(dict, default={
-            'name': ['name', 'author'],
-            'email': ['email', 'mail']
-        }))
+        ('show_author', config_options.Type(bool, default=True))
     )
 
     def __init__(self):
@@ -283,29 +279,19 @@ class DocumentDatesPlugin(BasePlugin):
             author_data = meta.get('author')
             if author_data:
                 if isinstance(author_data, dict):
-                    name = str(author_data.get('name', ''))
+                    name = author_data.get('name')
                     if not name:
                         return None
-                    email = str(author_data.get('email', ''))
-                    # 提取扩展属性
-                    extra_attrs = {k: str(v) for k, v in author_data.items() 
-                                if k not in ['name', 'email']}
-                    return [Author(name=name, email=email, **extra_attrs)]
+                    email = author_data.get('email')
+                    avatar = author_data.get('avatar')
+                    url = author_data.get('url')
+                    desc = author_data.get('desc')
+                    return [Author(name=name, email=email, avatar=avatar, url=url, desc=desc)]
                 return [Author(name=str(author_data))]
             
-            # 2. 处理独立字段，匹配 author_field_mapping 配置
-            name = ''
-            email = ''
-            
-            for name_field in self.config['author_field_mapping']['name']:
-                if name_field in meta:
-                    name = str(meta[name_field])
-                    break
-            
-            for email_field in self.config['author_field_mapping']['email']:
-                if email_field in meta:
-                    email = str(meta[email_field])
-                    break
+            # 2. 处理独立字段: name, email
+            name = meta.get('name')
+            email = meta.get('email')
             
             if name or email:
                 if not name and email:
@@ -345,7 +331,7 @@ class DocumentDatesPlugin(BasePlugin):
                     author, = authors
                     # 使用 HTML 实体编码避免 Tippy.js 转义问题
                     if author.url:
-                        author_tooltip = f'&lt;a href="{author.url}"&gt;{author.name}&lt;/a&gt;'
+                        author_tooltip = f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
                     elif author.email:
                         author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                     else:
@@ -372,7 +358,7 @@ class DocumentDatesPlugin(BasePlugin):
                     )
                     for author in authors:
                         if author.url:
-                            author_tooltip = f'&lt;a href="{author.url}"&gt;{author.name}&lt;/a&gt;'
+                            author_tooltip = f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
                         elif author.email:
                             author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                         else:
