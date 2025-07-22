@@ -132,8 +132,7 @@ Recommended Colors:
     filter: grayscale(90%);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-.avatar img,
-.avatar[src] {
+img.avatar {
     object-fit: cover;
 }
 .avatar:hover {

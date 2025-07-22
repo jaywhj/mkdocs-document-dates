@@ -352,9 +352,9 @@ class DocumentDatesPlugin(BasePlugin):
                         author_tooltip = author.name
                     
                     if author.avatar:
-                        avatar_html = f"<img class='avatar' src='{author.avatar}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}' />"
+                        avatar_html = f"<div data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'><img class='avatar' src='{author.avatar}' /></div>"
                     elif self.github_username:
-                        avatar_html = f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}' />"
+                        avatar_html = f"<div data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'><img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' /></div>"
                     else:
                         avatar_html = f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'></span>"
                     
@@ -379,7 +379,7 @@ class DocumentDatesPlugin(BasePlugin):
                             author_tooltip = author.name
                         
                         if author.avatar:
-                            html += f"<img class='avatar' src='{author.avatar}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}' />"
+                            html += f"<div data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'><img class='avatar' src='{author.avatar}' /></div>"
                         else:
                             html += f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'></span>"
                     html += f"</div>"
