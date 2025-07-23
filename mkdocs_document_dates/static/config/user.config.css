@@ -73,3 +73,17 @@
 .tippy-box[data-theme~='sublime'] > .tippy-arrow::before {
     color: #474747;
 } */
+
+
+
+/* 4. Author Avatar styles
+    e.g. shape, hover scale, grayscale mode
+    */
+/* 
+.avatar {
+    border-radius: 4px;
+    filter: grayscale(0%);
+}
+.avatar:hover {
+    transform: scale(1.08);
+} */
