@@ -80,10 +80,10 @@
     e.g. shape, hover scale, grayscale mode
     */
 /* 
-.avatar {
+.avatar-wrapper {
     border-radius: 4px;
     filter: grayscale(0%);
 }
-.avatar:hover {
+.avatar-wrapper:hover {
     transform: scale(1.08);
 } */

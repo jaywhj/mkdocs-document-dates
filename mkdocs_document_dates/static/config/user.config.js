@@ -18,7 +18,7 @@ DocumentDates.setConfig({
     },
     tooltip: {
         placement: 'bottom',    // placement: top bottom left right auto
-        offset: [0, 6],         // placement offset: [horizontal, vertical]
+        offset: [0, 10],         // placement offset: [horizontal, vertical]
         interactive: true,      // content in Tooltip is interactive
         allowHTML: true,        // whether to allow HTML in the tooltip content
         

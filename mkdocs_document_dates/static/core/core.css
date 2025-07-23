@@ -113,30 +113,41 @@ Recommended Colors:
     flex-wrap: wrap;
     margin: -0.15rem 0 -0.15rem 0.15rem;
 }
-.avatar-group .avatar {
+.avatar-wrapper {
     margin: 0.15rem 0.3rem 0.15rem 0;
-}
-.avatar {
+    position: relative;
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    color: white;
-    font-weight: bold;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
-    text-transform: capitalize;
+    flex-shrink: 0;
     opacity: 0.7;
     filter: grayscale(90%);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
-img.avatar {
-    object-fit: cover;
-}
-.avatar:hover {
+.avatar-wrapper:hover {
     transform: scale(1.08);
     filter: grayscale(0%);
     cursor: pointer;
+}
+.avatar-wrapper img.avatar {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 2;
+}
+.avatar-wrapper .avatar-text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: capitalize;
+    z-index: 1;
 }

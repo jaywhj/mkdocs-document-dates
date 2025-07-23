@@ -6,7 +6,7 @@ const defaultConfig = {
     },
     tooltip: {
         placement: 'bottom',    // placement: top bottom left right auto
-        offset: [0, 10],        // placement offset: [horizontal, vertical]
+        offset: [0, 12],        // placement offset: [horizontal, vertical]
         interactive: true,      // content in Tooltip is interactive
         allowHTML: true,        // whether to allow HTML in the tooltip content
         
@@ -186,13 +186,18 @@ function nameToHSL(name, s = 50, l = 55) {
     const hue = hash % 360;
     return `hsl(${hue}, ${s}%, ${l}%)`;
 }
-document.querySelectorAll('.avatar-group .avatar').forEach(el => {
-    if (el.tagName.toLowerCase() === 'img' && el.src) return;
-
-    const name = el.dataset.name || '';
+document.querySelectorAll('.avatar-wrapper').forEach(wrapper => {
+    const name = wrapper.dataset.name || '';
     const initials = extractInitials(name);
     const bgColor = nameToHSL(name);
 
-    el.textContent = initials;
-    el.style.backgroundColor = bgColor;
+    const textEl = wrapper.querySelector('.avatar-text');
+    textEl.textContent = initials;
+    textEl.style.backgroundColor = bgColor;
+
+    const imgEl = wrapper.querySelector('img.avatar');
+    if (!imgEl) return;
+    imgEl.onerror = () => {
+        imgEl.style.display = 'none';
+    };
 });

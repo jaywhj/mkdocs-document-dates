@@ -338,16 +338,18 @@ class DocumentDatesPlugin(BasePlugin):
                         author_tooltip = author.name
                     
                     if author.avatar:
-                        avatar_html = f"<div data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'><img class='avatar' src='{author.avatar}' /></div>"
+                        img_ele = f"<img class='avatar' src='{author.avatar}' />"
                     elif self.github_username:
-                        avatar_html = f"<div data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'><img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' /></div>"
+                        img_ele = f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' />"
                     else:
-                        avatar_html = f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'></span>"
-                    
+                        img_ele = ""
+
                     html += (
                         f"<span class='material-icons' data-icon='doc_author'></span>"
                         f"<div class='avatar-group'>"
-                        f"{avatar_html}"
+                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
+                        f"{img_ele}<span class='avatar-text'></span>"
+                        f"</div>"
                         f"</div>"
                     )
                 else:
@@ -365,9 +367,15 @@ class DocumentDatesPlugin(BasePlugin):
                             author_tooltip = author.name
                         
                         if author.avatar:
-                            html += f"<div data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'><img class='avatar' src='{author.avatar}' /></div>"
+                            img_ele = f"<img class='avatar' src='{author.avatar}' />"
                         else:
-                            html += f"<span class='avatar' data-name='{author.name}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'></span>"
+                            img_ele = ""
+                        
+                        html += (
+                            f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'>"
+                            f"{img_ele}<span class='avatar-text'></span>"
+                            f"</div>"                            
+                        )
                     html += f"</div>"
             
             html += f"</div></div>"
