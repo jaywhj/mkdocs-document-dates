@@ -38,8 +38,8 @@
     */
 /* Remove the divider line: */
 /* 
-.md-main .document-dates-plugin-wrapper.document-dates-top,
-.md-main .document-dates-plugin-wrapper.document-dates-bottom {
+.document-dates-plugin-wrapper.document-dates-top,
+.document-dates-plugin-wrapper.document-dates-bottom {
     border-bottom: none;
 } */
 
