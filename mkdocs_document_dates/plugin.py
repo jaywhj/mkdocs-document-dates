@@ -1,5 +1,6 @@
 import os
 import json
+import yaml
 import shutil
 import logging
 from datetime import datetime
@@ -7,7 +8,8 @@ from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache, extract_github_username
+from urllib.parse import urlparse
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -48,6 +50,7 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
         self.translation = {}
         self.dates_cache = {}
+        self.authors_yml = {}
         self.github_username = None
 
     def on_config(self, config):
@@ -58,9 +61,14 @@ class DocumentDatesPlugin(BasePlugin):
         except Exception:
             self.config['locale'] = 'en'
 
-        self.github_username = extract_github_username(config.get('repo_url'))
-
         docs_dir_path = Path(config['docs_dir'])
+
+        if self.config['show_author']:
+            self._extract_github_username(config.get('repo_url'))
+            authors_file = docs_dir_path / 'blog' / '.authors.yml'
+            if not authors_file.exists():
+                authors_file = docs_dir_path / '.authors.yml'
+            self._load_authors_from_yaml(authors_file)
 
         # 加载 json 语言文件
         self._load_translation(docs_dir_path)
@@ -191,6 +199,34 @@ class DocumentDatesPlugin(BasePlugin):
         return self._insert_date_info(markdown, info_html)
 
 
+    def _extract_github_username(self, url):
+        try:
+            parsed = urlparse(url)
+            if parsed.netloc != 'github.com':
+                return
+            path_parts = [p for p in parsed.path.split('/') if p]
+            if path_parts:
+                self.github_username = path_parts[0]
+        except Exception as e:
+            logger.info(f"Error parsing URL: {e}")
+
+    def _load_authors_from_yaml(self, file_path: Path):
+        if not file_path.exists():
+            return
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            for key, info in (data or {}).get('authors', {}).items():
+                author = Author(
+                    name=info.get('name', ''),
+                    avatar=info.get('avatar', ''),
+                    url=info.get('url', ''),
+                    desc=info.get('description', '')
+                )
+                self.authors_yml[key] = author
+        except Exception as e:
+            logger.info(f"Error parsing .authors.yml: {e}")
+
     def _load_translation(self, docs_dir_path: Path):
         # 内置语言文件目录
         builtin_dir = Path(__file__).parent / 'static' / 'languages'
@@ -275,7 +311,18 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _process_meta_author(self, meta):
         try:
-            # 1. 处理 author 对象，或 author 字符串
+            # 匹配 authors 数组
+            author_objs = []
+            authors_data = meta.get('authors')
+            for key in authors_data or []:
+                author = self.authors_yml.get(key)
+                if not author:
+                    author = Author(name=str(key))
+                author_objs.append(author)
+            if author_objs:
+                return author_objs
+
+            # 匹配 author 对象，或 author 字符串
             author_data = meta.get('author')
             if author_data:
                 if isinstance(author_data, dict):
@@ -288,11 +335,10 @@ class DocumentDatesPlugin(BasePlugin):
                     desc = author_data.get('desc')
                     return [Author(name=name, email=email, avatar=avatar, url=url, desc=desc)]
                 return [Author(name=str(author_data))]
-            
-            # 2. 处理独立字段: name, email
+
+            # 匹配独立字段: name, email
             name = meta.get('name')
             email = meta.get('email')
-            
             if name or email:
                 if not name and email:
                     name = email.partition('@')[0]
