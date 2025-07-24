@@ -186,18 +186,25 @@ function nameToHSL(name, s = 50, l = 55) {
     const hue = hash % 360;
     return `hsl(${hue}, ${s}%, ${l}%)`;
 }
-document.querySelectorAll('.avatar-wrapper').forEach(wrapper => {
-    const name = wrapper.dataset.name || '';
-    const initials = extractInitials(name);
-    const bgColor = nameToHSL(name);
+function generateAvatar(){
+    document.querySelectorAll('.avatar-wrapper').forEach(wrapper => {
+        const name = wrapper.dataset.name || '';
+        const initials = extractInitials(name);
+        const bgColor = nameToHSL(name);
 
-    const textEl = wrapper.querySelector('.avatar-text');
-    textEl.textContent = initials;
-    textEl.style.backgroundColor = bgColor;
+        const textEl = wrapper.querySelector('.avatar-text');
+        textEl.textContent = initials;
+        textEl.style.backgroundColor = bgColor;
 
-    const imgEl = wrapper.querySelector('img.avatar');
-    if (!imgEl) return;
-    imgEl.onerror = () => {
-        imgEl.style.display = 'none';
-    };
-});
+        const imgEl = wrapper.querySelector('img.avatar');
+        if (!imgEl) return;
+        imgEl.onerror = () => {
+            imgEl.style.display = 'none';
+        };
+    });
+}
+if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
+    window.document$.subscribe(generateAvatar);
+} else {
+    generateAvatar();
+}
