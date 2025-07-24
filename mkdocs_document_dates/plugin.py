@@ -310,79 +310,64 @@ class DocumentDatesPlugin(BasePlugin):
         return date.strftime(self.config['date_format'])
 
     def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
-        html = ""
         try:
             # 构建基本的日期信息 HTML
+            html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
-            html += (
-                f"<div class='document-dates-plugin-wrapper {position_class}'>"
-                f"<div class='document-dates-plugin'>"
-                f"<span data-tippy-content='{self.translation.get('created_time', 'Created')}: {created.strftime(self.config['date_format'])}'>"
-                f"<span class='material-icons' data-icon='doc_created'></span>"
-                f"<time datetime='{created.isoformat()}' locale='{self.config['locale']}'>{self._get_formatted_date(created)}</time></span>"
-                f"<span data-tippy-content='{self.translation.get('modified_time', 'Last Update')}: {modified.strftime(self.config['date_format'])}'>"
-                f"<span class='material-icons' data-icon='doc_modified'></span>"
-                f"<time datetime='{modified.isoformat()}' locale='{self.config['locale']}'>{self._get_formatted_date(modified)}</time></span>"
-            )
-            
+            html_parts.append(f"<div class='document-dates-plugin-wrapper {position_class}'>")
+            html_parts.append(f"<div class='document-dates-plugin'>")
+
+            def build_time_icon(time_obj: datetime, icon: str, label_key: str, default_label:str):
+                formatted = time_obj.strftime(self.config['date_format'])
+                tooltip = f"{self.translation.get(label_key, default_label)}: {formatted}"
+                return (
+                    f"<span data-tippy-content='{tooltip}'>"
+                    f"<span class='material-icons' data-icon='{icon}'></span>"
+                    f"<time datetime='{time_obj.isoformat()}' locale='{self.config['locale']}'>"
+                    f"{self._get_formatted_date(time_obj)}</time></span>"
+                )
+
+            html_parts.append(build_time_icon(created, 'doc_created', 'created_time', 'Created'))
+            html_parts.append(build_time_icon(modified, 'doc_modified', 'modified_time', 'Last Update'))
+
             # 添加作者信息
             if self.config['show_author'] and authors:
-                if len(authors) == 1:
-                    author, = authors
-                    # 使用 HTML 实体编码避免 Tippy.js 转义问题
+                def get_author_tooltip(author):
                     if author.url:
-                        author_tooltip = f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
+                        return f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
                     elif author.email:
-                        author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
+                        return f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
                     else:
-                        author_tooltip = author.name
-                    
-                    if author.avatar:
-                        img_ele = f"<img class='avatar' src='{author.avatar}' />"
-                    elif self.github_username:
-                        img_ele = f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' />"
-                    else:
-                        img_ele = ""
+                        return author.name
 
-                    html += (
-                        f"<span class='material-icons' data-icon='doc_author'></span>"
-                        f"<div class='avatar-group'>"
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {author_tooltip}'>"
+                def get_avatar_img(author):
+                    if author.avatar:
+                        return f"<img class='avatar' src='{author.avatar}' />"
+                    elif self.github_username and len(authors) == 1:
+                        return f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' />"
+                    return ""
+
+                icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
+                tooltip_key = 'author' if len(authors) == 1 else 'authors'
+                default_label = 'Author' if len(authors) == 1 else 'Authors'
+                html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
+                html_parts.append("<div class='avatar-group'>")
+                for author in authors:
+                    tooltip = get_author_tooltip(author)
+                    img_ele = get_avatar_img(author)
+                    html_parts.append(
+                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get(tooltip_key, default_label)}: {tooltip}'>"
                         f"{img_ele}<span class='avatar-text'></span>"
                         f"</div>"
-                        f"</div>"
                     )
-                else:
-                    # 多个作者的情况
-                    html += (
-                        f"<span class='material-icons' data-icon='doc_authors'></span>"
-                        f"<div class='avatar-group'>"
-                    )
-                    for author in authors:
-                        if author.url:
-                            author_tooltip = f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
-                        elif author.email:
-                            author_tooltip = f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
-                        else:
-                            author_tooltip = author.name
-                        
-                        if author.avatar:
-                            img_ele = f"<img class='avatar' src='{author.avatar}' />"
-                        else:
-                            img_ele = ""
-                        
-                        html += (
-                            f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('authors', 'Authors')}: {author_tooltip}'>"
-                            f"{img_ele}<span class='avatar-text'></span>"
-                            f"</div>"                            
-                        )
-                    html += f"</div>"
-            
-            html += f"</div></div>"
-        
+                html_parts.append("</div>")
+
+            html_parts.append("</div></div>")
+            return ''.join(html_parts)
+
         except Exception as e:
             logger.warning(f"Error generating HTML info: {e}")
-        return html
+            return ""
 
 
     def _insert_date_info(self, markdown: str, date_info: str):
