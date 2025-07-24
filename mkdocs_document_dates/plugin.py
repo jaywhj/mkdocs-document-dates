@@ -63,10 +63,14 @@ class DocumentDatesPlugin(BasePlugin):
 
         docs_dir_path = Path(config['docs_dir'])
 
+        # 加载 author 配置
         if self.config['show_author']:
             self._extract_github_username(config.get('repo_url'))
-            authors_file = docs_dir_path / 'blog' / '.authors.yml'
-            if not authors_file.exists():
+            try:
+                blog_config = config['plugins']['material/blog'].config
+                authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
+                authors_file = docs_dir_path / authors_file_resolved
+            except Exception:
                 authors_file = docs_dir_path / '.authors.yml'
             self._load_authors_from_yaml(authors_file)
 
