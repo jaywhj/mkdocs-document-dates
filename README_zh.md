@@ -8,16 +8,23 @@
 
 ## 特性
 
-- 始终显示文档的准确元信息，适用于任何环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
+- 始终显示文档的精确元信息，且适用于任何环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
 - 支持在 `Front Matter` 中手动指定时间和作者
 - 支持多种时间格式（date、datetime、timeago）
 - 灵活的显示位置（顶部或底部）
 - 优雅的样式设计（完全可定制）
 - 支持 Tooltip 悬浮提示
-  - 智能位置调整，始终以最佳方式浮动在视图中
+  - 智能位置动态调整，始终以最佳方式浮动在视图中
   - 支持主题跟随 Material 亮/暗配色变化而变化
 - 多语言支持，跨平台支持（Windows、macOS、Linux）
-- **极致的构建效率**：O(1)，无论文档数量是1000还是10000，通常不到0.2秒
+- **极致的构建效率**：O(1)，通常不到0.2秒
+
+    | 构建效率对比:                      | 100个md: | 1000个md: | 时间复杂度: |
+    | ---------------------------------- | :------: | :-------: | :---------: |
+    | document-dates                     | < 0.1 s  | < 0.15 s  |    O(1)     |
+    | git-revision-date-localized-plugin |  > 3 s   |  > 30 s   |    O(n)     |
+
+
 
 ## 效果图
 
@@ -43,12 +50,12 @@ plugins:
 ```yaml
 plugins:
   - document-dates:
-      position: top            # 显示位置：top（标题后） bottom（文档末尾），默认：bottom
+      position: top            # 显示位置：top（标题后） bottom（文档末尾）
       type: date               # 时间类型：date datetime timeago，默认：date
       locale: zh               # 本地化语言：en zh zh_TW es fr de ar ja ko ru，默认：en
       date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
-      exclude:                 # 排除文件列表，默认为空
+      exclude:                 # 排除文件列表
         - temp.md              # 排除指定文件
         - private/*            # 排除 private 目录下所有文件，包括子目录
       show_author: true        # 是否显示作者信息，默认：true
@@ -56,39 +63,65 @@ plugins:
 
 ## 手动指定时间
 
-插件会自动获取文档的准确时间信息，会自动缓存创建时间，当然，你也可以在 `Front Matter` 中手动指定
+- 默认情况下，插件会按如下顺序**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
+    - 优先级顺序：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
+- 如果你要自定义，则可在 Front Matter 中手动指定：
 
-优先级顺序：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
-
-```yaml
+```markdown
 ---
 created: 2023-01-01
 modified: 2025-02-23
 ---
-
 # 文档标题
 ```
 
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
-## 手动指定作者
+## 配置作者
 
-插件会自动获取文档的作者信息，会解析邮件后做链接，你也可以在 `Front Matter` 中手动指定
+- 默认情况下，插件会按如下顺序**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
+    - 优先级顺序：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
+- 如果你要自定义，则可在 Front Matter 中通过字段 `name` 配置一个作者：
 
-优先级顺序：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
-
-```yaml
+```markdown
 ---
-author: any-name
+name: any-name
 email: e-name@gmail.com
 ---
-
 # 文档标题
 ```
 
-- `author` 可替换为：`author, name`
-- `email` 可替换为：`email, mail`
+## 配置头像
+
+1. 默认情况下，插件会根据作者姓名自动生成字符头像（含动态背景色）
+    - 提取 initials：英文取首字母组合，中文取首字
+    - 动态背景色：基于名字哈希值生成 HSL 颜色
+
+2. 如果 mkdocs.yml 配置了 `repo_url` 属性，则会自动读取 GitHub 用户头像
+3. 如果你要自定义，则可在文档的 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
+
+优先级顺序：`Front Matter 自定义头像` > `GitHub头像` > `字符头像` 
+
+```markdown
+---
+# 方式1：配置一个完整的作者
+author:
+    name: jay
+    email: jay@qq.com
+    avatar: https://xxx.author-avatar-URL.com/xxx.png
+    url: https://xxx.website-URL.com/xxx
+    desc: author description
+
+# 方式2：配置多个作者
+authors:
+    - jaywhj
+    - squidfunk
+    - sunny
+---
+```
+
+如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 .authors.yml
 
 ## 插件定制化
 
@@ -110,16 +143,7 @@ email: e-name@gmail.com
       - assets/document_dates/core/timeago-load.js
     ```
 
-**效果图**：
-
-![01-default-w](mkdocs_document_dates/demo_images/01-default-w.png)
-![02-change-icon](mkdocs_document_dates/demo_images/02-change-icon.png)
-![02-change-icon-color](mkdocs_document_dates/demo_images/02-change-icon-color.png)
-![04-default-pop-up](mkdocs_document_dates/demo_images/04-default-pop-up.png)
-![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
-
-![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
-![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
+![customization](customization.gif)
 
 ## 模板变量
 
@@ -131,21 +155,7 @@ email: e-name@gmail.com
 - page.meta.document_dates_locale
 - page.meta.document_dates_translation
 
-比如像这样：
-
-```jinja2
-<div><span>{{ page.meta.document_dates_created }}</span></div>
-<div><span>{{ page.meta.document_dates_modified }}</span></div>
-{% set authors = page.meta.document_dates_authors %}
-{% if authors %}
-<div>
-    {% for author in authors %}
-    {% if author.email %}<a href="mailto:{{ author.email }}">{{ author.name }}</a>
-    {% else %}<span>{{ author.name }}</span>{% endif %}
-    {% endfor %}
-</div>
-{% endif %}
-```
+完整示例：
 
 - **示例1**：为你站点的 `sitemap.xml` 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 sitemap.xml 后覆盖：`docs/overrides/sitemap.xml`）
 - **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 source-file.html 后覆盖：`docs/overrides/partials/source-file.html`）
@@ -178,6 +188,8 @@ email: e-name@gmail.com
         - 解决办法：考虑过 shell 脚本，但考虑到最终还是要回调 python 脚本，所以还是直接采用 python 脚本更方便。可以在 hook 安装时就检测用户的 python 环境，然后动态设置 hook 的 shebang 行，从而设置正确的 python 解释器
     4. 在多人协作时，如何保证单独的缓存文件不冲突？
         - 我的方案：采用 JSONL（JSON Lines）代替 JSON，配合并集的合并策略 merge=union
+    5. 在文档较多时( >1000 )，如何降低 build 用时？
+        - 获取某个文档的 git 信息的动作通常是一次文件 I/O 操作，如果文件多了，那运行效率会直线下降，1000个文档预计需要等待30秒以上，这让用户没法忍受。
 - **精进**：
     - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、个性化**
         - **易用性**：能不让用户手动操作的就不让手动，比如自动安装 Git Hooks、自动缓存、自动 commit，提供自定义模板等

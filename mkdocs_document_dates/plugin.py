@@ -398,15 +398,13 @@ class DocumentDatesPlugin(BasePlugin):
                     return ""
 
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                tooltip_key = 'author' if len(authors) == 1 else 'authors'
-                default_label = 'Author' if len(authors) == 1 else 'Authors'
                 html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
                 html_parts.append("<div class='avatar-group'>")
                 for author in authors:
                     tooltip = get_author_tooltip(author)
                     img_ele = get_avatar_img(author)
                     html_parts.append(
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get(tooltip_key, default_label)}: {tooltip}'>"
+                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {tooltip}'>"
                         f"{img_ele}<span class='avatar-text'></span>"
                         f"</div>"
                     )
