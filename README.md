@@ -63,7 +63,7 @@ plugins:
 ## Specify time manually
 
 - By default, the plugin will **automatically** get the exact time of the document in the following order, and will automatically cache the creation time, without manual intervention
-    - Priority order: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
+    - **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
 - If you want to customize it, you can specify it manually in Front Matter:
 
 ```markdown
@@ -80,7 +80,7 @@ modified: 2025-02-23
 ## Configure Author
 
 - By default, the plugin will **automatically** get the author of the document in the following order, and will automatically parse the email and then do the link, without manual intervention
-    - Priority order: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
+    - **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
 - If you want to customize it, you can configure an author in Front Matter with the field `name`:
 
 ```markdown
@@ -93,13 +93,13 @@ email: e-name@gmail.com
 
 ## Configuring Avatar
 
-- By default, the plugin will **automatically** generates character avatar based on the author's name (with dynamic background color)
-    - Extract initials: English takes the combination of initials, other languages take the first character
-    - Dynamic background color: generate HSL color based on the hash of the name
+- By default, the plugin will **automatically** generates character avatar based on the author's name
+    - **Extract initials**: English takes the combination of initials, other languages take the first character
+    - **Dynamic background color**: generate HSL color based on the hash of the name
 - If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load **automatically**
 - If you want to customize it, customize the avatar by customizing the author's `avatar` field in Front Matter
 
-Priority order: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+**Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
 
 ```markdown
 ---
@@ -116,6 +116,7 @@ authors:
     - jaywhj
     - squidfunk
     - sunny
+
 ---
 ```
 
@@ -186,8 +187,8 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - Solution: I considered using a shell script, but since I'd have to call back to python eventually, it's easier to use a python script. We can detect the user's python environment when the hook is installed, and then dynamically set the hook's shebang line to set the correct python interpreter
     4. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
         - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
-    5. How to reduce build time when there are a lot of documents ( >1000 )
-        - Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
+    5. How to reduce build time when there are a lot of documents ( >1000 )?  Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
+        - Solution: Reduce the number of I/Os + Use caching + Replace less efficient system functions
 - **Improve**:
     - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
         - **Ease of use**: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
