@@ -14,7 +14,7 @@ A new generation MkDocs plugin for displaying exact meta-info, such as **creatio
 - Flexible display position (top or bottom)
 - Elegant styling (fully customizable)
 - Supports Tooltip Hover Tips
-  - Intelligent repositioning to always float optimally in view
+  - Intelligent dynamic positioning, always floating optimally in view
   - Supports automatic theme switching following Material's light/dark color scheme
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
 - **Ultimate build efficiency**: O(1), typically less than 0.2 seconds
