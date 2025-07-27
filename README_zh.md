@@ -120,7 +120,7 @@ authors:
 ---
 ```
 
-如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 .authors.yml
+如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml)
 
 ## 插件定制化
 
@@ -156,8 +156,8 @@ authors:
 
 应用示例：
 
-- **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 sitemap.xml 后覆盖：`docs/overrides/sitemap.xml`）
-- **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 source-file.html 后覆盖：`docs/overrides/partials/source-file.html`）
+- **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) 后覆盖：`docs/overrides/sitemap.xml`）
+- **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) 后覆盖：`docs/overrides/partials/source-file.html`）
 
 ## 其它提示
 
