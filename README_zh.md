@@ -19,7 +19,7 @@
 - 多语言支持，跨平台支持（Windows、macOS、Linux）
 - **极致的构建效率**：O(1)，通常不到0.2秒
 
-    | 构建效率对比:                      | 100个md: | 1000个md: | 时间复杂度: |
+    | 构建效率对比：                      | 100个md： | 1000个md： | 时间复杂度： |
     | ---------------------------------- | :------: | :-------: | :---------: |
     | document-dates                     | < 0.1 s  | < 0.15 s  |    O(1)     |
     | git-revision-date-localized-plugin |  > 3 s   |  > 30 s   |    O(n)     |
@@ -72,7 +72,7 @@ plugins:
 created: 2023-01-01
 modified: 2025-02-23
 ---
-# 文档标题
+
 ```
 
 - `created` 可替换为：`created, date, creation`
@@ -89,7 +89,7 @@ modified: 2025-02-23
 name: any-name
 email: e-name@gmail.com
 ---
-# 文档标题
+
 ```
 
 ## 配置头像
@@ -97,7 +97,6 @@ email: e-name@gmail.com
 1. 默认情况下，插件会根据作者姓名自动生成字符头像（含动态背景色）
     - 提取 initials：英文取首字母组合，中文取首字
     - 动态背景色：基于名字哈希值生成 HSL 颜色
-
 2. 如果 mkdocs.yml 配置了 `repo_url` 属性，则会自动读取 GitHub 用户头像
 3. 如果你要自定义，则可在文档的 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
 
@@ -128,7 +127,7 @@ authors:
 插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分界线**等等，一切都可以自定义（找到下方对应位置的文件，打开取消注释开关即可）：
 
 |    类别：    | 位置：                                         |
-| :---------: | ---------------------------------------------- |
+| :---------: | --------------------------------------------- |
 | **样式与主题** | `docs/assets/document_dates/user.config.css` |
 | **属性与功能** | `docs/assets/document_dates/user.config.js`  |
 | **本地化语言** | `docs/assets/document_dates/languages/` <br />可参考模板文件 `en.json` 任意新增或修改 |
@@ -155,9 +154,9 @@ authors:
 - page.meta.document_dates_locale
 - page.meta.document_dates_translation
 
-完整示例：
+应用示例：
 
-- **示例1**：为你站点的 `sitemap.xml` 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 sitemap.xml 后覆盖：`docs/overrides/sitemap.xml`）
+- **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 sitemap.xml 后覆盖：`docs/overrides/sitemap.xml`）
 - **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 source-file.html 后覆盖：`docs/overrides/partials/source-file.html`）
 
 ## 其它提示
