@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 
 
-A new generation MkDocs plugin for displaying exact meta-info of documents, such as **creation time, last update time, authors, email**, etc.
+A new generation MkDocs plugin for displaying exact meta-info, such as **creation time, last update time, authors, email**, etc.
 
 ## Features
 
@@ -17,7 +17,13 @@ A new generation MkDocs plugin for displaying exact meta-info of documents, such
   - Intelligent repositioning to always float optimally in view
   - Supports automatic theme switching following Material's light/dark color scheme
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
-- **Ultimate build efficiency**: O(1), typically less than 0.2 seconds, regardless of whether the number of documents is 1,000 or 10,000
+- **Ultimate build efficiency**: O(1), typically less than 0.2 seconds
+
+| PK of Build Efficiency:            | 100 md: | 1000 md: | Time Complexity: |
+| ---------------------------------- | :-----: | :------: | :----------: |
+| git-revision-date-localized-plugin |  > 3 s   |  > 30 s   |    O(n)    |
+| document-dates                     | < 0.1 s  | < 0.15 s  |    O(1)    |
+
 
 ## Showcases
 
@@ -43,7 +49,7 @@ Or, personalize the configuration:
 ```yaml
 plugins:
   - document-dates:
-      position: top            # Display position: top (after title)  bottom (end of document), default: bottom
+      position: top            # Display position: top (after title)  bottom (end of document)
       type: date               # Date type: date  datetime  timeago, default: date
       locale: en               # Localization: en zh zh_TW es fr de ar ja ko ru, default: en
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
@@ -56,39 +62,64 @@ plugins:
 
 ## Specify time manually
 
-The plugin will automatically get the exact time of the document, will automatically cache the creation time, but of course, you can also specify it manually in `Front Matter`
+- By default, the plugin will automatically get the exact time of the document in the following order, and will automatically cache the creation time, without manual intervention
+    - Priority order: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
+- If you want to customize it, you can specify it manually in Front Matter:
 
-Priority order: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
-
-```yaml
+```markdown
 ---
 created: 2023-01-01
 modified: 2025-02-23
 ---
 
-# Document Title
 ```
 
 - `created` can be replaced with: `created, date, creation`
 - `modified` can be replaced with: `modified, updated, last_modified, last_updated`
 
-## Specify author manually
+## Configure Author
 
-The plugin will automatically get the author of the document, will parse the email and make a link, also you can specify it manually in `Front Matter`
+- By default, the plugin will automatically get the author of the document in the following order, and will automatically parse the email and then do the link, without manual intervention
+    - Priority order: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
+- If you want to customize it, you can configure an author in Front Matter with the field `name`:
 
-Priority order: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
-
-```yaml
+```markdown
 ---
-author: any-name
+name: any-name
 email: e-name@gmail.com
 ---
 
-# Document Title
 ```
 
-- `author` can be replaced with: `author, name`
-- `email` can be replaced with: `email, mail`
+## Configuring Avatar
+
+1. By default, the plugin will automatically generates character avatar based on the author's name (with dynamic background color)
+    - Extract initials: English takes the combination of initials, other languages take the first character
+    - Dynamic background color: generate HSL color based on the hash of the name
+2. If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load automatically
+3. If you want to customize it, customize the avatar by customizing the author's `avatar` field in Front Matter
+
+Priority order: `Front Matter Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+
+```markdown
+---
+# Way 1: Configure a full author
+author:
+    name: jay
+    email: jay@qq.com
+    avatar: https://xxx.author-avatar-URL.com/xxx.png
+    url: https://xxx.website-URL.com/xxx
+    desc: author description
+
+# Way 2: Configure multiple authors
+authors:
+    - jaywhj
+    - squidfunk
+    - sunny
+---
+```
+
+If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
 
 ## Customization
 
@@ -110,16 +141,7 @@ The plugin supports deep customization, such as **icon style, theme color, font,
       - assets/document_dates/core/timeago-load.js
     ```
 
-**Demo Images**:
-
-![01-default-w](mkdocs_document_dates/demo_images/01-default-w.png)
-![02-change-icon](mkdocs_document_dates/demo_images/02-change-icon.png)
-![02-change-icon-color](mkdocs_document_dates/demo_images/02-change-icon-color.png)
-![04-default-pop-up](mkdocs_document_dates/demo_images/04-default-pop-up.png)
-![05-change-theme](mkdocs_document_dates/demo_images/05-change-theme.png)
-
-![06-change-theme](mkdocs_document_dates/demo_images/06-change-theme.png)
-![08-pop-up-from-bottom](mkdocs_document_dates/demo_images/08-pop-up-from-bottom.png)
+![customization](customization.gif)
 
 ## Template Variables
 
@@ -131,24 +153,10 @@ You can access the meta-info of a document in a template using the following var
 - page.meta.document_dates_locale
 - page.meta.document_dates_translation
 
-For example like this:
+Usage examples:
 
-```jinja2
-<div><span>{{ page.meta.document_dates_created }}</span></div>
-<div><span>{{ page.meta.document_dates_modified }}</span></div>
-{% set authors = page.meta.document_dates_authors %}
-{% if authors %}
-<div>
-    {% for author in authors %}
-    {% if author.email %}<a href="mailto:{{ author.email }}">{{ author.name }}</a>
-    {% else %}<span>{{ author.name }}</span>{% endif %}
-    {% endfor %}
-</div>
-{% endif %}
-```
-
-- **Example 1**: Set the correct `lastmod` for your site's `sitemap.xml` so that search engines can better handle SEO and thus increase your site's exposure (download sitemap.xml and override this path: `docs/overrides/sitemap.xml`)
-- **Example 2**: Using the template to re-customize the plugin, you have full control over the rendering logic and the plugin is only responsible for providing the data (download source-file.html and override this path: `docs/overrides/partials/source-file.html`).
+- **Example 1**: Set the correct `lastmod` for your site's `sitemap.xml` so that search engines can better handle SEO and thus increase your site's exposure (download [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) and override this path: `docs/overrides/sitemap.xml`)
+- **Example 2**: Using the template to re-customize the plugin, you have full control over the rendering logic and the plugin is only responsible for providing the data (download [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) and override this path: `docs/overrides/partials/source-file.html`)
 
 ## Other Tips
 
@@ -178,6 +186,8 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - Solution: I considered using a shell script, but since I'd have to call back to python eventually, it's easier to use a python script. We can detect the user's python environment when the hook is installed, and then dynamically set the hook's shebang line to set the correct python interpreter
     4. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
         - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
+    5. How to reduce build time when there are a lot of documents ( >1000 )
+        - Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
 - **Improve**:
     - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
         - **Ease of use**: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
