@@ -94,13 +94,13 @@ email: e-name@gmail.com
 
 ## 配置头像
 
-1. 默认情况下，插件会根据作者姓名自动生成字符头像（含动态背景色）
+- 默认情况下，插件会根据作者姓名**自动生成字符头像**（含动态背景色）
     - 提取 initials：英文取首字母组合，中文取首字
     - 动态背景色：基于名字哈希值生成 HSL 颜色
-2. 如果在 mkdocs.yml 配置了 `repo_url` 属性，则会自动读取用户的 GitHub 头像
-3. 如果你要自定义，则可在文档的 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
+- 如果在 mkdocs.yml 配置了 `repo_url` 属性，则会**自动读取**用户的 GitHub 头像
+- 如果你要自定义，则可在文档的 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
 
-优先级顺序：`Front Matter 自定义头像` > `GitHub头像` > `字符头像` 
+优先级顺序：`自定义头像` > `GitHub头像` > `字符头像` 
 
 ```markdown
 ---

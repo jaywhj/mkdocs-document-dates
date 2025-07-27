@@ -62,7 +62,7 @@ plugins:
 
 ## Specify time manually
 
-- By default, the plugin will automatically get the exact time of the document in the following order, and will automatically cache the creation time, without manual intervention
+- By default, the plugin will **automatically** get the exact time of the document in the following order, and will automatically cache the creation time, without manual intervention
     - Priority order: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
 - If you want to customize it, you can specify it manually in Front Matter:
 
@@ -79,7 +79,7 @@ modified: 2025-02-23
 
 ## Configure Author
 
-- By default, the plugin will automatically get the author of the document in the following order, and will automatically parse the email and then do the link, without manual intervention
+- By default, the plugin will **automatically** get the author of the document in the following order, and will automatically parse the email and then do the link, without manual intervention
     - Priority order: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
 - If you want to customize it, you can configure an author in Front Matter with the field `name`:
 
@@ -93,13 +93,13 @@ email: e-name@gmail.com
 
 ## Configuring Avatar
 
-1. By default, the plugin will automatically generates character avatar based on the author's name (with dynamic background color)
+- By default, the plugin will **automatically** generates character avatar based on the author's name (with dynamic background color)
     - Extract initials: English takes the combination of initials, other languages take the first character
     - Dynamic background color: generate HSL color based on the hash of the name
-2. If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load automatically
-3. If you want to customize it, customize the avatar by customizing the author's `avatar` field in Front Matter
+- If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load **automatically**
+- If you want to customize it, customize the avatar by customizing the author's `avatar` field in Front Matter
 
-Priority order: `Front Matter Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+Priority order: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
 
 ```markdown
 ---
