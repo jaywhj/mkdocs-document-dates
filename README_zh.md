@@ -66,7 +66,6 @@ plugins:
 默认情况下，插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
 
 - **优先级**：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
-
 - 如果你要自定义，则可在 Front Matter 中手动指定：
     ```markdown
     ---
@@ -83,7 +82,6 @@ plugins:
 默认情况下，插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
 
 - **优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
-
 - 如果你要自定义，则可在 Front Matter 中通过字段 `name` 配置一个作者：
     ```markdown
     ---
