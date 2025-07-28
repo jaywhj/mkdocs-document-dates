@@ -73,7 +73,6 @@ By default, the plugin will **automatically** get the exact time of the document
     ---
 
     ```
-
 - `created` can be replaced with: `created, date, creation`
 - `modified` can be replaced with: `modified, updated, last_modified, last_updated`
 
@@ -119,7 +118,6 @@ By default, the plugin will **automatically** loads the author avatar (character
     
     ---
     ```
-
 - If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
 - If the avatar URL fails to load, it falls back to the character avatar
 
