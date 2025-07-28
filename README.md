@@ -92,15 +92,15 @@ By default, the plugin will **automatically** get the author of the document, an
 
 ## Configure Avatar
 
-By default, the plugin will **automatically** loads the author avatar (character avatars are automatically generated when there is no avatar URL), without manual intervention
+By default, the plugin will **automatically** loads the author avatar, without manual intervention
 
 **Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
 
-1. Character avatar: The plugin will automatically generates character avatars based on the author's name with the following generation rules
+1. Character avatar: will be automatically generated based on the author's name with the following rules
     - Extract initials: English takes the combination of initials, other languages take the first character
     - Dynamic background color: Generate HSL color based on the hash of the name
-2. GitHub avatar: If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load automatically
-3. Custom avatar: Avatars can be customized by customizing the author's `avatar` field in Front Matter
+2. GitHub avatar: will be automatically loaded by parsing the `repo_url` property in mkdocs.yml
+3. Custom avatar: can be customized by customizing the author's `avatar` field in Front Matter
     ```markdown
     ---
     # Way 1: Configure a full author
@@ -120,7 +120,7 @@ By default, the plugin will **automatically** loads the author avatar (character
     ---
     ```
 - If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
-- If the avatar URL fails to load, it falls back to the character avatar
+- If the URL avatar fails to load, it falls back to the character avatar
 
 ## Customization
 
