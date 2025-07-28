@@ -51,12 +51,12 @@ plugins:
   - document-dates:
       position: top            # Display position: top (after title)  bottom (end of document)
       type: date               # Date type: date  datetime  timeago, default: date
+      exclude:                 # List of excluded files
+        - temp.md              # Exclude specific file
+        - drafts/*             # Exclude all files in drafts folder, including subfolders
       locale: en               # Localization: en zh zh_TW es fr de ar ja ko ru, default: en
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
-      exclude:                 # List of excluded files
-        - temp.md              # Exclude specific file
-        - private/*            # Exclude all files in private folder, including subfolders
       show_author: true        # Show author or not, default: true
 ```
 
