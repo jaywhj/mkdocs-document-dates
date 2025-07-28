@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 
 
-A new generation MkDocs plugin for displaying exact meta-info, such as **creation time, last update time, authors, email**, etc.
+A new generation MkDocs plugin for displaying exact meta-info, such as **creation time, last update time, authors, email**, etc
 
 ## Features
 
@@ -65,6 +65,7 @@ plugins:
 By default, the plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
 
 - **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
+
 - If you want to customize it, you can specify it manually in Front Matter:
     ```markdown
     ---
@@ -81,6 +82,7 @@ By default, the plugin will **automatically** get the exact time of the document
 By default, the plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
 
 - **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
+
 - If you want to customize it, you can configure an author in Front Matter with the field `name`:
     ```markdown
     ---
