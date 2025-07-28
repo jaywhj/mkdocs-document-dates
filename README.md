@@ -19,10 +19,10 @@ A new generation MkDocs plugin for displaying exact meta-info, such as **creatio
 - Multi-language support, cross-platform support (Windows, macOS, Linux)
 - **Ultimate build efficiency**: O(1), typically less than 0.2 seconds
 
-| PK of Build Efficiency:            | 100 md: | 1000 md: | Time Complexity: |
-| ---------------------------------- | :-----: | :------: | :----------: |
-| git-revision-date-localized-plugin |  > 3 s   |  > 30 s   |    O(n)    |
-| document-dates                     | < 0.1 s  | < 0.15 s  |    O(1)    |
+| PK of Build Efficiency:     | 100 md: | 1000 md: | Time Complexity: |
+| --------------------------- | :-----: | :------: | :----------: |
+| git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
+| document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
 
 ## Showcases
