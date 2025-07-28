@@ -63,9 +63,9 @@ plugins:
 ## Specify time manually
 
 By default, the plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
+
 - **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
 - If you want to customize it, you can specify it manually in Front Matter:
-
     ```markdown
     ---
     created: 2023-01-01
@@ -80,9 +80,9 @@ By default, the plugin will **automatically** get the exact time of the document
 ## Configure Author
 
 By default, the plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
+
 - **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
 - If you want to customize it, you can configure an author in Front Matter with the field `name`:
-
     ```markdown
     ---
     name: any-name
@@ -94,13 +94,13 @@ By default, the plugin will **automatically** get the author of the document, an
 ## Configure Avatar
 
 By default, the plugin will **automatically** loads the author avatar (character avatars are automatically generated when there is no avatar URL), without manual intervention
+
 - **Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
 1. Character avatar: The plugin will automatically generates character avatars based on the author's name with the following generation rules
     - Extract initials: English takes the combination of initials, other languages take the first character
     - Dynamic background color: Generate HSL color based on the hash of the name
 2. GitHub avatar: If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load automatically
 3. Custom avatar: Avatars can be customized by customizing the author's `avatar` field in Front Matter
-
     ```markdown
     ---
     # Way 1: Configure a full author
