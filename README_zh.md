@@ -63,66 +63,70 @@ plugins:
 
 ## 手动指定时间
 
-- 默认情况下，插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
-    - 优先级：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
+默认情况下，插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
+
+- **优先级**：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
 - 如果你要自定义，则可在 Front Matter 中手动指定：
 
-```markdown
----
-created: 2023-01-01
-modified: 2025-02-23
----
+    ```markdown
+    ---
+    created: 2023-01-01
+    modified: 2025-02-23
+    ---
 
-```
+    ```
 
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
 ## 配置作者
 
-- 默认情况下，插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
-    - 优先级：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
+默认情况下，插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
+
+- **优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
 - 如果你要自定义，则可在 Front Matter 中通过字段 `name` 配置一个作者：
 
-```markdown
----
-name: any-name
-email: e-name@gmail.com
----
-
-```
+    ```markdown
+    ---
+    name: any-name
+    email: e-name@gmail.com
+    ---
+    
+    ```
 
 ## 配置头像
 
-- 默认情况下，插件会根据作者姓名**自动生成字符头像**（含动态背景色）
+默认情况下，插件会**自动加载**作者头像（无 avatar URL 时会**自动生成字符头像**），无需人工干预
+
+- **优先级**：`自定义头像` > `GitHub头像` > `字符头像` 
+1. 字符头像：插件会根据作者姓名自动生成字符头像，生成规则如下
     - 提取 initials：英文取首字母组合，中文取首字
     - 动态背景色：基于名字哈希值生成 HSL 颜色
-- 如果在 mkdocs.yml 配置了 `repo_url` 属性，则会**自动读取**用户的 GitHub 头像
-- 如果你要自定义，则可在 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
+2. GitHub头像：如果在 mkdocs.yml 配置了 `repo_url` 属性，则会自动读取用户的 GitHub 头像
+3. 自定义头像：可在 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
 
-优先级：`自定义头像` > `GitHub头像` > `字符头像` 
+    ```markdown
+    ---
+    # 方式1：配置一个完整的作者
+    author:
+        name: jay
+        email: jay@qq.com
+        avatar: https://xxx.author-avatar-URL.com/xxx.png
+        url: https://xxx.website-URL.com/xxx
+        desc: author description
+    
+    # 方式2：配置多个作者
+    authors:
+        - jaywhj
+        - squidfunk
+        - sunny
+    ---
+    
+    ```
 
-```markdown
----
-# 方式1：配置一个完整的作者
-author:
-    name: jay
-    email: jay@qq.com
-    avatar: https://xxx.author-avatar-URL.com/xxx.png
-    url: https://xxx.website-URL.com/xxx
-    desc: author description
-
-# 方式2：配置多个作者
-authors:
-    - jaywhj
-    - squidfunk
-    - sunny
----
-
-```
-
-如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
-
+    - 如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
+    - 如果 avatar URL 加载失败，则会回退到字符头像
+    
 ## 插件定制化
 
 插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分界线**等等，一切都可以自定义（找到下方对应位置的文件，取消注释即可）：

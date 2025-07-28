@@ -62,65 +62,69 @@ plugins:
 
 ## Specify time manually
 
-- By default, the plugin will **automatically** get the exact time of the document in the following order, and will automatically cache the creation time, without manual intervention
-    - **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
+By default, the plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
+
+- **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
 - If you want to customize it, you can specify it manually in Front Matter:
 
-```markdown
----
-created: 2023-01-01
-modified: 2025-02-23
----
+    ```markdown
+    ---
+    created: 2023-01-01
+    modified: 2025-02-23
+    ---
 
-```
+    ```
 
 - `created` can be replaced with: `created, date, creation`
 - `modified` can be replaced with: `modified, updated, last_modified, last_updated`
 
 ## Configure Author
 
-- By default, the plugin will **automatically** get the author of the document in the following order, and will automatically parse the email and then do the link, without manual intervention
-    - **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
+By default, the plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
+
+- **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
 - If you want to customize it, you can configure an author in Front Matter with the field `name`:
 
-```markdown
----
-name: any-name
-email: e-name@gmail.com
----
+    ```markdown
+    ---
+    name: any-name
+    email: e-name@gmail.com
+    ---
+    
+    ```
 
-```
+## Configure Avatar
 
-## Configuring Avatar
+By default, the plugin will **automatically** loads the author avatar (character avatars are automatically generated when there is no avatar URL), without manual intervention
 
-- By default, the plugin will **automatically** generates character avatar based on the author's name
-    - **Extract initials**: English takes the combination of initials, other languages take the first character
-    - **Dynamic background color**: generate HSL color based on the hash of the name
-- If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load **automatically**
-- If you want to customize it, customize the avatar by customizing the author's `avatar` field in Front Matter
+- **Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+1. Character avatar: The plugin will automatically generates character avatars based on the author's name with the following generation rules
+    - Extract initials: English takes the combination of initials, other languages take the first character
+    - Dynamic background color: Generate HSL color based on the hash of the name
+2. GitHub avatar: If the `repo_url` property is configured in mkdocs.yml, the user's GitHub avatar will be load automatically
+3. Custom avatar: Avatars can be customized by customizing the author's `avatar` field in Front Matter
 
-**Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+    ```markdown
+    ---
+    # Way 1: Configure a full author
+    author:
+        name: jay
+        email: jay@qq.com
+        avatar: https://xxx.author-avatar-URL.com/xxx.png
+        url: https://xxx.website-URL.com/xxx
+        desc: author description
+    
+    # Way 2: Configure multiple authors
+    authors:
+        - jaywhj
+        - squidfunk
+        - sunny
+    
+    ---
+    ```
 
-```markdown
----
-# Way 1: Configure a full author
-author:
-    name: jay
-    email: jay@qq.com
-    avatar: https://xxx.author-avatar-URL.com/xxx.png
-    url: https://xxx.website-URL.com/xxx
-    desc: author description
-
-# Way 2: Configure multiple authors
-authors:
-    - jaywhj
-    - squidfunk
-    - sunny
-
----
-```
-
-If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
+    - If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
+    - If the avatar URL fails to load, it falls back to the character avatar
 
 ## Customization
 
