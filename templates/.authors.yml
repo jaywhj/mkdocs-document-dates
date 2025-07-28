@@ -1,12 +1,14 @@
 authors:
   jaywhj:
     name: Aaron Wang
-    description: Minimalism
     avatar: https://avatars.githubusercontent.com/jaywhj
     url: https://jaywhj.netlify.app/
+    email: junewhj@qq.com
+    description: Minimalism
   squidfunk:
     name: Martin Donath
-    description: MkDocs Material
     avatar: https://avatars.githubusercontent.com/u/932156
     url: https://github.com/squidfunk
+    email: xxx@gmail.com
+    description: MkDocs Material
 

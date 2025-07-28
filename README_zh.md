@@ -110,7 +110,7 @@ plugins:
         email: jay@qq.com
         avatar: https://xxx.author-avatar-URL.com/xxx.png
         url: https://xxx.website-URL.com/xxx
-        desc: author description
+        description: author description
     
     # 方式2：配置多个作者
     authors:

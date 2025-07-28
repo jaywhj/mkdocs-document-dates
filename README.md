@@ -109,7 +109,7 @@ By default, the plugin will **automatically** loads the author avatar, without m
         email: jay@qq.com
         avatar: https://xxx.author-avatar-URL.com/xxx.png
         url: https://xxx.website-URL.com/xxx
-        desc: author description
+        description: author description
     
     # Way 2: Configure multiple authors
     authors:

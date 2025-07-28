@@ -29,7 +29,7 @@ class Author:
             'email': self.email,
             'avatar': self.avatar,
             'url': self.url,
-            'desc': self.desc
+            'description': self.desc
         }
 
 
@@ -223,6 +223,7 @@ class DocumentDatesPlugin(BasePlugin):
             for key, info in (data or {}).get('authors', {}).items():
                 author = Author(
                     name=info.get('name', ''),
+                    email=info.get('email', ''),
                     avatar=info.get('avatar', ''),
                     url=info.get('url', ''),
                     desc=info.get('description', '')
@@ -336,7 +337,7 @@ class DocumentDatesPlugin(BasePlugin):
                     email = author_data.get('email')
                     avatar = author_data.get('avatar')
                     url = author_data.get('url')
-                    desc = author_data.get('desc')
+                    desc = author_data.get('description')
                     return [Author(name=name, email=email, avatar=avatar, url=url, desc=desc)]
                 return [Author(name=str(author_data))]
 
