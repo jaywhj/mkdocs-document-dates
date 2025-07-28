@@ -4,7 +4,7 @@ English | [简体中文](README_zh.md)
 
 
 
-A new generation MkDocs plugin for displaying exact meta-info, such as **creation time, last update time, authors, email**, etc
+A new generation MkDocs plugin for displaying exact meta-info of documents, such as **creation time, last update time, authors, email**, etc
 
 ## Features
 
