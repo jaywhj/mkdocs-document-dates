@@ -67,7 +67,6 @@ plugins:
 
 - **优先级**：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
 - 如果你要自定义，则可在 Front Matter 中手动指定：
-
     ```markdown
     ---
     created: 2023-01-01
@@ -75,7 +74,6 @@ plugins:
     ---
 
     ```
-
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
@@ -85,7 +83,6 @@ plugins:
 
 - **优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
 - 如果你要自定义，则可在 Front Matter 中通过字段 `name` 配置一个作者：
-
     ```markdown
     ---
     name: any-name
@@ -104,7 +101,6 @@ plugins:
     - 动态背景色：基于名字哈希值生成 HSL 颜色
 2. GitHub头像：如果在 mkdocs.yml 配置了 `repo_url` 属性，则会自动读取用户的 GitHub 头像
 3. 自定义头像：可在 Front Matter 中通过自定义作者的 `avatar` 字段自定义头像
-
     ```markdown
     ---
     # 方式1：配置一个完整的作者
@@ -123,9 +119,8 @@ plugins:
     ---
     
     ```
-
-    - 如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
-    - 如果 avatar URL 加载失败，则会回退到字符头像
+- 如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
+- 如果 avatar URL 加载失败，则会回退到字符头像
     
 ## 插件定制化
 
