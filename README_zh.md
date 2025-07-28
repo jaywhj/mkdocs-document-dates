@@ -72,7 +72,7 @@ plugins:
     created: 2023-01-01
     modified: 2025-02-23
     ---
-
+    
     ```
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
@@ -95,7 +95,8 @@ plugins:
 
 默认情况下，插件会**自动加载**作者头像（无 avatar URL 时会**自动生成字符头像**），无需人工干预
 
-- **优先级**：`自定义头像` > `GitHub头像` > `字符头像` 
+**优先级**：`自定义头像` > `GitHub头像` > `字符头像` 
+
 1. 字符头像：插件会根据作者姓名自动生成字符头像，生成规则如下
     - 提取 initials：英文取首字母组合，中文取首字
     - 动态背景色：基于名字哈希值生成 HSL 颜色
@@ -121,7 +122,7 @@ plugins:
     ```
 - 如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
 - 如果 avatar URL 加载失败，则会回退到字符头像
-    
+  
 ## 插件定制化
 
 插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分界线**等等，一切都可以自定义（找到下方对应位置的文件，取消注释即可）：

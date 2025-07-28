@@ -71,7 +71,7 @@ By default, the plugin will **automatically** get the exact time of the document
     created: 2023-01-01
     modified: 2025-02-23
     ---
-
+    
     ```
 - `created` can be replaced with: `created, date, creation`
 - `modified` can be replaced with: `modified, updated, last_modified, last_updated`
@@ -94,7 +94,8 @@ By default, the plugin will **automatically** get the author of the document, an
 
 By default, the plugin will **automatically** loads the author avatar (character avatars are automatically generated when there is no avatar URL), without manual intervention
 
-- **Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+**Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
+
 1. Character avatar: The plugin will automatically generates character avatars based on the author's name with the following generation rules
     - Extract initials: English takes the combination of initials, other languages take the first character
     - Dynamic background color: Generate HSL color based on the hash of the name
