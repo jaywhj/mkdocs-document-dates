@@ -11,6 +11,18 @@ logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
+def get_git_first_commit_time(file_path):
+    try:
+        # git log --reverse --format="%aI" -- {file_path} | head -n 1
+        cmd_list = ['git', 'log', '--reverse', '--format=%aI', '--', file_path]
+        process = subprocess.run(cmd_list, capture_output=True, text=True)
+        if process.returncode == 0 and process.stdout.strip():
+            first_line = process.stdout.partition('\n')[0].strip()
+            return datetime.fromisoformat(first_line)
+    except Exception as e:
+        logger.info(f"Error getting git first commit time for {file_path}: {e}")
+    return None
+
 def load_git_cache(docs_dir_path: Path):
     dates_cache = {}
     try:
