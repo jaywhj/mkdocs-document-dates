@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from pathlib import Path
-from .utils import read_json_cache, read_jsonl_cache, write_jsonl_cache, get_file_creation_time
+from .utils import read_json_cache, read_jsonl_cache, write_jsonl_cache, get_file_creation_time, get_git_first_commit_time
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -94,6 +94,10 @@ def update_cache():
                         project_updated = True
                     elif full_path.exists():
                         created_time = get_file_creation_time(full_path).astimezone()
+                        if not jsonl_cache_file.exists() and not json_cache_file.exists():
+                            git_time = get_git_first_commit_time(full_path)
+                            if git_time:
+                                created_time = min(created_time, git_time)
                         jsonl_dates_cache[rel_path] = {
                             "created": created_time.isoformat()
                         }
