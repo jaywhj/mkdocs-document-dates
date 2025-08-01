@@ -36,7 +36,7 @@ class Author:
 class DocumentDatesPlugin(BasePlugin):
     config_scheme = (
         ('type', config_options.Type(str, default='date')),
-        ('locale', config_options.Type(str, default=None)),
+        ('locale', config_options.Type(str, default='')),
         ('date_format', config_options.Type(str, default='%Y-%m-%d')),
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
         ('position', config_options.Type(str, default='top')),
@@ -48,34 +48,25 @@ class DocumentDatesPlugin(BasePlugin):
 
     def __init__(self):
         super().__init__()
-        self.translation = {}
         self.dates_cache = {}
         self.authors_yml = {}
         self.github_username = None
 
     def on_config(self, config):
-        try:
-            # 设置 locale 在无配置时跟随主题语言
-            if not self.config['locale']:
-                self.config['locale'] = config['theme']['language']
-        except Exception:
-            self.config['locale'] = 'en'
-
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 author 配置
         if self.config['show_author']:
             self._extract_github_username(config.get('repo_url'))
-            try:
-                blog_config = config['plugins']['material/blog'].config
-                authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
-                authors_file = docs_dir_path / authors_file_resolved
-            except Exception:
-                authors_file = docs_dir_path / '.authors.yml'
+            authors_file = docs_dir_path / 'authors.yml'
+            if not authors_file.exists():
+                try:
+                    blog_config = config['plugins']['material/blog'].config
+                    authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
+                    authors_file = docs_dir_path / authors_file_resolved
+                except Exception:
+                    pass
             self._load_authors_from_yaml(authors_file)
-
-        # 加载 json 语言文件
-        self._load_translation(docs_dir_path)
 
         # 加载 git 缓存
         self.dates_cache = load_git_cache(docs_dir_path)
@@ -106,7 +97,7 @@ class DocumentDatesPlugin(BasePlugin):
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
         dest_dir.mkdir(parents=True, exist_ok=True)
         
-        for dir_name in ['tippy', 'core']:
+        for dir_name in ['tippy', 'core', 'fonts']:
             source_dir = Path(__file__).parent / 'static' / dir_name
             target_dir = dest_dir / dir_name
             # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
@@ -123,9 +114,9 @@ class DocumentDatesPlugin(BasePlugin):
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
 
-        
-        # 加载图标 Google Fonts Icons: https://fonts.google.com/icons
-        material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
+        # 加载本地 Google Fonts Icons: https://fonts.google.com/icons
+        # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
+        material_icons_url = 'assets/document_dates/fonts/material-icons.css'
         if material_icons_url not in config['extra_css']:
             config['extra_css'].append(material_icons_url)
         
@@ -133,10 +124,7 @@ class DocumentDatesPlugin(BasePlugin):
         # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
         # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
         if self.config['type'] == 'timeago':
-            config['extra_javascript'][0:0] = [
-                'assets/document_dates/core/timeago.min.js',
-                'assets/document_dates/core/timeago-load.js'
-            ]
+            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
 
         # 加载 Tippy CSS 文件
         tippy_css_dir = dest_dir / 'tippy'
@@ -160,9 +148,6 @@ class DocumentDatesPlugin(BasePlugin):
             'assets/document_dates/user.config.js'
         ])
 
-        if self.config['locale'] == 'zh':
-            self.config['locale'] = 'zh_CN'
-        
         return config
 
     def on_page_markdown(self, markdown, page: Page, config, files):
@@ -190,7 +175,6 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
         page.meta['document_dates_locale'] = self.config['locale']
-        page.meta['document_dates_translation'] = self.translation
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
@@ -231,37 +215,6 @@ class DocumentDatesPlugin(BasePlugin):
                 self.authors_yml[key] = author
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
-
-    def _load_translation(self, docs_dir_path: Path):
-        # 内置语言文件目录
-        builtin_dir = Path(__file__).parent / 'static' / 'languages'
-        # 用户自定义语言文件目录
-        custom_dir = docs_dir_path / 'assets' / 'document_dates' / 'languages'
-
-        # 加载语言文件
-        self._load_lang_file(builtin_dir)
-        self._load_lang_file(custom_dir)
-        if not self.translation:
-            self.config['locale'] = 'en'
-            self._load_lang_file(builtin_dir)
-
-        # 复制 en.json 到用户目录作为自定义参考
-        custom_en_json = custom_dir / 'en.json'
-        if not custom_en_json.exists():
-            custom_dir.mkdir(parents=True, exist_ok=True)
-            en_json = builtin_dir / 'en.json'
-            shutil.copy2(en_json, custom_en_json)
-
-    def _load_lang_file(self, lang_dir: Path):
-        try:
-            locale_file = lang_dir / f"{self.config['locale']}.json"
-            if locale_file.exists():
-                with locale_file.open('r', encoding='utf-8') as f:
-                    self.translation = json.load(f)
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON format in language file {locale_file}: {str(e)}")
-        except Exception as e:
-            logger.error(f"Error loading language file {locale_file}: {str(e)}")
 
 
     def _is_excluded(self, rel_path):
@@ -366,20 +319,19 @@ class DocumentDatesPlugin(BasePlugin):
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
             html_parts.append(f"<div class='document-dates-plugin-wrapper {position_class}'>")
-            html_parts.append(f"<div class='document-dates-plugin'>")
+            html_parts.append(f"<div class='document-dates-plugin' locale='{self.config['locale']}'>")
 
-            def build_time_icon(time_obj: datetime, icon: str, label_key: str, default_label:str):
+            def build_time_icon(time_obj: datetime, icon: str):
                 formatted = time_obj.strftime(self.config['date_format'])
-                tooltip = f"{self.translation.get(label_key, default_label)}: {formatted}"
                 return (
-                    f"<span data-tippy-content='{tooltip}'>"
+                    f"<span data-tippy-content='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
-                    f"<time datetime='{time_obj.isoformat()}' locale='{self.config['locale']}'>"
+                    f"<time datetime='{time_obj.isoformat()}'>"
                     f"{self._get_formatted_date(time_obj)}</time></span>"
                 )
 
-            html_parts.append(build_time_icon(created, 'doc_created', 'created_time', 'Created'))
-            html_parts.append(build_time_icon(modified, 'doc_modified', 'modified_time', 'Last Update'))
+            html_parts.append(build_time_icon(created, 'doc_created'))
+            html_parts.append(build_time_icon(modified, 'doc_modified'))
 
             # 添加作者信息
             if self.config['show_author'] and authors:
@@ -405,7 +357,7 @@ class DocumentDatesPlugin(BasePlugin):
                     tooltip = get_author_tooltip(author)
                     img_ele = get_avatar_img(author)
                     html_parts.append(
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{self.translation.get('author', 'Author')}: {tooltip}'>"
+                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{tooltip}'>"
                         f"{img_ele}<span class='avatar-text'></span>"
                         f"</div>"
                     )
