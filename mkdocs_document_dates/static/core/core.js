@@ -1,5 +1,8 @@
+/*
+    Part 1: Tooltip 配置
+*/
 const defaultConfig = {
-    // configurable: light material, or custom theme in user.config.css
+    // 可配置: light material, 或在 user.config.css 中自定义的主题
     theme: {
         light: 'light',
         dark: 'material'
@@ -9,13 +12,10 @@ const defaultConfig = {
         offset: [0, 12],        // placement offset: [horizontal, vertical]
         interactive: true,      // content in Tooltip is interactive
         allowHTML: true,        // whether to allow HTML in the tooltip content
-        
         animation: 'scale',     // animation type: scale shift-away
         inertia: true,          // animation inertia
         // arrow: false,           // whether to allow arrows
-
         // animateFill: true,      // determines if the background fill color should be animated
-
         // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
     }
 };
@@ -29,8 +29,6 @@ function setConfig(newConfig) {
         ...newConfig
     };
 }
-
-
 
 // Hook System
 const hooks = {
@@ -54,6 +52,12 @@ async function executeHooks(hookName, context) {
     }
 }
 
+// Export API
+window.DocumentDates = {
+    registerHook,
+    setConfig
+};
+
 // Theme management
 function getCurrentTheme() {
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
@@ -64,7 +68,7 @@ function getCurrentTheme() {
 async function init() {
     // Create context object to pass to hooks and return from function
     const context = { tippy_config };
-    
+
     // Execute beforeInit hooks
     await executeHooks('beforeInit', context);
 
@@ -73,7 +77,7 @@ async function init() {
         ...tippy_config.tooltip,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
-    
+
     // Store instances in context
     context.tippyInstances = tippyInstances;
 
@@ -93,13 +97,13 @@ async function init() {
         attributes: true,
         attributeFilter: ['data-md-color-scheme']
     });
-    
+
     // Store observer in context
     context.observer = observer;
 
     // Execute afterInit hooks
     await executeHooks('afterInit', context);
-    
+
     // Return context with instances and observer for cleanup
     return context;
 }
@@ -108,7 +112,7 @@ async function init() {
 const initManager = (() => {
     let tippyInstances = [];
     let observer = null;
-    
+
     // Function to clean up previous instances
     function cleanup() {
         // Destroy previous tippy instances if they exist
@@ -116,20 +120,20 @@ const initManager = (() => {
             tippyInstances.forEach(instance => instance.destroy());
             tippyInstances = [];
         }
-        
+
         // Disconnect previous observer if it exists
         if (observer) {
             observer.disconnect();
             observer = null;
         }
     }
-    
+
     return {
         // This can be called multiple times, especially with navigation.instant
-        initialize() {
+        loadTippyInstances() {
             // Clean up previous instances first
             cleanup();
-            
+
             // Initialize new instances
             init().then(context => {
                 if (context && context.tippyInstances) {
@@ -144,27 +148,10 @@ const initManager = (() => {
 })();
 
 
-// Entrance - Compatible with Material for MkDocs 'navigation.instant'
-// Check if Material for MkDocs document$ observable is available
-if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    // Use Material's document$ observable for both initial load and navigation.instant
-    window.document$.subscribe(initManager.initialize);
-} else {
-    // Fallback to standard DOMContentLoaded for other themes
-    document.addEventListener('DOMContentLoaded', initManager.initialize);
-}
 
-
-// Export API
-window.DocumentDates = {
-    registerHook,
-    setConfig
-};
-
-
-
-/* Automatically generate avatars based on text */
-
+/*
+    Part 2: 自动生成文本头像
+*/
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
 }
@@ -186,7 +173,7 @@ function nameToHSL(name, s = 50, l = 55) {
     const hue = hash % 360;
     return `hsl(${hue}, ${s}%, ${l}%)`;
 }
-function generateAvatar(){
+function generateAvatar() {
     document.querySelectorAll('.avatar-wrapper').forEach(wrapper => {
         const name = wrapper.dataset.name || '';
         const initials = extractInitials(name);
@@ -203,8 +190,205 @@ function generateAvatar(){
         };
     });
 }
+
+
+
+/*
+    Part 3: locale 自动本地化，同时也支持用户自定义
+*/
+window.LanguageManager = (function () {
+    const defaultLangs = new Map();
+    const userLangs = new Map();
+
+    /*
+    用户 locale 值      匹配顺序（fallback 列表）              实际使用的配置
+    zh-Hans-CN         zh-hans-cn → zh-hans → zh → en       zh
+    zh_CN              zh-cn → zh → en                      zh
+    fr-FR              fr-fr → fr → en                      fr
+    ko                 ko → en                              fallback to en if ko not found
+    */
+    // 生成 fallback 列表
+    function generateFallbacks(locale, defaultLocale = 'en') {
+        const normalized = locale.trim().replace(/_/g, '-');
+        const parts = normalized.split('-');
+        const fallbacks = [];
+        for (let i = parts.length - 1; i >= 2; i--) {
+            fallbacks.push(parts.slice(0, i).join('-'));
+        }
+        fallbacks.push(parts[0]);
+        if (!fallbacks.includes(defaultLocale)) {
+            fallbacks.push(defaultLocale);
+        }
+        return fallbacks;
+    }
+    return {
+        registerDefault(locale, data) {
+            defaultLangs.set(locale, data);
+        },
+        registerUser(locale, data) {
+            userLangs.set(locale, data);
+        },
+        get(locale) {
+            // 优先原值直接匹配，提高效率
+            if (userLangs.has(locale)) return userLangs.get(locale);
+            if (defaultLangs.has(locale)) return defaultLangs.get(locale);
+            // 进入降级匹配
+            const fallbacks = generateFallbacks(locale);
+            for (const fallbackLocale of fallbacks) {
+                const defaultData = defaultLangs.get(fallbackLocale);
+                const userData = userLangs.get(fallbackLocale);
+                if (defaultData || userData) {
+                    return {
+                        ...(defaultData || {}),
+                        ...(userData || {})
+                    };
+                }
+            }
+            return {};
+        }
+    };
+})();
+// 默认语言包
+const defaultLanguages = {
+    ar: {
+        created_time: "تاريخ الإنشاء",
+        modified_time: "تاريخ التعديل",
+        author: "المؤلف",
+        authors: "المؤلفون"
+    },
+    de: {
+        created_time: "Erstellungszeit",
+        modified_time: "Änderungszeit",
+        author: "Autor",
+        authors: "Autoren"
+    },
+    en: {
+        created_time: "Created",
+        modified_time: "Last Update",
+        author: "Author",
+        authors: "Authors"
+    },
+    es: {
+        created_time: "Fecha de creación",
+        modified_time: "Fecha de modificación",
+        author: "Autor",
+        authors: "Autores"
+    },
+    fr: {
+        created_time: "Date de création",
+        modified_time: "Date de modification",
+        author: "Auteur",
+        authors: "Auteurs"
+    },
+    ja: {
+        created_time: "作成日時",
+        modified_time: "更新日時",
+        author: "著者",
+        authors: "著者"
+    },
+    ko: {
+        created_time: "작성일",
+        modified_time: "수정일",
+        author: "작성자",
+        authors: "작성자"
+    },
+    ru: {
+        created_time: "Дата создания",
+        modified_time: "Дата изменения",
+        author: "Автор",
+        authors: "Авторы"
+    },
+    zh: {
+        created_time: "创建时间",
+        modified_time: "最后更新",
+        author: "作者",
+        authors: "作者"
+    },
+    zh_TW: {
+        created_time: "建立時間",
+        modified_time: "修改時間",
+        author: "作者",
+        authors: "作者"
+    }
+}
+// 统一注册所有默认语言
+Object.entries(defaultLanguages).forEach(([locale, data]) => {
+    LanguageManager.registerDefault(locale, data);
+});
+
+function resolveTimeagoLocale(rawLocale) {
+    const normRaw = rawLocale.trim().replace(/-/g, '_');
+    const parts = normRaw.split('_');
+    const candidates = parts.length >= 2
+        ? [normRaw, parts[0]]
+        : [normRaw];
+    const fallbackFn = timeago.getLocale('en_US');
+    for (const candidate of candidates) {
+        const fn = timeago.getLocale(candidate);
+        if (fn !== fallbackFn) {
+            return candidate;
+        }
+    }
+    return 'en_US';
+}
+
+// 主逻辑
+window.renderDocumentDates = function () {
+    const plugins = document.querySelectorAll('.document-dates-plugin');
+    if (!plugins.length) return;
+
+    const iconKeyMap = {
+        doc_created: 'created_time',
+        doc_modified: 'modified_time',
+        doc_author: 'author',
+        doc_authors: 'authors'
+    };
+
+    plugins.forEach(ddPlugin => {
+        // Step 1: 获取 locale
+        const rawLocale =
+            ddPlugin.getAttribute('locale') ||
+            navigator.language ||
+            navigator.userLanguage ||
+            document.documentElement.lang ||
+            'en';
+
+        // Step 2: 处理 time 元素（使用 timeago）
+        if (typeof timeago !== 'undefined') {
+            const toLocale = resolveTimeagoLocale(rawLocale);
+            ddPlugin.querySelectorAll('time').forEach(timeEl => {
+                timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), toLocale);
+            });
+        }
+
+        // Step 3: 加载 locale 对应的语言包
+        const langData = LanguageManager.get(rawLocale);
+
+        // Step 4: 处理提示内容
+        ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
+            const iconEl = tippyEl.querySelector('[data-icon]');
+            const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
+            const iconKey = iconKeyMap[rawIconKey] || 'author';
+            if (langData[iconKey]) {
+                tippyEl.dataset.tippyContent = langData[iconKey] + ': ' + tippyEl.dataset.tippyContent;
+            }
+        });
+    });
+};
+
+
+
+/*
+    入口: 兼容 Material 主题的 'navigation.instant'
+*/
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    window.document$.subscribe(generateAvatar);
+    window.document$.subscribe(() => {
+        renderDocumentDates();
+        generateAvatar();
+        initManager.loadTippyInstances();
+    });
 } else {
+    renderDocumentDates();
     generateAvatar();
+    document.addEventListener('DOMContentLoaded', initManager.loadTippyInstances);
 }

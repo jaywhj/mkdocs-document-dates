@@ -1,4 +1,5 @@
 /*
+Part 1: 
     Configuration Overrides for Tooltip
     see: https://atomiks.github.io/tippyjs/
 */
@@ -52,6 +53,7 @@ DocumentDates.registerHook('afterInit', async (context) => {
 
 
 /*
+Part 2: 
     Demonstrates how to register a local language when using timeago.js
     Simply translate the English in parentheses into your own language, nothing else needs to be changed!
 */
@@ -90,4 +92,48 @@ if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
     // Fallback to standard DOMContentLoaded for other themes
     formatTimeagoElements();
 }
+*/
+
+
+
+/*
+Part 3: 
+    Demonstrates how to register the local language for this plugin,
+        when the local language is missing, or when the default language translation is inaccurate.
+    Simply translate the English in parentheses into your own language, nothing else needs to be changed!
+*/
+/*
+// Way 1: User-defined one language
+LanguageManager.registerUser('zh', {
+    created_time: "Custome Created",
+    modified_time: "Custome Last Update",
+    author: "Custome Author",
+    authors: "Custome Authors"
+});
+
+// Way 2: User-defined one language (partial override)
+const zhUserLang = {
+    modified_time: "最后修改时间",
+    author: "自定义作者"
+};
+LanguageManager.registerUser('zh', zhUserLang);
+
+// Way 3: User-defined multiple languages
+const userLanguages = {
+    en: {
+        created_time: "Created",
+        modified_time: "Last Update",
+        author: "Author",
+        authors: "Authors"
+    },
+    zh: {
+        created_time: "创建时间",
+        modified_time: "最后更新",
+        author: "作者",
+        authors: "作者"
+    }
+};
+Object.entries(userLanguages).forEach(([locale, data]) => {
+    LanguageManager.registerUser(locale, data);
+});
 */
