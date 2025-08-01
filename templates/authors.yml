@@ -5,10 +5,9 @@ authors:
     url: https://jaywhj.netlify.app/
     email: junewhj@qq.com
     description: Minimalism
-  squidfunk:
-    name: Martin Donath
-    avatar: https://avatars.githubusercontent.com/u/932156
-    url: https://github.com/squidfunk
+  user2:
+    name: xxx
+    avatar: https://xxx.com/avatar.jpg
+    url: https://xxx.com
     email: xxx@gmail.com
-    description: MkDocs Material
-
+    description: xxx
