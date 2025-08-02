@@ -150,7 +150,7 @@ const initManager = (() => {
 
 
 /*
-    Part 2: 自动生成文本头像
+    Part 2: 自动生成字符头像
 */
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
@@ -316,20 +316,20 @@ Object.entries(defaultLanguages).forEach(([locale, data]) => {
     LanguageManager.registerDefault(locale, data);
 });
 
+// 兼容 「ISO 639、ISO 3166、BCP 47」 格式
 function resolveTimeagoLocale(rawLocale) {
-    const normRaw = rawLocale.trim().replace(/-/g, '_');
-    const parts = normRaw.split('_');
-    const candidates = parts.length >= 2
-        ? [normRaw, parts[0]]
-        : [normRaw];
-    const fallbackFn = timeago.getLocale('en_US');
-    for (const candidate of candidates) {
-        const fn = timeago.getLocale(candidate);
-        if (fn !== fallbackFn) {
-            return candidate;
-        }
-    }
-    return 'en_US';
+    const shortLang = rawLocale.trim().replace(/-/g, '_').split('_')[0];
+    const fixLocale = {
+        bn: 'bn_IN',
+        en: 'en_US',
+        hi: 'hi_IN',
+        id: 'id_ID',
+        nb: 'nb_NO',
+        nn: 'nn_NO',
+        pt: 'pt_BR',
+        zh: 'zh_CN'
+    };
+    return fixLocale[shortLang] || shortLang;
 }
 
 // 主逻辑
@@ -353,18 +353,18 @@ window.renderDocumentDates = function () {
             document.documentElement.lang ||
             'en';
 
-        // Step 2: 处理 time 元素（使用 timeago）
+        // Step 2: 处理 time 元素（使用 timeago 时）
         if (typeof timeago !== 'undefined') {
-            const toLocale = resolveTimeagoLocale(rawLocale);
+            const tLocale = resolveTimeagoLocale(rawLocale);
             ddPlugin.querySelectorAll('time').forEach(timeEl => {
-                timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), toLocale);
+                timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), tLocale);
             });
         }
 
-        // Step 3: 加载 locale 对应的语言包
+        // Step 3: 加载 locale 对应的 tooltip 语言包
         const langData = LanguageManager.get(rawLocale);
 
-        // Step 4: 处理提示内容
+        // Step 4: 处理 tooltip 内容
         ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
             const iconEl = tippyEl.querySelector('[data-icon]');
             const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
@@ -379,7 +379,7 @@ window.renderDocumentDates = function () {
 
 
 /*
-    入口: 兼容 Material 主题的 'navigation.instant'
+    入口: 兼容 Material 主题的 'navigation.instant' 属性
 */
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
     window.document$.subscribe(() => {
