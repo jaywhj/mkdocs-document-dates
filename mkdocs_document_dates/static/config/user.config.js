@@ -54,7 +54,7 @@ DocumentDates.registerHook('afterInit', async (context) => {
 
 /*
 Part 2: 
-    Demonstrates how to register a local language when using timeago.js
+    Demonstrates how to register a local language when using 'timeago.js'
     Simply translate the English in parentheses into your own language, nothing else needs to be changed!
 */
 /*
@@ -98,7 +98,7 @@ if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
 
 /*
 Part 3: 
-    Demonstrates how to register the local language for this plugin,
+    Demonstrates how to register the local language for the plugin's tooltip,
         when the local language is missing, or when the default language translation is inaccurate.
     Simply translate the English in parentheses into your own language, nothing else needs to be changed!
 */
