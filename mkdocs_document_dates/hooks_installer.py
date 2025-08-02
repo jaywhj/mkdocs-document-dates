@@ -79,7 +79,7 @@ def configure_git_hooks(hooks_dir):
         # subprocess.run(['git', 'config', '--global', 'merge.custom_json_merge.name', 'Custom JSON merge driver'], check=True)
         # subprocess.run(['git', 'config', '--global', 'merge.custom_json_merge.driver', f'"{sys.executable}" "{script_path}" %O %A %B'], check=True)
 
-        subprocess.run(['git', 'config', '--global', 'core.hooksPath', str(hooks_dir)], check=True)
+        subprocess.run(['git', 'config', 'core.hooksPath', str(hooks_dir)], check=True)
         logger.info(f"Git hooks successfully installed in: {hooks_dir}")
         return True
     except Exception:
