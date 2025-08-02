@@ -323,7 +323,7 @@ class DocumentDatesPlugin(BasePlugin):
             def build_time_icon(time_obj: datetime, icon: str):
                 formatted = time_obj.strftime(self.config['date_format'])
                 return (
-                    f"<span data-tippy-content='{formatted}'>"
+                    f"<span data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
                     f"<time datetime='{time_obj.isoformat()}'>"
                     f"{self._get_formatted_date(time_obj)}</time></span>"
@@ -356,7 +356,7 @@ class DocumentDatesPlugin(BasePlugin):
                     tooltip = get_author_tooltip(author)
                     img_ele = get_avatar_img(author)
                     html_parts.append(
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content='{tooltip}'>"
+                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
                         f"{img_ele}<span class='avatar-text'></span>"
                         f"</div>"
                     )

@@ -370,7 +370,7 @@ window.renderDocumentDates = function () {
             const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
             const iconKey = iconKeyMap[rawIconKey] || 'author';
             if (langData[iconKey]) {
-                tippyEl.dataset.tippyContent = langData[iconKey] + ': ' + tippyEl.dataset.tippyContent;
+                tippyEl.dataset.tippyContent = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
             }
         });
     });

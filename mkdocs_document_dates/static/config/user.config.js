@@ -79,11 +79,10 @@ function formatTimeagoElements() {
         });
     }
 }
+// Refresh rendering after registration
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    // Compatible with Material for MkDocs 'navigation.instant'
     window.document$.subscribe(formatTimeagoElements);
 } else {
-    // Fallback to standard DOMContentLoaded for other themes
     formatTimeagoElements();
 }
 */
@@ -98,21 +97,14 @@ Part 3:
 */
 /*
 // Way 1: User-defined one language
-TooltipLanguage.registerUser('zh', {
-    created_time: "Custome Created",
-    modified_time: "Custome Last Update",
-    author: "Custome Author",
-    authors: "Custome Authors"
+TooltipLanguage.registerUser('en', {
+    created_time: "Custom Created",
+    modified_time: "Custom Last Update",
+    author: "Custom Author",
+    authors: "Custom Authors"
 });
 
-// Way 2: User-defined one language (partial override)
-const zhUserLang = {
-    modified_time: "最后修改时间",
-    author: "自定义作者"
-};
-TooltipLanguage.registerUser('zh', zhUserLang);
-
-// Way 3: User-defined multiple languages
+// Way 2: User-defined multiple languages
 const userLanguages = {
     en: {
         created_time: "Created",
@@ -130,4 +122,11 @@ const userLanguages = {
 Object.entries(userLanguages).forEach(([locale, data]) => {
     TooltipLanguage.registerUser(locale, data);
 });
+
+// Refresh rendering after registration
+if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
+    window.document$.subscribe(renderDocumentDates);
+} else {
+    renderDocumentDates();
+}
 */
