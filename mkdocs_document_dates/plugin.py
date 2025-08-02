@@ -174,7 +174,6 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_created'] = created.isoformat()
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
-        page.meta['document_dates_locale'] = self.config['locale']
         
         # 检查是否需要排除
         if self._is_excluded(rel_path):
