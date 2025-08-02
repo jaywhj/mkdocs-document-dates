@@ -5,13 +5,13 @@ Part 1:
 */
 
 /* Configure one by one: */
-// tippy_config.theme.light = 'tomato';
-// tippy_config.tooltip.placement = 'top';
-// tippy_config.tooltip.arrow = false;
+// tooltip_config.theme.light = 'tomato';
+// tooltip_config.tooltip.placement = 'top';
+// tooltip_config.tooltip.arrow = false;
 
 /* Or, override all configuration items: */
 /*
-DocumentDates.setConfig({
+TooltipConfig.setConfig({
     theme: {
         // configurable: light material, or custom theme in user.config.css, for example: sorrel sublime tomato
         light: 'light',
@@ -22,13 +22,10 @@ DocumentDates.setConfig({
         offset: [0, 10],         // placement offset: [horizontal, vertical]
         interactive: true,      // content in Tooltip is interactive
         allowHTML: true,        // whether to allow HTML in the tooltip content
-        
         animation: 'scale',     // animation type: scale shift-away
         inertia: true,          // animation inertia
         // arrow: false,           // whether to allow arrows
-
         // animateFill: true,      // determines if the background fill color should be animated
-
         // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default        
     }
 });
@@ -41,12 +38,9 @@ DocumentDates.setConfig({
 */
 
 /*
-DocumentDates.registerHook('beforeInit', async (context) => {
-    
+TooltipConfig.registerHook('beforeInit', async (context) => {
 });
-
-DocumentDates.registerHook('afterInit', async (context) => {
-    
+TooltipConfig.registerHook('afterInit', async (context) => {
 });
 */
 
@@ -104,7 +98,7 @@ Part 3:
 */
 /*
 // Way 1: User-defined one language
-LanguageManager.registerUser('zh', {
+TooltipLanguage.registerUser('zh', {
     created_time: "Custome Created",
     modified_time: "Custome Last Update",
     author: "Custome Author",
@@ -116,7 +110,7 @@ const zhUserLang = {
     modified_time: "最后修改时间",
     author: "自定义作者"
 };
-LanguageManager.registerUser('zh', zhUserLang);
+TooltipLanguage.registerUser('zh', zhUserLang);
 
 // Way 3: User-defined multiple languages
 const userLanguages = {
@@ -134,6 +128,6 @@ const userLanguages = {
     }
 };
 Object.entries(userLanguages).forEach(([locale, data]) => {
-    LanguageManager.registerUser(locale, data);
+    TooltipLanguage.registerUser(locale, data);
 });
 */

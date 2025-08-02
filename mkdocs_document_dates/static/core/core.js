@@ -20,11 +20,11 @@ const defaultConfig = {
     }
 };
 
-let tippy_config = { ...defaultConfig };
+let tooltip_config = { ...defaultConfig };
 
 // Configuration API
 function setConfig(newConfig) {
-    tippy_config = {
+    tooltip_config = {
         ...defaultConfig,
         ...newConfig
     };
@@ -53,7 +53,7 @@ async function executeHooks(hookName, context) {
 }
 
 // Export API
-window.DocumentDates = {
+window.TooltipConfig = {
     registerHook,
     setConfig
 };
@@ -61,20 +61,20 @@ window.DocumentDates = {
 // Theme management
 function getCurrentTheme() {
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
-    return scheme === 'slate' ? tippy_config.theme.dark : tippy_config.theme.light;
+    return scheme === 'slate' ? tooltip_config.theme.dark : tooltip_config.theme.light;
 }
 
 // Main initialization
 async function init() {
     // Create context object to pass to hooks and return from function
-    const context = { tippy_config };
+    const context = { tooltip_config };
 
     // Execute beforeInit hooks
     await executeHooks('beforeInit', context);
 
     // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
     const tippyInstances = tippy('[data-tippy-content]', {
-        ...tippy_config.tooltip,
+        ...tooltip_config.tooltip,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
 
@@ -196,7 +196,7 @@ function generateAvatar() {
 /*
     Part 3: locale 自动本地化，同时也支持用户自定义
 */
-window.LanguageManager = (function () {
+window.TooltipLanguage = (function () {
     const defaultLangs = new Map();
     const userLangs = new Map();
 
@@ -313,7 +313,7 @@ const defaultLanguages = {
 }
 // 统一注册所有默认语言
 Object.entries(defaultLanguages).forEach(([locale, data]) => {
-    LanguageManager.registerDefault(locale, data);
+    TooltipLanguage.registerDefault(locale, data);
 });
 
 // 兼容 「ISO 639、ISO 3166、BCP 47」 格式
@@ -362,7 +362,7 @@ window.renderDocumentDates = function () {
         }
 
         // Step 3: 加载 locale 对应的 tooltip 语言包
-        const langData = LanguageManager.get(rawLocale);
+        const langData = TooltipLanguage.get(rawLocale);
 
         // Step 4: 处理 tooltip 内容
         ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
