@@ -1,7 +1,7 @@
 /*
     Part 1: Tooltip 配置
 */
-const tpDefaultConfig = {
+const ttDefaultConfig = {
     // 可配置: light material, 或在 user.config.css 中自定义的主题
     theme: {
         light: 'light',
@@ -18,12 +18,12 @@ const tpDefaultConfig = {
     // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
 };
 
-let tooltip_config = { ...tpDefaultConfig };
+let tooltip_config = { ...ttDefaultConfig };
 
 // Configuration API
 function setConfig(newConfig) {
     tooltip_config = {
-        ...tpDefaultConfig,
+        ...ttDefaultConfig,
         ...newConfig
     };
 }
@@ -48,7 +48,6 @@ async function initTippy() {
         ...tooltip_config,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
-
     // Store instances in context
     context.tippyInstances = tippyInstances;
 
@@ -63,12 +62,10 @@ async function initTippy() {
             }
         });
     });
-
     observer.observe(document.body, {
         attributes: true,
         attributeFilter: ['data-md-color-scheme']
     });
-
     // Store observer in context
     context.observer = observer;
 
@@ -165,8 +162,7 @@ function generateAvatar() {
     Part 3: locale 自动本地化，同时也支持用户自定义
 */
 window.TooltipLanguage = (function () {
-    const defaultLangs = new Map();
-    const userLangs = new Map();
+    const allLangs = new Map();
 
     /*
     用户 locale 值      匹配顺序（fallback 列表）              实际使用的配置
@@ -190,26 +186,23 @@ window.TooltipLanguage = (function () {
         return fallbacks;
     }
     return {
-        registerDefault(locale, data) {
-            defaultLangs.set(locale, data);
-        },
-        registerUser(locale, data) {
-            userLangs.set(locale, data);
+        register(locale, data) {
+            // 合并数据，只更新传入的字段
+            const existingData = allLangs.get(locale) || {};
+            allLangs.set(locale, {
+                ...existingData,
+                ...data
+            });
         },
         get(locale) {
             // 优先原值直接匹配，提高效率
-            if (userLangs.has(locale)) return userLangs.get(locale);
-            if (defaultLangs.has(locale)) return defaultLangs.get(locale);
+            if (allLangs.has(locale)) return allLangs.get(locale);
             // 进入降级匹配
             const fallbacks = generateFallbacks(locale);
             for (const fallbackLocale of fallbacks) {
-                const defaultData = defaultLangs.get(fallbackLocale);
-                const userData = userLangs.get(fallbackLocale);
-                if (defaultData || userData) {
-                    return {
-                        ...(defaultData || {}),
-                        ...(userData || {})
-                    };
+                const data = allLangs.get(fallbackLocale);
+                if (data) {
+                    return data;
                 }
             }
             return {};
@@ -281,7 +274,7 @@ const defaultLanguages = {
 }
 // 统一注册所有默认语言
 Object.entries(defaultLanguages).forEach(([locale, data]) => {
-    TooltipLanguage.registerDefault(locale, data);
+    TooltipLanguage.register(locale, data);
 });
 
 // 兼容 「ISO 639、ISO 3166、BCP 47」 格式

@@ -82,7 +82,7 @@ Part 3:
 */
 /*
 // Way 1: User-defined one language
-TooltipLanguage.registerUser('en', {
+TooltipLanguage.register('en', {
     created_time: "Custom Created",
     modified_time: "Custom Last Update",
     author: "Custom Author",
@@ -105,7 +105,7 @@ const userLanguages = {
     }
 };
 Object.entries(userLanguages).forEach(([locale, data]) => {
-    TooltipLanguage.registerUser(locale, data);
+    TooltipLanguage.register(locale, data);
 });
 
 // Refresh rendering after registration
