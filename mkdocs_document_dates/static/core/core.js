@@ -1,7 +1,7 @@
 /*
     Part 1: Tooltip 配置
 */
-const defaultConfig = {
+const tpDefaultConfig = {
     // 可配置: light material, 或在 user.config.css 中自定义的主题
     theme: {
         light: 'light',
@@ -18,43 +18,19 @@ const defaultConfig = {
     // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
 };
 
-let tooltip_config = { ...defaultConfig };
+let tooltip_config = { ...tpDefaultConfig };
 
 // Configuration API
 function setConfig(newConfig) {
     tooltip_config = {
-        ...defaultConfig,
+        ...tpDefaultConfig,
         ...newConfig
     };
 }
 
-// Hook System
-const hooks = {
-    beforeInit: [],
-    afterInit: []
-};
-
-// Hook registration API
-function registerHook(hookName, callback) {
-    if (hooks[hookName]) {
-        hooks[hookName].push(callback);
-    }
-}
-
-// Hook execution
-async function executeHooks(hookName, context) {
-    if (hooks[hookName]) {
-        for (const hook of hooks[hookName]) {
-            await hook(context);
-        }
-    }
-}
-
 // Export API
-window.TooltipConfig = {
-    registerHook,
-    setConfig
-};
+window.TooltipConfig = { setConfig };
+
 
 // Theme management
 function getCurrentTheme() {
@@ -63,12 +39,9 @@ function getCurrentTheme() {
 }
 
 // Main initialization
-async function init() {
+async function initTippy() {
     // Create context object to pass to hooks and return from function
     const context = { tooltip_config };
-
-    // Execute beforeInit hooks
-    await executeHooks('beforeInit', context);
 
     // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
     const tippyInstances = tippy('[data-tippy-content]', {
@@ -99,15 +72,12 @@ async function init() {
     // Store observer in context
     context.observer = observer;
 
-    // Execute afterInit hooks
-    await executeHooks('afterInit', context);
-
     // Return context with instances and observer for cleanup
     return context;
 }
 
 // Initialization Manager
-const initManager = (() => {
+const tippyManager = (() => {
     let tippyInstances = [];
     let observer = null;
 
@@ -128,12 +98,12 @@ const initManager = (() => {
 
     return {
         // This can be called multiple times, especially with navigation.instant
-        loadTippyInstances() {
+        initialize() {
             // Clean up previous instances first
             cleanup();
 
             // Initialize new instances
-            init().then(context => {
+            initTippy().then(context => {
                 if (context && context.tippyInstances) {
                     tippyInstances = context.tippyInstances;
                 }
@@ -331,6 +301,7 @@ function resolveTimeagoLocale(rawLocale) {
 }
 
 // 主逻辑
+// TODO: 合并 renderDocumentDates 不需要暴露给 window
 window.renderDocumentDates = function () {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
@@ -383,10 +354,10 @@ if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
     window.document$.subscribe(() => {
         renderDocumentDates();
         generateAvatar();
-        initManager.loadTippyInstances();
+        tippyManager.initialize();
     });
 } else {
     renderDocumentDates();
     generateAvatar();
-    document.addEventListener('DOMContentLoaded', initManager.loadTippyInstances);
+    document.addEventListener('DOMContentLoaded', tippyManager.initialize);
 }

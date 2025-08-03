@@ -29,19 +29,6 @@ TooltipConfig.setConfig({
 });
 */
 
-/* 
-    Hook System of Tooltip
-    The hook system allows you to execute custom logic at specific times, 
-    such as adding custom interactions before the tooltip initialization and after initialization.
-*/
-
-/*
-TooltipConfig.registerHook('beforeInit', async (context) => {
-});
-TooltipConfig.registerHook('afterInit', async (context) => {
-});
-*/
-
 
 
 /*
