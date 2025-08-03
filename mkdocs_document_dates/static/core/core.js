@@ -17,17 +17,13 @@ const ttDefaultConfig = {
     // animateFill: true,      // determines if the background fill color should be animated
     // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
 };
-
 let tooltip_config = { ...ttDefaultConfig };
-
-// Configuration API
 function setConfig(newConfig) {
     tooltip_config = {
         ...ttDefaultConfig,
         ...newConfig
     };
 }
-
 // Export API
 window.TooltipConfig = { setConfig };
 
@@ -161,6 +157,7 @@ function generateAvatar() {
 /*
     Part 3: locale 自动本地化，同时也支持用户自定义
 */
+// 通过 IIFE（立即执行的函数表达式）创建 TooltipLanguage
 window.TooltipLanguage = (function () {
     const allLangs = new Map();
 
@@ -187,7 +184,7 @@ window.TooltipLanguage = (function () {
     }
     return {
         register(locale, data) {
-            // 合并数据，只更新传入的字段
+            // 合并数据，支持增量更新
             const existingData = allLangs.get(locale) || {};
             allLangs.set(locale, {
                 ...existingData,
@@ -195,7 +192,7 @@ window.TooltipLanguage = (function () {
             });
         },
         get(locale) {
-            // 优先原值直接匹配，提高效率
+            // 优先原值直接匹配
             if (allLangs.has(locale)) return allLangs.get(locale);
             // 进入降级匹配
             const fallbacks = generateFallbacks(locale);
@@ -277,8 +274,8 @@ Object.entries(defaultLanguages).forEach(([locale, data]) => {
     TooltipLanguage.register(locale, data);
 });
 
-// 兼容 「ISO 639、ISO 3166、BCP 47」 格式
 function resolveTimeagoLocale(rawLocale) {
+    // 兼容 「ISO 639、ISO 3166、BCP 47」 格式
     const shortLang = rawLocale.trim().replace(/-/g, '_').split('_')[0];
     const fixLocale = {
         bn: 'bn_IN',
@@ -293,8 +290,7 @@ function resolveTimeagoLocale(rawLocale) {
     return fixLocale[shortLang] || shortLang;
 }
 
-// 主逻辑
-// TODO: 合并 renderDocumentDates 不需要暴露给 window
+// 主逻辑（初始化目的，缺更新函数）
 window.renderDocumentDates = function () {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
