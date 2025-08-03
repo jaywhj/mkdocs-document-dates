@@ -7,17 +7,15 @@ const defaultConfig = {
         light: 'light',
         dark: 'material'
     },
-    tooltip: {
-        placement: 'bottom',    // placement: top bottom left right auto
-        offset: [0, 12],        // placement offset: [horizontal, vertical]
-        interactive: true,      // content in Tooltip is interactive
-        allowHTML: true,        // whether to allow HTML in the tooltip content
-        animation: 'scale',     // animation type: scale shift-away
-        inertia: true,          // animation inertia
-        // arrow: false,           // whether to allow arrows
-        // animateFill: true,      // determines if the background fill color should be animated
-        // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
-    }
+    placement: 'bottom',    // placement: top bottom left right auto
+    offset: [0, 12],        // placement offset: [horizontal, vertical]
+    interactive: true,      // content in Tooltip is interactive
+    allowHTML: true,        // whether to allow HTML in the tooltip content
+    animation: 'scale',     // animation type: scale shift-away
+    inertia: true,          // animation inertia
+    // arrow: false,           // whether to allow arrows
+    // animateFill: true,      // determines if the background fill color should be animated
+    // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
 };
 
 let tooltip_config = { ...defaultConfig };
@@ -74,7 +72,7 @@ async function init() {
 
     // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
     const tippyInstances = tippy('[data-tippy-content]', {
-        ...tooltip_config.tooltip,
+        ...tooltip_config,
         theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
     });
 

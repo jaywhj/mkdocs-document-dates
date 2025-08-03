@@ -6,8 +6,8 @@ Part 1:
 
 /* Configure one by one: */
 // tooltip_config.theme.light = 'tomato';
-// tooltip_config.tooltip.placement = 'top';
-// tooltip_config.tooltip.arrow = false;
+// tooltip_config.placement = 'top';
+// tooltip_config.arrow = false;
 
 /* Or, override all configuration items: */
 /*
@@ -17,17 +17,15 @@ TooltipConfig.setConfig({
         light: 'light',
         dark: 'material'
     },
-    tooltip: {
-        placement: 'bottom',    // placement: top bottom left right auto
-        offset: [0, 10],         // placement offset: [horizontal, vertical]
-        interactive: true,      // content in Tooltip is interactive
-        allowHTML: true,        // whether to allow HTML in the tooltip content
-        animation: 'scale',     // animation type: scale shift-away
-        inertia: true,          // animation inertia
-        // arrow: false,           // whether to allow arrows
-        // animateFill: true,      // determines if the background fill color should be animated
-        // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default        
-    }
+    placement: 'bottom',    // placement: top bottom left right auto
+    offset: [0, 10],         // placement offset: [horizontal, vertical]
+    interactive: true,      // content in Tooltip is interactive
+    allowHTML: true,        // whether to allow HTML in the tooltip content
+    animation: 'scale',     // animation type: scale shift-away
+    inertia: true,          // animation inertia
+    // arrow: false,           // whether to allow arrows
+    // animateFill: true,      // determines if the background fill color should be animated
+    // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
 });
 */
 
