@@ -113,7 +113,7 @@ class DocumentDatesPlugin(BasePlugin):
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
 
-        # 加载本地 Google Fonts Icons: https://fonts.google.com/icons
+        # 加载离线 Google Fonts Icons: https://fonts.google.com/icons
         # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         material_icons_url = 'assets/document_dates/fonts/material-icons.css'
         if material_icons_url not in config['extra_css']:
@@ -143,8 +143,9 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 加载自定义 JS 文件
         config['extra_javascript'].extend([
-            'assets/document_dates/core/core.js',
-            'assets/document_dates/user.config.js'
+            'assets/document_dates/core/default.config.js',
+            'assets/document_dates/user.config.js',
+            'assets/document_dates/core/core.js'
         ])
 
         return config

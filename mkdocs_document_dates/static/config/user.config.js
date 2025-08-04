@@ -18,9 +18,9 @@ TooltipConfig.setConfig({
         dark: 'material'
     },
     placement: 'bottom',    // placement: top bottom left right auto
-    offset: [0, 10],         // placement offset: [horizontal, vertical]
-    interactive: true,      // content in Tooltip is interactive
+    offset: [0, 12],        // placement offset: [horizontal, vertical]
     allowHTML: true,        // whether to allow HTML in the tooltip content
+    interactive: true,      // content in Tooltip is interactive
     animation: 'scale',     // animation type: scale shift-away
     inertia: true,          // animation inertia
     // arrow: false,           // whether to allow arrows
@@ -33,8 +33,8 @@ TooltipConfig.setConfig({
 
 /*
 Part 2: 
-    Demonstrates how to register a local language when using 'timeago.js'
-    Simply translate the English in parentheses into your own language, nothing else needs to be changed!
+    Demonstrates how to register a local language when using 'timeago.js', 
+        then you can configure the localeStr you just registered anywhere!
 */
 /*
 const localeFunc = (number, index) => {
@@ -57,19 +57,6 @@ const localeFunc = (number, index) => {
 };
 const localeStr = 'whatever';
 timeago.register(localeStr, localeFunc);
-function formatTimeagoElements() {
-    if (typeof timeago !== 'undefined') {
-        document.querySelectorAll('.document-dates-plugin time').forEach(timeElement => {
-            timeElement.textContent = timeago.format(timeElement.getAttribute('datetime'), localeStr);
-        });
-    }
-}
-// Refresh rendering after registration
-if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    window.document$.subscribe(formatTimeagoElements);
-} else {
-    formatTimeagoElements();
-}
 */
 
 
@@ -78,7 +65,6 @@ if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
 Part 3: 
     Demonstrates how to register the local language for the plugin's tooltip,
         when the local language is missing, or when the default language translation is inaccurate.
-    Simply translate the English in parentheses into your own language, nothing else needs to be changed!
 */
 /*
 // Way 1: User-defined one language
@@ -107,11 +93,4 @@ const userLanguages = {
 Object.entries(userLanguages).forEach(([locale, data]) => {
     TooltipLanguage.register(locale, data);
 });
-
-// Refresh rendering after registration
-if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    window.document$.subscribe(renderDocumentDates);
-} else {
-    renderDocumentDates();
-}
 */
