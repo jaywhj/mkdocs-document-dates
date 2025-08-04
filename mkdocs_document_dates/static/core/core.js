@@ -1,6 +1,5 @@
-
 /*
-    自动生成字符头像
+    1.自动生成字符头像
 */
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
@@ -44,9 +43,9 @@ function generateAvatar() {
 
 
 /*
-    插件初始化赋值
+    2.初始化赋值
 */
-
+// 处理 timeago 的 locale 格式
 function resolveTimeagoLocale(rawLocale) {
     // 兼容 「ISO 639、ISO 3166、BCP 47」 格式
     const shortLang = rawLocale.trim().replace(/-/g, '_').split('_')[0];
@@ -62,8 +61,8 @@ function resolveTimeagoLocale(rawLocale) {
     };
     return fixLocale[shortLang] || shortLang;
 }
-// 插件初始化赋值
-function renderDocumentDates() {
+// 处理文档日期和提示内容
+function processDocumentDates(customLocale) {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
 
@@ -75,8 +74,8 @@ function renderDocumentDates() {
     };
 
     plugins.forEach(ddPlugin => {
-        // 获取 locale
-        const rawLocale =
+        // 获取 locale，优先使用传入的自定义语言代码
+        const rawLocale = customLocale ||
             ddPlugin.getAttribute('locale') ||
             navigator.language ||
             navigator.userLanguage ||
@@ -91,23 +90,37 @@ function renderDocumentDates() {
             });
         }
 
-        // 处理 tooltip 内容，在 tippy 实例创建前初始化 data-tippy-content
+        // 处理 tooltip 内容
         const langData = TooltipLanguage.get(rawLocale);
         ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
             const iconEl = tippyEl.querySelector('[data-icon]');
             const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
             const iconKey = iconKeyMap[rawIconKey] || 'author';
             if (langData[iconKey]) {
-                tippyEl.dataset.tippyContent = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
+                const content = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
+                // 更新dataset属性
+                tippyEl.dataset.tippyContent = content;
+                // 如果tippy实例已存在，直接更新内容
+                if (tippyEl._tippy) {
+                    tippyEl._tippy.setContent(content);
+                }
             }
         });
     });
+}
+
+// 外部使用：更新文档日期和tippy内容（指定语言）
+function updateDocumentDates(locale) {
+    processDocumentDates(locale);
+}
+window.documentDatesPlugin = {
+    update: updateDocumentDates
 };
 
 
 
 /*
-    初始化 tippyManager
+    3.初始化 tippyManager
 */
 function getCurrentTheme() {
     // 基于 Material's light/dark 配色方案返回对应的 Tooltip 主题
@@ -188,13 +201,13 @@ const tippyManager = (() => {
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
     window.document$.subscribe(() => {
         // 插件初始化赋值
-        renderDocumentDates();
+        processDocumentDates();
         generateAvatar();
         // 通过 tippyManager 创建 tippy 实例
         tippyManager.initialize();
     });
 } else {
-    renderDocumentDates();
+    processDocumentDates();
     generateAvatar();
     document.addEventListener('DOMContentLoaded', tippyManager.initialize);
 }
