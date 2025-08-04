@@ -98,9 +98,9 @@ function processDocumentDates(customLocale) {
             const iconKey = iconKeyMap[rawIconKey] || 'author';
             if (langData[iconKey]) {
                 const content = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
-                // 更新dataset属性
+                // 更新 data-tippy-content 属性
                 tippyEl.dataset.tippyContent = content;
-                // 如果tippy实例已存在，直接更新内容
+                // 如果 tippy 实例已存在，直接更新内容
                 if (tippyEl._tippy) {
                     tippyEl._tippy.setContent(content);
                 }
@@ -109,7 +109,7 @@ function processDocumentDates(customLocale) {
     });
 }
 
-// 外部使用：更新文档日期和tippy内容（指定语言）
+// 外部使用：更新文档日期和 tippy 内容（指定语言）
 function updateDocumentDates(locale) {
     processDocumentDates(locale);
 }
