@@ -62,8 +62,8 @@ function resolveTimeagoLocale(rawLocale) {
     };
     return fixLocale[shortLang] || shortLang;
 }
-// 插件初始化赋值（缺更新函数）
-window.renderDocumentDates = function () {
+// 插件初始化赋值
+function renderDocumentDates() {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
 
@@ -115,7 +115,7 @@ function getCurrentTheme() {
     return scheme === 'slate' ? tooltip_config.theme.dark : tooltip_config.theme.light;
 }
 
-async function initTippy() {
+function initTippy() {
     // 创建上下文对象，将其传递给钩子并从函数中返回
     const context = { tooltip_config };
 
@@ -128,7 +128,7 @@ async function initTippy() {
 
     // 添加观察者，监控 Material's 配色变化，自动切换 Tooltip 主题
     const observer = new MutationObserver((mutations) => {
-        mutations.forEach(async (mutation) => {
+        mutations.forEach((mutation) => {
             if (mutation.attributeName === 'data-md-color-scheme') {
                 const newTheme = getCurrentTheme();
                 tippyInstances.forEach(instance => {
@@ -169,14 +169,13 @@ const tippyManager = (() => {
             // 先清理以前的实例
             cleanup();
             // 初始化新实例
-            initTippy().then(context => {
-                if (context && context.tippyInstances) {
-                    tippyInstances = context.tippyInstances;
-                }
-                if (context && context.observer) {
-                    observer = context.observer;
-                }
-            });
+            const context = initTippy();
+            if (context && context.tippyInstances) {
+                tippyInstances = context.tippyInstances;
+            }
+            if (context && context.observer) {
+                observer = context.observer;
+            }
         }
     };
 })();
@@ -191,12 +190,11 @@ if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
         // 插件初始化赋值
         renderDocumentDates();
         generateAvatar();
-        //通过 tippyManager 创建 tippy 实例
+        // 通过 tippyManager 创建 tippy 实例
         tippyManager.initialize();
     });
 } else {
     renderDocumentDates();
     generateAvatar();
-    //通过 tippyManager 创建 tippy 实例
     document.addEventListener('DOMContentLoaded', tippyManager.initialize);
 }
