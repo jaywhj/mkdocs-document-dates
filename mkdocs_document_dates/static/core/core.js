@@ -24,30 +24,27 @@ function setConfig(newConfig) {
         ...newConfig
     };
 }
-// Export API
 window.TooltipConfig = { setConfig };
 
 
-// Theme management
 function getCurrentTheme() {
+    // 基于 Material's light/dark 配色方案返回对应的 Tooltip 主题
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
     return scheme === 'slate' ? tooltip_config.theme.dark : tooltip_config.theme.light;
 }
 
-// Main initialization
 async function initTippy() {
-    // Create context object to pass to hooks and return from function
+    // 创建上下文对象，将其传递给钩子并从函数中返回
     const context = { tooltip_config };
 
-    // Configure the properties of the Tooltip here, available documents: https://atomiks.github.io/tippyjs/
+    // 初始化 tippy 实例
     const tippyInstances = tippy('[data-tippy-content]', {
         ...tooltip_config,
-        theme: getCurrentTheme()    // Initialize Tooltip's theme based on Material's light/dark color scheme
+        theme: getCurrentTheme()
     });
-    // Store instances in context
     context.tippyInstances = tippyInstances;
 
-    // Automatic theme switching. Set Tooltip's theme to change automatically with the Material's light/dark color scheme
+    // 添加观察者，监控 Material's 配色变化，自动切换 Tooltip 主题
     const observer = new MutationObserver((mutations) => {
         mutations.forEach(async (mutation) => {
             if (mutation.attributeName === 'data-md-color-scheme') {
@@ -62,40 +59,34 @@ async function initTippy() {
         attributes: true,
         attributeFilter: ['data-md-color-scheme']
     });
-    // Store observer in context
     context.observer = observer;
 
-    // Return context with instances and observer for cleanup
+    // 返回包含 tippyInstances 和 observer 的上下文，用于后续清理
     return context;
 }
 
-// Initialization Manager
+// 通过 IIFE（立即执行的函数表达式）创建 tippyManager
 const tippyManager = (() => {
     let tippyInstances = [];
     let observer = null;
-
-    // Function to clean up previous instances
     function cleanup() {
-        // Destroy previous tippy instances if they exist
+        // 销毁之前的 tippy 实例
         if (tippyInstances.length > 0) {
             tippyInstances.forEach(instance => instance.destroy());
             tippyInstances = [];
         }
-
-        // Disconnect previous observer if it exists
+        // 断开之前的观察者连接
         if (observer) {
             observer.disconnect();
             observer = null;
         }
     }
-
     return {
-        // This can be called multiple times, especially with navigation.instant
+        // 每一次调用都生成新的实例（兼容 navigation.instant）
         initialize() {
-            // Clean up previous instances first
+            // 先清理以前的实例
             cleanup();
-
-            // Initialize new instances
+            // 初始化新实例
             initTippy().then(context => {
                 if (context && context.tippyInstances) {
                     tippyInstances = context.tippyInstances;
@@ -162,11 +153,11 @@ window.TooltipLanguage = (function () {
     const allLangs = new Map();
 
     /*
-    用户 locale 值      匹配顺序（fallback 列表）              实际使用的配置
-    zh-Hans-CN         zh-hans-cn → zh-hans → zh → en       zh
-    zh_CN              zh-cn → zh → en                      zh
-    fr-FR              fr-fr → fr → en                      fr
-    ko                 ko → en                              fallback to en if ko not found
+    用户 locale 值      匹配顺序（fallback 列表）
+    zh-Hans-CN         zh-Hans-CN → zh-Hans → zh → en
+    zh_CN              zh-CN → zh → en
+    fr-FR              fr-FR → fr → en
+    ko                 ko → en
     */
     // 生成 fallback 列表
     function generateFallbacks(locale, defaultLocale = 'en') {
@@ -206,6 +197,7 @@ window.TooltipLanguage = (function () {
         }
     };
 })();
+
 // 默认语言包
 const defaultLanguages = {
     ar: {
