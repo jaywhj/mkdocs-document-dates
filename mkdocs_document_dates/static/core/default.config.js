@@ -58,7 +58,7 @@ window.TooltipLanguage = (function () {
     }
     return {
         register(locale, data) {
-            // 合并数据，支持增量更新
+            // 合并数据，支持字段合并覆盖
             const existingData = allLangs.get(locale) || {};
             allLangs.set(locale, {
                 ...existingData,

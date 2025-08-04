@@ -75,7 +75,7 @@ window.renderDocumentDates = function () {
     };
 
     plugins.forEach(ddPlugin => {
-        // Step 1: 获取 locale
+        // 获取 locale
         const rawLocale =
             ddPlugin.getAttribute('locale') ||
             navigator.language ||
@@ -83,7 +83,7 @@ window.renderDocumentDates = function () {
             document.documentElement.lang ||
             'en';
 
-        // Step 2: 处理 time 元素（使用 timeago 时）
+        // 处理 time 元素（使用 timeago 时）
         if (typeof timeago !== 'undefined') {
             const tLocale = resolveTimeagoLocale(rawLocale);
             ddPlugin.querySelectorAll('time').forEach(timeEl => {
@@ -91,10 +91,8 @@ window.renderDocumentDates = function () {
             });
         }
 
-        // Step 3: 加载 locale 对应的 tooltip 语言包
+        // 处理 tooltip 内容，在 tippy 实例创建前初始化 data-tippy-content
         const langData = TooltipLanguage.get(rawLocale);
-
-        // Step 4: 处理 tooltip 内容
         ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
             const iconEl = tippyEl.querySelector('[data-icon]');
             const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
