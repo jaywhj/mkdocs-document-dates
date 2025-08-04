@@ -45,20 +45,20 @@ function generateAvatar() {
 /*
     2.初始化赋值
 */
+// 图标键映射表
+const iconKeyMap = {
+    doc_created: 'created_time',
+    doc_modified: 'modified_time',
+    doc_author: 'author',
+    doc_authors: 'authors'
+};
 // 处理文档日期和提示内容
 function processDocumentDates() {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
 
-    const iconKeyMap = {
-        doc_created: 'created_time',
-        doc_modified: 'modified_time',
-        doc_author: 'author',
-        doc_authors: 'authors'
-    };
-
     plugins.forEach(ddPlugin => {
-        // 获取 locale，优先级：传入的自定义语言 > localStorage保存的语言 > HTML属性 > 浏览器语言 > HTML文档语言 > 默认英语
+        // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > HTML文档语言 > 默认英语
         const rawLocale =
             DocumentDatesUtils.getSavedLanguage() ||
             ddPlugin.getAttribute('locale') ||

@@ -81,71 +81,73 @@ window.TooltipLanguage = (function () {
     };
 })();
 
-// 默认语言包
-const defaultLanguages = {
-    ar: {
-        created_time: "تاريخ الإنشاء",
-        modified_time: "تاريخ التعديل",
-        author: "المؤلف",
-        authors: "المؤلفون"
-    },
-    de: {
-        created_time: "Erstellungszeit",
-        modified_time: "Änderungszeit",
-        author: "Autor",
-        authors: "Autoren"
-    },
-    en: {
-        created_time: "Created",
-        modified_time: "Last Update",
-        author: "Author",
-        authors: "Authors"
-    },
-    es: {
-        created_time: "Fecha de creación",
-        modified_time: "Fecha de modificación",
-        author: "Autor",
-        authors: "Autores"
-    },
-    fr: {
-        created_time: "Date de création",
-        modified_time: "Date de modification",
-        author: "Auteur",
-        authors: "Auteurs"
-    },
-    ja: {
-        created_time: "作成日時",
-        modified_time: "更新日時",
-        author: "著者",
-        authors: "著者"
-    },
-    ko: {
-        created_time: "작성일",
-        modified_time: "수정일",
-        author: "작성자",
-        authors: "작성자"
-    },
-    ru: {
-        created_time: "Дата создания",
-        modified_time: "Дата изменения",
-        author: "Автор",
-        authors: "Авторы"
-    },
-    zh: {
-        created_time: "创建时间",
-        modified_time: "最后更新",
-        author: "作者",
-        authors: "作者"
-    },
-    zh_TW: {
-        created_time: "建立時間",
-        modified_time: "修改時間",
-        author: "作者",
-        authors: "作者"
-    }
-}
+// 在 IIFE 内部注册默认语言包
+(function() {
+    const defaultLanguages = {
+        ar: {
+            created_time: "تاريخ الإنشاء",
+            modified_time: "تاريخ التعديل",
+            author: "المؤلف",
+            authors: "المؤلفون"
+        },
+        de: {
+            created_time: "Erstellungszeit",
+            modified_time: "Änderungszeit",
+            author: "Autor",
+            authors: "Autoren"
+        },
+        en: {
+            created_time: "Created",
+            modified_time: "Last Update",
+            author: "Author",
+            authors: "Authors"
+        },
+        es: {
+            created_time: "Fecha de creación",
+            modified_time: "Fecha de modificación",
+            author: "Autor",
+            authors: "Autores"
+        },
+        fr: {
+            created_time: "Date de création",
+            modified_time: "Date de modification",
+            author: "Auteur",
+            authors: "Auteurs"
+        },
+        ja: {
+            created_time: "作成日時",
+            modified_time: "更新日時",
+            author: "著者",
+            authors: "著者"
+        },
+        ko: {
+            created_time: "작성일",
+            modified_time: "수정일",
+            author: "작성자",
+            authors: "작성자"
+        },
+        ru: {
+            created_time: "Дата создания",
+            modified_time: "Дата изменения",
+            author: "Автор",
+            authors: "Авторы"
+        },
+        zh: {
+            created_time: "创建时间",
+            modified_time: "最后更新",
+            author: "作者",
+            authors: "作者"
+        },
+        zh_TW: {
+            created_time: "建立時間",
+            modified_time: "修改時間",
+            author: "作者",
+            authors: "作者"
+        }
+    };
 
-// 统一注册默认语言
-Object.entries(defaultLanguages).forEach(([locale, data]) => {
-    TooltipLanguage.register(locale, data);
-});
+    // 统一注册默认语言
+    Object.entries(defaultLanguages).forEach(([locale, data]) => {
+        TooltipLanguage.register(locale, data);
+    });
+})();
