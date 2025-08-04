@@ -145,6 +145,7 @@ class DocumentDatesPlugin(BasePlugin):
         config['extra_javascript'].extend([
             'assets/document_dates/core/default.config.js',
             'assets/document_dates/user.config.js',
+            'assets/document_dates/core/utils.js',
             'assets/document_dates/core/core.js'
         ])
 

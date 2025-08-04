@@ -45,24 +45,8 @@ function generateAvatar() {
 /*
     2.初始化赋值
 */
-// 处理 timeago 的 locale 格式
-function resolveTimeagoLocale(rawLocale) {
-    // 兼容 「ISO 639、ISO 3166、BCP 47」 格式
-    const shortLang = rawLocale.trim().replace(/-/g, '_').split('_')[0];
-    const fixLocale = {
-        bn: 'bn_IN',
-        en: 'en_US',
-        hi: 'hi_IN',
-        id: 'id_ID',
-        nb: 'nb_NO',
-        nn: 'nn_NO',
-        pt: 'pt_BR',
-        zh: 'zh_CN'
-    };
-    return fixLocale[shortLang] || shortLang;
-}
 // 处理文档日期和提示内容
-function processDocumentDates(customLocale) {
+function processDocumentDates() {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
 
@@ -74,8 +58,9 @@ function processDocumentDates(customLocale) {
     };
 
     plugins.forEach(ddPlugin => {
-        // 获取 locale，优先使用传入的自定义语言代码
-        const rawLocale = customLocale ||
+        // 获取 locale，优先级：传入的自定义语言 > localStorage保存的语言 > HTML属性 > 浏览器语言 > HTML文档语言 > 默认英语
+        const rawLocale =
+            DocumentDatesUtils.getSavedLanguage() ||
             ddPlugin.getAttribute('locale') ||
             navigator.language ||
             navigator.userLanguage ||
@@ -84,7 +69,7 @@ function processDocumentDates(customLocale) {
 
         // 处理 time 元素（使用 timeago 时）
         if (typeof timeago !== 'undefined') {
-            const tLocale = resolveTimeagoLocale(rawLocale);
+            const tLocale = DocumentDatesUtils.resolveTimeagoLocale(rawLocale);
             ddPlugin.querySelectorAll('time').forEach(timeEl => {
                 timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), tLocale);
             });
@@ -111,7 +96,8 @@ function processDocumentDates(customLocale) {
 
 // 外部使用：更新文档日期和 tippy 内容（指定语言）
 function updateDocumentDates(locale) {
-    processDocumentDates(locale);
+    DocumentDatesUtils.saveLanguage(locale);
+    processDocumentDates();
 }
 window.documentDatesPlugin = {
     update: updateDocumentDates
