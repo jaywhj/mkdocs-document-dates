@@ -347,7 +347,7 @@ class DocumentDatesPlugin(BasePlugin):
                         return author.avatar
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
-                    return ""
+                    return " "
 
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                 html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
@@ -357,7 +357,7 @@ class DocumentDatesPlugin(BasePlugin):
                     img_url = get_avatar_img_url(author)
                     html_parts.append(
                         f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
-                        f"<img class='avatar' src='{img_url}' onerror='this.style.display=\"none\"' />"
+                        f"<img class='avatar' src='{img_url}' />"
                         f"<span class='avatar-text'></span>"
                         f"</div>"
                     )
