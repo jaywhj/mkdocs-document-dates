@@ -16,22 +16,22 @@
         {% set icon = 'doc_author' if page.meta.document_dates_authors|length == 1 else 'doc_authors' -%}
         <span class="material-icons" data-icon="{{ icon }}"></span>
         <div class="avatar-group">
-            {%- for author in page.meta.document_dates_authors %}
-                {% set tooltip -%}
-                    {%- if author.url -%}
-                        <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
-                    {%- elif author.email -%}
-                        <a href="mailto:{{ author.email }}">{{ author.name }}</a>
-                    {%- else -%}
-                        {{ author.name }}
-                    {%- endif -%}
-                {% endset -%}
-                {% set avatar_url = author.avatar if author.avatar else " " -%}
-                <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
-                    <img class="avatar" src="{{ avatar_url }}" />
-                    <span class="avatar-text"></span>
-                </div>
-            {%- endfor %}
+        {%- for author in page.meta.document_dates_authors %}
+            {%- set tooltip %}
+                {%- if author.url -%}
+                    <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
+                {%- elif author.email -%}
+                    <a href="mailto:{{ author.email }}">{{ author.name }}</a>
+                {%- else -%}
+                    {{ author.name }}
+                {%- endif -%}
+            {% endset -%}
+            {%- set avatar_url = author.avatar if author.avatar else " " %}
+            <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
+                <img class="avatar" src="{{ avatar_url }}" />
+                <span class="avatar-text"></span>
+            </div>
+        {%- endfor %}
         </div>
     {%- endif %}
 </div>
