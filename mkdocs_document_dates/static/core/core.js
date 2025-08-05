@@ -1,5 +1,5 @@
 /*
-    1.自动生成字符头像
+    1.生成字符头像
 */
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
@@ -43,7 +43,7 @@ function generateAvatar() {
 
 
 /*
-    2.初始化赋值
+    2.处理内容赋值
 */
 // 图标键映射表
 const iconKeyMap = {
@@ -54,29 +54,27 @@ const iconKeyMap = {
 };
 // 处理文档日期和提示内容
 function processDocumentDates() {
-    const plugins = document.querySelectorAll('.document-dates-plugin');
-    if (!plugins.length) return;
-    plugins.forEach(ddPlugin => {
+    document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
         // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > 站点HTML语言 > 默认英语
         const rawLocale =
-            DocumentDatesUtils.getSavedLanguage() ||
-            ddPlugin.getAttribute('locale') ||
+            ddUtils.getSavedLanguage() ||
+            ddpEl.getAttribute('locale') ||
             navigator.language ||
             navigator.userLanguage ||
             document.documentElement.lang ||
             'en';
-
+        console.log('ddUtils.getSavedLanguage():', ddUtils.getSavedLanguage());
         // 处理 time 元素（使用 timeago 时）
         if (typeof timeago !== 'undefined') {
-            const tLocale = DocumentDatesUtils.resolveTimeagoLocale(rawLocale);
-            ddPlugin.querySelectorAll('time').forEach(timeEl => {
+            const tLocale = ddUtils.resolveTimeagoLocale(rawLocale);
+            ddpEl.querySelectorAll('time').forEach(timeEl => {
                 timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), tLocale);
             });
         }
 
         // 处理 tooltip 内容
         const langData = TooltipLanguage.get(rawLocale);
-        ddPlugin.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
+        ddpEl.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
             const iconEl = tippyEl.querySelector('[data-icon]');
             const rawIconKey = iconEl ? iconEl.getAttribute('data-icon') : '';
             const iconKey = iconKeyMap[rawIconKey] || 'author';
@@ -93,19 +91,19 @@ function processDocumentDates() {
     });
 }
 
-// 外部使用：更新文档日期和 tippy 内容（指定语言，可持久化）
+// 供外部使用：更新文档日期和 tippy 内容到指定语言（可持久化）
 function updateDocumentDates(locale) {
-    DocumentDatesUtils.saveLanguage(locale);
+    ddUtils.saveLanguage(locale);
     processDocumentDates();
 }
-window.documentDatesPlugin = {
-    update: updateDocumentDates
+window.ddPlugin = {
+    updateLanguage: updateDocumentDates
 };
 
 
 
 /*
-    3.初始化 tippyManager
+    3.初始化 tippyManager，创建和管理 tippy 实例
 */
 function getCurrentTheme() {
     // 基于 Material's light/dark 配色方案返回对应的 Tooltip 主题

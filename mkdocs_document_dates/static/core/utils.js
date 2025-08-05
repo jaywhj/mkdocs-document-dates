@@ -5,7 +5,7 @@
 // 语言存储与获取
 const LANGUAGE_STORAGE_KEY = 'document_dates_language';
 
-window.DocumentDatesUtils = {
+window.ddUtils = {
     // 处理 timeago 的 locale 格式
     resolveTimeagoLocale(rawLocale) {
         // 兼容 「ISO 639、ISO 3166、BCP 47」 格式

@@ -25,7 +25,7 @@ TooltipConfig.setConfig({
     inertia: true,          // animation inertia
     // arrow: false,           // whether to allow arrows
     // animateFill: true,      // determines if the background fill color should be animated
-    // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
+    // delay: [400, null],     // delay: [show, hide]: show is 400ms, and hide is null for the default value
 });
 */
 

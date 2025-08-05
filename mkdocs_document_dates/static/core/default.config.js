@@ -14,8 +14,8 @@ const ttDefaultConfig = {
     animation: 'scale',     // 动画类型: scale shift-away
     inertia: true,          // 是否允许动画惯性
     // arrow: false,           // 是否允许箭头
-    // animateFill: true,      // determines if the background fill color should be animated
-    // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default
+    // animateFill: true,      // 背景填充颜色是否应为动画效果
+    // delay: [400, null],     // 动画延迟: [show, hide]: show 为 400 毫秒, hide 为 null 表示默认值
 };
 let tooltip_config = { ...ttDefaultConfig };
 function setConfig(newConfig) {
