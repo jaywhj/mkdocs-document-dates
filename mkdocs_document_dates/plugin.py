@@ -340,14 +340,13 @@ class DocumentDatesPlugin(BasePlugin):
                         return f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
                     elif author.email:
                         return f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
-                    else:
-                        return author.name
+                    return author.name
 
-                def get_avatar_img(author):
+                def get_avatar_img_url(author):
                     if author.avatar:
-                        return f"<img class='avatar' src='{author.avatar}' />"
+                        return author.avatar
                     elif self.github_username and len(authors) == 1:
-                        return f"<img class='avatar' src='https://avatars.githubusercontent.com/{self.github_username}' />"
+                        return f"https://avatars.githubusercontent.com/{self.github_username}"
                     return ""
 
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
@@ -355,10 +354,11 @@ class DocumentDatesPlugin(BasePlugin):
                 html_parts.append("<div class='avatar-group'>")
                 for author in authors:
                     tooltip = get_author_tooltip(author)
-                    img_ele = get_avatar_img(author)
+                    img_url = get_avatar_img_url(author)
                     html_parts.append(
                         f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
-                        f"{img_ele}<span class='avatar-text'></span>"
+                        f"<img class='avatar' src='{img_url}' onerror='this.style.display=\"none\"' />"
+                        f"<span class='avatar-text'></span>"
                         f"</div>"
                     )
                 html_parts.append("</div>")

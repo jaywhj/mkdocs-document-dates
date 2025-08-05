@@ -33,10 +33,14 @@ function generateAvatar() {
         textEl.style.backgroundColor = bgColor;
 
         const imgEl = wrapper.querySelector('img.avatar');
-        if (!imgEl) return;
-        imgEl.onerror = () => {
-            imgEl.style.display = 'none';
-        };
+        if (imgEl) {
+            const src = (imgEl.getAttribute('src') || '').trim();
+            if (src) {
+                imgEl.onerror = () => imgEl.style.display = 'none';
+            } else {
+                imgEl.style.display = 'none';
+            }
+        }
     });
 }
 
