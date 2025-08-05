@@ -56,9 +56,8 @@ const iconKeyMap = {
 function processDocumentDates() {
     const plugins = document.querySelectorAll('.document-dates-plugin');
     if (!plugins.length) return;
-
     plugins.forEach(ddPlugin => {
-        // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > HTML文档语言 > 默认英语
+        // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > 站点HTML语言 > 默认英语
         const rawLocale =
             DocumentDatesUtils.getSavedLanguage() ||
             ddPlugin.getAttribute('locale') ||
@@ -94,7 +93,7 @@ function processDocumentDates() {
     });
 }
 
-// 外部使用：更新文档日期和 tippy 内容（指定语言）
+// 外部使用：更新文档日期和 tippy 内容（指定语言，可持久化）
 function updateDocumentDates(locale) {
     DocumentDatesUtils.saveLanguage(locale);
     processDocumentDates();
@@ -186,7 +185,6 @@ const tippyManager = (() => {
 */
 if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
     window.document$.subscribe(() => {
-        // 插件初始化赋值
         processDocumentDates();
         generateAvatar();
         // 通过 tippyManager 创建 tippy 实例
