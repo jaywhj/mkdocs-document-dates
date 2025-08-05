@@ -110,7 +110,7 @@ window.ddPlugin = {
     3.初始化 tippyManager，创建和管理 tippy 实例
 */
 function getCurrentTheme() {
-    // 基于 Material's light/dark 配色方案返回对应的 Tooltip 主题
+    // 基于 Material's light/dark 配色方案返回对应的 tooltip 主题
     const scheme = (document.body && document.body.getAttribute('data-md-color-scheme')) || 'default';
     return scheme === 'slate' ? tooltip_config.theme.dark : tooltip_config.theme.light;
 }
@@ -126,7 +126,7 @@ function initTippy() {
     });
     context.tippyInstances = tippyInstances;
 
-    // 添加观察者，监控 Material's 配色变化，自动切换 Tooltip 主题
+    // 添加观察者，监控 Material's 配色变化，自动切换 tooltip 主题
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.attributeName === 'data-md-color-scheme') {
