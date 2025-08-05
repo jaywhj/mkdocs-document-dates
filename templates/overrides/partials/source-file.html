@@ -19,15 +19,15 @@
             {%- for author in page.meta.document_dates_authors -%}
                 {%- set tooltip -%}
                     {%- if author.url -%}
-                        &lt;a href="{{ author.url }}" target="_blank"&gt;{{ author.name }}&lt;/a&gt;
+                        <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
                     {%- elif author.email -%}
-                        &lt;a href="mailto:{{ author.email }}"&gt;{{ author.name }}&lt;/a&gt;
+                        <a href="mailto:{{ author.email }}">{{ author.name }}</a>
                     {%- else -%}
                         {{ author.name }}
                     {%- endif -%}
                 {%- endset -%}
                 {%- set avatar_url = author.avatar if author.avatar else " " -%}
-                <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw="{{ tooltip }}">
+                <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
                     <img class="avatar" src="{{ avatar_url }}" />
                     <span class="avatar-text"></span>
                 </div>
