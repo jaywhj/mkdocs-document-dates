@@ -63,7 +63,7 @@ function processDocumentDates() {
             navigator.userLanguage ||
             document.documentElement.lang ||
             'en';
-        console.log('ddUtils.getSavedLanguage():', ddUtils.getSavedLanguage());
+
         // 处理 time 元素（使用 timeago 时）
         if (typeof timeago !== 'undefined') {
             const tLocale = ddUtils.resolveTimeagoLocale(rawLocale);
