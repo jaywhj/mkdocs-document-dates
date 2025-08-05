@@ -347,7 +347,7 @@ class DocumentDatesPlugin(BasePlugin):
                         return author.avatar
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
-                    return " "
+                    return ""
 
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                 html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
