@@ -357,8 +357,8 @@ class DocumentDatesPlugin(BasePlugin):
                     img_url = get_avatar_img_url(author)
                     html_parts.append(
                         f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
-                        f"<img class='avatar' src='{img_url}' />"
                         f"<span class='avatar-text'></span>"
+                        f"<img class='avatar' src='{img_url}' />"
                         f"</div>"
                     )
                 html_parts.append("</div>")
