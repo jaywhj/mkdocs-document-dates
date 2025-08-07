@@ -375,7 +375,7 @@ class DocumentDatesPlugin(BasePlugin):
         if self.config['position'] == 'top':
             first_line, insert_pos = self.find_markdown_body_start(markdown)
             if first_line.startswith(('# ', '<h1')):
-                return markdown[:insert_pos] + date_info + '\n' + markdown[insert_pos:]
+                return markdown[:insert_pos] + '\n' + date_info + '\n' + markdown[insert_pos:]
             else:
                 return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"
