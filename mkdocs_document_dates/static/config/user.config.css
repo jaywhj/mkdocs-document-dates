@@ -44,14 +44,6 @@
 } */
 
 
-/* Hide this plugin (default build version):
-    and then you can reformulate the plugin's arbitrary display position and style based on template variables */
-/* 
-.document-dates-plugin-wrapper {
-    display: none;
-} */
-
-
 
 /* 3. Tooltip styles
     including theme, arrow, font, color, background color, etc

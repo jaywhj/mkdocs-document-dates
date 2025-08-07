@@ -55,7 +55,7 @@ const localeFunc = (number, index) => {
         ['%s years ago', 'in %s years']
     ][index];
 };
-const localeStr = 'whatever';
+const localeStr = 'any';
 timeago.register(localeStr, localeFunc);
 */
 
