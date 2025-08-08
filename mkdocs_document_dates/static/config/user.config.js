@@ -1,59 +1,40 @@
 /*
+Part 1: 
     Configuration Overrides for Tooltip
     see: https://atomiks.github.io/tippyjs/
 */
 
 /* Configure one by one: */
-// tippy_config.theme.light = 'tomato';
-// tippy_config.tooltip.placement = 'top';
-// tippy_config.tooltip.arrow = false;
+// tooltip_config.theme.light = 'tomato';
+// tooltip_config.placement = 'top';
+// tooltip_config.arrow = false;
 
 /* Or, override all configuration items: */
 /*
-DocumentDates.setConfig({
+TooltipConfig.setConfig({
     theme: {
         // configurable: light material, or custom theme in user.config.css, for example: sorrel sublime tomato
         light: 'light',
         dark: 'material'
     },
-    tooltip: {
-        placement: 'bottom',    // placement: top bottom left right auto
-        offset: [0, 10],         // placement offset: [horizontal, vertical]
-        interactive: true,      // content in Tooltip is interactive
-        allowHTML: true,        // whether to allow HTML in the tooltip content
-        
-        animation: 'scale',     // animation type: scale shift-away
-        inertia: true,          // animation inertia
-        // arrow: false,           // whether to allow arrows
-
-        // animateFill: true,      // determines if the background fill color should be animated
-
-        // delay: [400, null],     // delay: [show, hide], show delay is 400ms, hide delay is the default        
-    }
-});
-*/
-
-/* 
-    Hook System of Tooltip
-    The hook system allows you to execute custom logic at specific times, 
-    such as adding custom interactions before the tooltip initialization and after initialization.
-*/
-
-/*
-DocumentDates.registerHook('beforeInit', async (context) => {
-    
-});
-
-DocumentDates.registerHook('afterInit', async (context) => {
-    
+    placement: 'bottom',    // placement: top bottom left right auto
+    offset: [0, 12],        // placement offset: [horizontal, vertical]
+    allowHTML: true,        // whether to allow HTML in the tooltip content
+    interactive: true,      // content in Tooltip is interactive
+    animation: 'scale',     // animation type: scale shift-away
+    inertia: true,          // animation inertia
+    // arrow: false,           // whether to allow arrows
+    // animateFill: true,      // determines if the background fill color should be animated
+    // delay: [400, null],     // delay: [show, hide]: show is 400ms, and hide is null for the default value
 });
 */
 
 
 
 /*
-    Demonstrates how to register a local language when using timeago.js
-    Simply translate the English in parentheses into your own language, nothing else needs to be changed!
+Part 2: 
+    Demonstrates how to register a local language when using 'timeago.js', 
+        then you can configure the localeStr you just registered anywhere!
 */
 /*
 const localeFunc = (number, index) => {
@@ -74,20 +55,42 @@ const localeFunc = (number, index) => {
         ['%s years ago', 'in %s years']
     ][index];
 };
-const localeStr = 'whatever';
+const localeStr = 'any';
 timeago.register(localeStr, localeFunc);
-function formatTimeagoElements() {
-    if (typeof timeago !== 'undefined') {
-        document.querySelectorAll('.document-dates-plugin time').forEach(timeElement => {
-            timeElement.textContent = timeago.format(timeElement.getAttribute('datetime'), localeStr);
-        });
+*/
+
+
+
+/*
+Part 3: 
+    Demonstrates how to register the local language for the plugin's tooltip,
+        when the local language is missing, or when the default language translation is inaccurate.
+*/
+/*
+// Way 1: User-defined one language
+TooltipLanguage.register('en', {
+    created_time: "Custom Created",
+    modified_time: "Custom Last Update",
+    author: "Custom Author",
+    authors: "Custom Authors"
+});
+
+// Way 2: User-defined multiple languages
+const userLanguages = {
+    en: {
+        created_time: "Created",
+        modified_time: "Last Update",
+        author: "Author",
+        authors: "Authors"
+    },
+    zh: {
+        created_time: "创建时间",
+        modified_time: "最后更新",
+        author: "作者",
+        authors: "作者"
     }
-}
-if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    // Compatible with Material for MkDocs 'navigation.instant'
-    window.document$.subscribe(formatTimeagoElements);
-} else {
-    // Fallback to standard DOMContentLoaded for other themes
-    formatTimeagoElements();
-}
+};
+Object.entries(userLanguages).forEach(([locale, data]) => {
+    TooltipLanguage.register(locale, data);
+});
 */
