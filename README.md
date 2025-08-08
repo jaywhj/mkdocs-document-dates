@@ -134,13 +134,10 @@ The plugin supports full customization, such as **icon style, theme color, font,
 
 ## Localization
 
-**tooltip**: the plugin has 10 built-in languages: `en zh zh_TW es fr de ar ja ko ru`, no need for manual configuration, intelligent recognition, automatic switching
-
+1. **tooltip**: the plugin has 10 built-in languages: `en zh zh_TW es fr de ar ja ko ru`, no need for manual configuration, intelligent recognition, automatic switching
 - If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit an issue
 - The original configuration option `locale` is retained, but manual configuration is no longer recommended
-
-**timeago**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
-
+2. **timeago**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
 - In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), register and add it yourself
 - In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to reload all languages at once
     ```yaml
@@ -197,6 +194,6 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
         - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
         - **Personalization**: fully customizable and full control over the rendering logic, the plugin is only responsible for providing the data
-        - **intelligence**: intelligently parse document time, author, avatar, intelligent recognition of user language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
+        - **Intelligence**: intelligently parse document time, author, avatar, intelligent recognition of user language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
 - **The Last Secret**:
     - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
