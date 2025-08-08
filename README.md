@@ -189,11 +189,11 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     5. How to reduce build time when there are a lot of documents ( >1000 )?  Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
         - Solution: Reduce the number of I/Os + Use caching + Replace less efficient system functions
 - **Improve**:
-    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity, compatibility, personalization, intelligence**
+    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity, personalization, intelligence**
         - **Ease of use**: there are no complex configurations, only 2-3 commonly used configuration options, in addition, a template is provided for personalized configurations
         - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
-        - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
         - **Personalization**: fully customizable and full control over the rendering logic, the plugin is only responsible for providing the data
         - **Intelligence**: intelligently parse document time, author, avatar, intelligent recognition of user language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
+        - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
 - **The Last Secret**:
     - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
