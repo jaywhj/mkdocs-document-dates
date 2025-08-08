@@ -135,16 +135,16 @@ plugins:
 
 ## 语言本地化
 
-1. **tooltip** ：插件内置了 10 种语言：`en zh zh_TW es fr de ar ja ko ru`，**无需手动配置**，智能识别，自动切换
-- 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 issue
-- 保留了原来的配置项 `locale`，但已经不建议手动配置了
-2. **timeago**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
-- 在 `user.config.js` 中，参考 [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加
-- 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性重载所有语言
-    ```yaml
-    extra_javascript:
-      - assets/document_dates/core/timeago.full.min.js
-    ```
+- **tooltip** ：插件内置了 10 种语言：`en zh zh_TW es fr de ar ja ko ru`，**无需手动配置**，智能识别，自动切换
+    - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 issue
+    - 保留了原来的配置项 `locale`，但已经不建议手动配置了
+- **timeago**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
+    - 在 `user.config.js` 中，参考 [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加
+    - 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性重载所有语言
+        ```yaml
+        extra_javascript:
+        - assets/document_dates/core/timeago.full.min.js
+        ```
 
 ## 模板变量
 
