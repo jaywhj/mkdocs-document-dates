@@ -4,20 +4,21 @@
 
 
 
-新一代用于显示文档精确元信息的 MkDocs 插件，如**创建时间、最后更新时间、作者、电子邮件**等
+新一代用于显示文档确切**创建时间、最后更新时间、作者、头像、邮箱**等信息的 MkDocs 插件
 
 ## 特性
 
-- 始终显示文档的精确元信息，且适用于任何环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
+- 始终显示文档的**精确**元信息，且适用于任何环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
 - 支持在 `Front Matter` 中手动指定时间和作者
 - 支持多种时间格式（date、datetime、timeago）
 - 灵活的显示位置（顶部或底部）
 - 优雅的样式设计（完全可定制）
 - 支持 Tooltip 悬浮提示
-  - 智能位置动态调整，始终以最佳方式浮动在视图中
-  - 支持主题跟随 Material 亮/暗配色变化而变化
-- 多语言支持，跨平台支持（Windows、macOS、Linux）
-- **极致的构建效率**：O(1)，通常不到0.2秒
+    - 智能位置动态调整，始终以最佳方式浮动在视图中
+    - 支持主题跟随 Material 亮/暗配色变化而变化
+- 多语言支持，本地化支持，智能识别用户语言，自动适配
+- 跨平台支持（Windows、macOS、Linux）
+- **极致的构建效率**：O(1)，无需设置环境变量 `!ENV` 来区别运行
 
 | 构建效率对比：                | 100个md： | 1000个md： | 时间复杂度： |
 | --------------------------- | :------: | :-------: | :---------: |
@@ -55,10 +56,8 @@ plugins:
       exclude:                 # 排除文件列表
         - temp.md              # 排除指定文件
         - drafts/*             # 排除 drafts 目录下所有文件，包括子目录
-      locale: zh               # 本地化语言：en zh zh_TW es fr de ar ja ko ru，默认：en
       date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
-      show_author: true        # 是否显示作者信息，默认：true
 ```
 
 ## 手动指定时间
@@ -82,7 +81,7 @@ plugins:
 默认情况下，插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
 
 - **优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
-- 如果你要自定义，则可在 Front Matter 中通过字段 `name` 配置一个作者：
+- 如果你要自定义，在 Front Matter 中通过字段 `name` 就可配置一个作者：
     ```markdown
     ---
     name: any-name
@@ -104,7 +103,7 @@ plugins:
 3. 自定义头像：可在 Front Matter 中通过自定义作者的 `avatar` 字段进行自定义
     ```markdown
     ---
-    # 方式1：配置一个完整的作者
+    # 方式1：配置一个完整的作者(字段可选配)
     author:
         name: jay
         email: jay@qq.com
@@ -115,35 +114,37 @@ plugins:
     # 方式2：配置多个作者
     authors:
         - jaywhj
-        - squidfunk
+        - dawang
         - sunny
+
     ---
-    
     ```
-- 如果要配置多个作者的完整信息，则可在 `docs/` 或 `docs/blog/` 目录下新建单独的配置文件 `.authors.yml`，格式参考 [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) 
-- 如果 URL 头像加载失败，则会回退到字符头像
-  
+- 如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
+- 如果 URL 头像加载失败，则会自动回退到字符头像
+
 ## 插件定制化
 
-插件支持深度自定义，比如**图标样式、主题颜色、字体、动画、分界线**等等，一切都可以自定义（找到下方对应位置的文件，取消注释即可）：
+插件支持完全自定义，比如**图标样式、主题颜色、字体、动画、分界线**等，已经预置了入口，你只需要，找到下方对应的文件取消里面的注释即可：
 
 |    类别：    | 位置：                                         |
 | :---------: | --------------------------------------------- |
 | **样式与主题** | `docs/assets/document_dates/user.config.css` |
 | **属性与功能** | `docs/assets/document_dates/user.config.js`  |
-| **本地化语言** | `docs/assets/document_dates/languages/` <br />可参考模板文件 `en.json` 任意新增或修改 |
 
-**提示**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式（2选1）配置：
+![customization](customization.gif)
 
-- 在 `user.config.js` 中，参考最下面 [注释掉的 Demo](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行翻译成本地语言
-- 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性加载所有语言
+## 语言本地化
+
+1. **tooltip** ：插件内置了 10 种语言：`en zh zh_TW es fr de ar ja ko ru`，**无需手动配置**，智能识别，自动切换
+- 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 issue
+- 保留了原来的配置项 `locale`，但已经不建议手动配置了
+2. **timeago**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
+- 在 `user.config.js` 中，参考 [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加
+- 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性重载所有语言
     ```yaml
     extra_javascript:
       - assets/document_dates/core/timeago.full.min.js
-      - assets/document_dates/core/timeago-load.js
     ```
-
-![customization](customization.gif)
 
 ## 模板变量
 
@@ -152,8 +153,6 @@ plugins:
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
-- page.meta.document_dates_locale
-- page.meta.document_dates_translation
 
 应用示例：
 
@@ -181,7 +180,7 @@ plugins:
     - 方法 2，可以提前缓存原始时间，后续读缓存就可以了（时间准确且不依赖任何环境）。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理且更简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
 - **难点**：
     1. 什么时候去读取和存储原始时间？这只是 mkdocs 的一个插件，入口和权限非常有限，mkdocs 提供的只有 build 和 serve，那万一用户不执行 build 或 serve 而直接 commit 呢（比如使用 CI/CD 构建系统时），那就拿不到文件的时间信息了，更别说缓存了
-        - 直接说结论：在 AI 的提示下，找到了 Git Hooks 机制，能在特定的 git 动作发生时触发自定义脚本，比如每次 commit 时
+        - 直接说结论：利用 Git Hooks 机制，能在特定的 git 动作发生时触发自定义脚本，比如每次 commit 时
     2. 如何自动安装 Git Hooks？在何时？怎么触发？通过 pip 从 PyPI 安装包并没有标准的 post-install 钩子机制
         - 我的方案：分析了 pip 从 PyPI 安装包的流程，发现通过源码包编译安装时（sdist），会调用 setuptools 来处理，那么可以在 setuptools 的流程中想办法植入安装脚本，即在 setup.py 中添加自定义脚本
     3. 跨平台的 hook 怎么设计？执行 python 脚本，需要明确指定 python 解释器，而用户的 python 环境，因操作系统、python 的安装方式以及配置的不同而各不相同，如何才能保证在所有环境下都能正常运行？
@@ -191,10 +190,11 @@ plugins:
     5. 在文档较多时( > 1000 )，如何降低 build 用时？获取某个文档的 git 信息的动作通常是一次文件 I/O 操作，如果文件多了，那运行效率会直线下降，1000个文档预计需要等待30秒以上，这让用户没法忍受
         - 解决办法：减少 I/O 次数 + 使用缓存 + 替换运行效率较低的系统函数
 - **精进**：
-    - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、个性化**
-        - **易用性**：能不让用户手动操作的就不让手动，比如自动安装 Git Hooks、自动缓存、自动 commit，提供自定义模板等
+    - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、兼容性、个性化、智能化**
+        - **易用性**：无复杂配置，常用的配置项也就 2-3 条，另外为个性化配置提供了模板
         - **简洁性**：无任何不必要的配置，无 Git 依赖，无 CI/CD 配置依赖，无其他包依赖
-        - **个性化**：几乎所有地方都可以自定义，无论是图标、样式、主题，还是功能，都可实现完全定制化
-    - 此外还有很好的兼容性和扩展性，在 WIN7、移动设备、旧版 Safari 等环境下均能正常运行
+        - **兼容性**：可在旧版操作系统和浏览器上正常运行，如 WIN7、MacOS 10.11、iOS 12、Chrome 63.0.3239
+        - **个性化**：可完全自定义插件，完全掌控渲染逻辑，插件只负责提供数据
+        - **智能化**：智能解析文档时间、作者、头像，智能识别用户语言并自动适配，此外，还有自动安装 Git Hooks、自动缓存、自动 commit 等
 - **最后的秘密**：
     - 编程是业余爱好，我是一名从业八年的市场营销人员（欢迎留言）

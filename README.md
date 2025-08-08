@@ -4,20 +4,21 @@ English | [简体中文](README_zh.md)
 
 
 
-A new generation MkDocs plugin for displaying exact meta-info of documents, such as **creation time, last update time, authors, email**, etc
+A new generation MkDocs plugin for displaying exact **creation time, last update time, authors, email** of documents
 
 ## Features
 
-- Always display exact meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc)
+- Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc)
 - Support for manually specifying time and author in `Front Matter`
 - Support for multiple time formats (date, datetime, timeago)
 - Flexible display position (top or bottom)
 - Elegant styling (fully customizable)
 - Supports Tooltip Hover Tips
-  - Intelligent dynamic positioning, always floating optimally in view
-  - Supports automatic theme switching following Material's light/dark color scheme
-- Multi-language support, cross-platform support (Windows, macOS, Linux)
-- **Ultimate build efficiency**: O(1), typically less than 0.2 seconds
+    - Intelligent dynamic positioning, always floating optimally in view
+    - Supports automatic theme switching following Material's light/dark color scheme
+- Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
+- Cross-platform support (Windows, macOS, Linux)
+- **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
 
 | PK of Build Efficiency:     | 100 md: | 1000 md: | Time Complexity: |
 | --------------------------- | :-----: | :------: | :----------: |
@@ -54,10 +55,8 @@ plugins:
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - drafts/*             # Exclude all files in drafts folder, including subfolders
-      locale: en               # Localization: en zh zh_TW es fr de ar ja ko ru, default: en
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
-      show_author: true        # Show author or not, default: true
 ```
 
 ## Specify time manually
@@ -103,7 +102,7 @@ By default, the plugin will **automatically** loads the author avatar, without m
 3. Custom avatar: can be customized by customizing the author's `avatar` field in Front Matter
     ```markdown
     ---
-    # Way 1: Configure a full author
+    # Way 1: Configure a full author (fields optional)
     author:
         name: jay
         email: jay@qq.com
@@ -114,35 +113,40 @@ By default, the plugin will **automatically** loads the author avatar, without m
     # Way 2: Configure multiple authors
     authors:
         - jaywhj
-        - squidfunk
+        - dawang
         - sunny
     
     ---
     ```
-- If you want to configure complete information for multiple authors, you can create a separate configuration file `.authors.yml` in the `docs/` or `docs/blog/` directory, see the [.authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/.authors.yml) for its format
-- If the URL avatar fails to load, it falls back to the character avatar
+- If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` directory, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
+- If the URL avatar fails to load, it automatically falls back to the character avatar
 
 ## Customization
 
-The plugin supports deep customization, such as **icon style, theme color, font, animation, dividing line**, etc. Everything is customizable (Find the file below and turn on the uncomment switch):
+The plugin supports full customization, such as **icon style, theme color, font, animation, dividing line** etc, and the entrance has been preset, you just need to find the file below and uncomment it:
 
 |        Category:        | Location:                               |
 | :----------------------: | ---------------------------------------- |
 |     **Style & Theme**     | `docs/assets/document_dates/user.config.css` |
 | **Properties & Functions** | `docs/assets/document_dates/user.config.js` |
-| **Localized languages** | `docs/assets/document_dates/languages/` <br />refer to the template file `en.json` for any additions or modifications |
 
-**Tip**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if you need to load other languages, you can configure it as below (choose one):
+![customization](customization.gif)
 
-- In `user.config.js`, refer to [the demo commented out](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) at the bottom, translate it into your local language
-- In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to load all languages at once
+## Localization
+
+**tooltip**: the plugin has 10 built-in languages: `en zh zh_TW es fr de ar ja ko ru`, no need for manual configuration, intelligent recognition, automatic switching
+
+- If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit an issue
+- The original configuration option `locale` is retained, but manual configuration is no longer recommended
+
+**timeago**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
+
+- In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), register and add it yourself
+- In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to reload all languages at once
     ```yaml
     extra_javascript:
       - assets/document_dates/core/timeago.full.min.js
-      - assets/document_dates/core/timeago-load.js
     ```
-
-![customization](customization.gif)
 
 ## Template Variables
 
@@ -151,8 +155,6 @@ You can access the meta-info of a document in a template using the following var
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
-- page.meta.document_dates_locale
-- page.meta.document_dates_translation
 
 Usage examples:
 
@@ -180,7 +182,7 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     - Method 2: Cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
 - **Difficulty**:
     1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
-        - Let's take a straight shot: the Git Hooks mechanism was found, prompted by the AI, which can trigger a custom script when a specific git action occurs, such as every time commit is performed
+        - Straight to the bottom line: Git Hooks can be used to trigger custom scripts when specific git actions occur, such as every time a commit occurs
     2. How to install Git Hooks automatically? When and how are they triggered? Installing packages from PyPI via pip doesn't have a standard post-install hook mechanism
         - Workaround: After analyzing the flow of pip installing packages from PyPI, I found that when compiling and installing through the source package (sdist), setuptools will be called to handle it, so we can find a way to implant the installation script in the process of setuptools, i.e., we can add a custom script in setup.py
     3. How to design a cross-platform hook? To execute a python script, we need to explicitly specify the python interpreter, and the user's python environment varies depending on the operating system, the way python is installed, and the configuration, so how can we ensure that it works properly in all environments?
@@ -190,10 +192,11 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
     5. How to reduce build time when there are a lot of documents ( >1000 )?  Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
         - Solution: Reduce the number of I/Os + Use caching + Replace less efficient system functions
 - **Improve**:
-    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity and personalization**
-        - **Ease of use**: don't let users do things manually if you can, e.g., auto-install Git Hooks, auto-cache, auto-commit, provide customized templates, etc
+    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity, compatibility, personalization, intelligence**
+        - **Ease of use**: there are no complex configurations, only 2-3 commonly used configuration options, in addition, a template is provided for personalized configurations
         - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
-        - **Personalization**: almost everything can be customized, whether it's icons, styles, themes, or features, it's all fully customizable
-    - In addition, it has good compatibility and extensibility, and works well in WIN7, mobile devices, old Safari, etc
+        - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
+        - **Personalization**: fully customizable and full control over the rendering logic, the plugin is only responsible for providing the data
+        - **intelligence**: intelligently parse document time, author, avatar, intelligent recognition of user language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
 - **The Last Secret**:
     - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
