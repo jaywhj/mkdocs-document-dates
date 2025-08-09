@@ -118,7 +118,7 @@ By default, the plugin will **automatically** loads the author avatar, without m
     
     ---
     ```
-- If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` directory, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
+- If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` folder, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
 - If the URL avatar fails to load, it automatically falls back to the character avatar
 
 ## Customization
