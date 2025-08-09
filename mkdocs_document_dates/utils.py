@@ -39,7 +39,7 @@ def load_git_cache(docs_dir_path: Path):
             docs_prefix_with_slash = docs_prefix + '/'
             prefix_len = len(docs_prefix_with_slash)
 
-            authors_dict = defaultdict(set)
+            authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
 
@@ -49,6 +49,7 @@ def load_git_cache(docs_dir_path: Path):
                     continue
                 if '|' in line:
                     name, email, created = line.split('|', 2)
+                    # 使用元组，更轻量
                     current_commit = (name, email, created)
                 elif line.endswith('.md') and current_commit:
                     if line.startswith(docs_prefix_with_slash):
@@ -56,7 +57,8 @@ def load_git_cache(docs_dir_path: Path):
                     
                     # 解构元组，避免字典查找
                     name, email, created = current_commit
-                    authors_dict[line].add((name, email))
+                    # 使用有序去重结构，保持作者首次出现顺序
+                    authors_dict[line].setdefault((name, email), None)
                     
                     if line not in first_commit:
                         first_commit[line] = created
@@ -65,7 +67,7 @@ def load_git_cache(docs_dir_path: Path):
             for file_path in first_commit:
                 authors_list = [
                     {'name': name, 'email': email}
-                    for name, email in sorted(authors_dict[file_path])
+                    for name, email in authors_dict[file_path].keys()
                 ]
                 dates_cache[file_path] = {
                     'created': first_commit[file_path],
