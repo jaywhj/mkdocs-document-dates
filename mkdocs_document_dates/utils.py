@@ -35,7 +35,6 @@ def load_git_cache(docs_dir_path: Path):
                 text=True, encoding='utf-8'
             ).strip())
             docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
-
             docs_prefix_with_slash = docs_prefix + '/'
             prefix_len = len(docs_prefix_with_slash)
 
@@ -54,7 +53,6 @@ def load_git_cache(docs_dir_path: Path):
                 elif line.endswith('.md') and current_commit:
                     if line.startswith(docs_prefix_with_slash):
                         line = line[prefix_len:]
-                    
                     # 解构元组，避免字典查找
                     name, email, created = current_commit
                     # 使用有序去重结构，保持作者首次出现顺序
@@ -90,7 +88,6 @@ def get_recently_updated_docs(docs_dir_path: Path):
                 text=True, encoding='utf-8'
             ).strip())
             docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
-            
             docs_prefix_with_slash = docs_prefix + '/'
             prefix_len = len(docs_prefix_with_slash)
 
