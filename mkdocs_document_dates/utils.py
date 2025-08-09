@@ -92,6 +92,9 @@ def get_recently_updated_docs(docs_dir_path: Path):
             ).strip())
             docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
             
+            docs_prefix_with_slash = docs_prefix + '/'
+            prefix_len = len(docs_prefix_with_slash)
+
             # 用于去重的文档集合
             unique_docs = set()
             current_time = None
@@ -111,8 +114,8 @@ def get_recently_updated_docs(docs_dir_path: Path):
                     current_time = line
                     current_docs = []
                 elif line.endswith('.md'):
-                    if line.startswith(docs_prefix + '/'):
-                        line = line[len(docs_prefix) + 1:]
+                    if line.startswith(docs_prefix_with_slash):
+                        line = line[prefix_len:]
                     if line not in unique_docs:
                         unique_docs.add(line)
                         current_docs.append(line)
