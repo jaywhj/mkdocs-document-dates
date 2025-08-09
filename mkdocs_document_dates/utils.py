@@ -59,7 +59,6 @@ def load_git_cache(docs_dir_path: Path):
                     name, email, created = current_commit
                     # 使用有序去重结构，保持作者首次出现顺序
                     authors_dict[line].setdefault((name, email), None)
-                    
                     if line not in first_commit:
                         first_commit[line] = created
 
