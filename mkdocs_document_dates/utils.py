@@ -74,53 +74,6 @@ def load_git_cache(docs_dir_path: Path):
         logger.info(f"Error getting git info in {docs_dir_path}: {e}")
     return dates_cache
 
-def get_recently_updated_docs(docs_dir_path: Path):
-    time_docs_list = []
-    try:
-        # --since="2023-08-10"  --since=1.year.ago
-        # git log --since=3.month.ago --no-merges --name-only --format="%an|%ae|%aI" -- "*.md"
-        cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%aI', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
-        if process.returncode == 0:
-            git_root = Path(subprocess.check_output(
-                ['git', 'rev-parse', '--show-toplevel'],
-                cwd=docs_dir_path,
-                text=True, encoding='utf-8'
-            ).strip())
-            docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
-            docs_prefix_with_slash = docs_prefix + '/'
-            prefix_len = len(docs_prefix_with_slash)
-
-            # 用于去重的文档集合
-            unique_docs = set()
-            current_time = None
-            current_docs = []
-            
-            def process_current_time_docs():
-                if current_time and current_docs:
-                    time_docs_list.append((current_time, current_docs[:]))
-            
-            for line in process.stdout.splitlines():
-                line = line.strip()
-                if not line:
-                    continue
-                if '|' in line:
-                    # 处理前一个时间点的文档
-                    process_current_time_docs()
-                    current_time = line
-                    current_docs = []
-                elif line.endswith('.md'):
-                    if line.startswith(docs_prefix_with_slash):
-                        line = line[prefix_len:]
-                    if line not in unique_docs:
-                        unique_docs.add(line)
-                        current_docs.append(line)
-            # 处理最后一组数据
-            process_current_time_docs()
-    except Exception as e:
-        logger.info(f"Error getting recently updated docs in {docs_dir_path}: {e}")
-    return time_docs_list
-
 def get_file_creation_time(file_path):
     try:
         stat = os.stat(file_path)
