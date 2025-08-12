@@ -11,6 +11,18 @@ logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
+def is_excluded(path, exclude_list):
+    if not exclude_list:
+        return False
+    for pattern in exclude_list:
+        if pattern.endswith('*'):
+            if path.startswith(pattern.partition('*')[0]):
+                return True
+        else:
+            if path == pattern:
+                return True
+    return False
+
 def get_git_first_commit_time(file_path):
     try:
         # git log --reverse --format="%aI" -- {file_path} | head -n 1

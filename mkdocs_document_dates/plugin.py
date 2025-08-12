@@ -8,7 +8,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -177,7 +177,7 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_authors'] = authors
         
         # 检查是否需要排除
-        if self._is_excluded(rel_path):
+        if is_excluded(rel_path, self.config['exclude']):
             return markdown
         
         # 生成日期和作者信息 HTML
@@ -215,17 +215,6 @@ class DocumentDatesPlugin(BasePlugin):
                 self.authors_yml[key] = author
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
-
-
-    def _is_excluded(self, rel_path):
-        for pattern in self.config['exclude']:
-            if pattern.endswith('*'):
-                if rel_path.startswith(pattern.partition('*')[0]):
-                    return True
-            else:
-                if rel_path == pattern:
-                    return True
-        return False
 
 
     def _find_meta_date(self, meta, field_names):
