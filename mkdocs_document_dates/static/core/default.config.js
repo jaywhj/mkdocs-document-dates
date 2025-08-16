@@ -126,6 +126,12 @@ window.TooltipLanguage = (function () {
             author: "작성자",
             authors: "작성자"
         },
+        nl: {
+            created_time: "Gecreëerd",
+            modified_time: "Laatst geüpdatet",
+            author: "Auteur",
+            authors: "Auteurs"            
+        },
         ru: {
             created_time: "Дата создания",
             modified_time: "Дата изменения",
