@@ -8,7 +8,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_modified_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -42,7 +42,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
-        ('show_author', config_options.Type(bool, default=True))
+        ('show_author', config_options.Type(bool, default=True)),
+        ('recently_updated', config_options.Type((dict, bool), default={}))
     )
 
     def __init__(self):
@@ -151,13 +152,45 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
-    def on_page_markdown(self, markdown, page: Page, config, files):
-        # 获取相对路径，src_uri 总是以"/"分隔
-        rel_path = getattr(page.file, 'src_uri', None)
-        if not rel_path:
-            rel_path = page.file.src_path
+    def on_nav(self, nav, config, files):
+        recently_updated_config = self.config.get('recently_updated')
+        if not recently_updated_config:
+            return nav
+
+        # 兼容 true 配置
+        if recently_updated_config is True:
+            recently_updated_config = {}
+
+        docs_dir = Path(config['docs_dir'])
+        # 获取配置
+        exclude_list = recently_updated_config.get('exclude', [])
+        limit = recently_updated_config.get('limit', 10)
+
+        # 获取所有文档标题和链接 {rel_path: (title, url)}
+        all_titles = {}
+        for file in files:
+            if not (file.src_path.endswith('.md') and getattr(file.page, 'title', None)):
+                continue
+            rel_path = getattr(file, 'src_uri', file.src_path)
             if os.sep != '/':
                 rel_path = rel_path.replace(os.sep, '/')
+            all_titles[rel_path] = (file.page.title, file.page.url)
+
+        # 获取 docs 目录下最近更新的文档
+        recently_modified_files = get_recently_modified_files(docs_dir, exclude_list, limit, all_titles)
+
+        # 将数据注入到 config['extra'] 中供全局访问
+        if 'extra' not in config:
+            config['extra'] = {}
+        config['extra']['recently_updated_docs'] = recently_modified_files
+
+        return nav
+
+    def on_page_markdown(self, markdown, page: Page, config, files):
+        # 获取相对路径，src_uri 总是以"/"分隔
+        rel_path = getattr(page.file, 'src_uri', page.file.src_path)
+        if os.sep != '/':
+            rel_path = rel_path.replace(os.sep, '/')
         file_path = page.file.abs_src_path
         
         # 获取时间信息

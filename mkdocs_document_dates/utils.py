@@ -103,6 +103,52 @@ def get_file_creation_time(file_path):
         logger.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
 
+# 返回包含元组的数组 [(mtime, rel_path, title, url)]
+def get_recently_modified_files(root_dir: Path, exclude_list: list, limit: int = 10, all_titles: dict = None):
+    if all_titles is None:
+        all_titles = {}
+
+    temp_results = []
+    def scan_dir(path):
+        try:
+            # 采用 scandir 遍历目录，效率更高
+            with os.scandir(path) as entries:
+                for entry in entries:
+                    try:
+                        if entry.is_dir(follow_symlinks=False):
+                            # 检查是否应该排除此目录
+                            rel = Path(entry.path).relative_to(root_dir).as_posix()
+                            if is_excluded(rel, exclude_list):
+                                continue
+                            # 递归扫描
+                            scan_dir(entry.path)
+                        elif entry.is_file(follow_symlinks=False) and entry.name.lower().endswith('.md'):
+                            # 统一相对路径，并输出 POSIX 风格斜杠
+                            rel = Path(entry.path).relative_to(root_dir).as_posix()
+                            # rel = os.path.relpath(entry.path, root_str).replace(os.sep, '/')
+                            # 检查是否应该排除此文件
+                            if is_excluded(rel, exclude_list) or rel not in all_titles:
+                                continue
+                            mtime = entry.stat().st_mtime
+                            temp_results.append((mtime, rel))
+                    except Exception:
+                        continue
+        except (PermissionError, FileNotFoundError):
+            return []
+    scan_dir(root_dir)
+
+    # 按修改时间倒序
+    temp_results.sort(key=lambda x: x[0], reverse=True)
+    results = [
+        (
+            datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"),
+            rel,
+            *all_titles[rel]
+        )
+        for mtime, rel in temp_results
+    ]
+    return results[:limit]
+
 def read_json_cache(cache_file: Path):
     dates_cache = {}
     if cache_file.exists():
