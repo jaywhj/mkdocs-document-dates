@@ -144,7 +144,7 @@ plugins:
     - 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性重载所有语言
         ```yaml
         extra_javascript:
-        - assets/document_dates/core/timeago.full.min.js
+          - assets/document_dates/core/timeago.full.min.js
         ```
 
 ## 模板变量

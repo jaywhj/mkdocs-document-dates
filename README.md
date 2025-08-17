@@ -142,7 +142,7 @@ The plugin supports full customization, such as **icon style, theme color, font,
     - In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to reload all languages at once
         ```yaml
         extra_javascript:
-        - assets/document_dates/core/timeago.full.min.js
+          - assets/document_dates/core/timeago.full.min.js
         ```
 
 ## Template Variables
