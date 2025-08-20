@@ -11,6 +11,18 @@ logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
+def is_excluded(path, exclude_list):
+    if not exclude_list:
+        return False
+    for pattern in exclude_list:
+        if pattern.endswith('*'):
+            if path.startswith(pattern.partition('*')[0]):
+                return True
+        else:
+            if path == pattern:
+                return True
+    return False
+
 def get_git_first_commit_time(file_path):
     try:
         # git log --reverse --format="%aI" -- {file_path} | head -n 1
@@ -35,8 +47,10 @@ def load_git_cache(docs_dir_path: Path):
                 text=True, encoding='utf-8'
             ).strip())
             docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
+            docs_prefix_with_slash = docs_prefix + '/'
+            prefix_len = len(docs_prefix_with_slash)
 
-            authors_dict = defaultdict(set)
+            authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
 
@@ -46,21 +60,27 @@ def load_git_cache(docs_dir_path: Path):
                     continue
                 if '|' in line:
                     name, email, created = line.split('|', 2)
-                    current_commit = {'name': name, 'email': email, 'created': created}
+                    # 使用元组，更轻量
+                    current_commit = (name, email, created)
                 elif line.endswith('.md') and current_commit:
-                    if line.startswith(docs_prefix + '/'):
-                        line = line[len(docs_prefix) + 1:]
-                    authors_dict[line].add((current_commit['name'], current_commit['email']))
+                    if line.startswith(docs_prefix_with_slash):
+                        line = line[prefix_len:]
+                    # 解构元组，避免字典查找
+                    name, email, created = current_commit
+                    # 使用有序去重结构，保持作者首次出现顺序
+                    authors_dict[line].setdefault((name, email), None)
                     if line not in first_commit:
-                        first_commit[line] = current_commit['created']
+                        first_commit[line] = created
 
-            for file_path in sorted(first_commit):
+            # 构建最终的缓存数据
+            for file_path in first_commit:
+                authors_list = [
+                    {'name': name, 'email': email}
+                    for name, email in authors_dict[file_path].keys()
+                ]
                 dates_cache[file_path] = {
                     'created': first_commit[file_path],
-                    'authors': [
-                        {'name': name, 'email': email}
-                        for name, email in sorted(authors_dict[file_path])
-                        ]
+                    'authors': authors_list
                 }
     except Exception as e:
         logger.info(f"Error getting git info in {docs_dir_path}: {e}")
@@ -82,6 +102,38 @@ def get_file_creation_time(file_path):
     except (OSError, ValueError) as e:
         logger.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
+
+def get_recently_modified_files(files, exclude_list: list, limit: int = 10):
+    if not files:
+        return []
+    temp_results = []
+    for file in files:
+        if not file.src_path.endswith('.md'):
+            continue
+        rel_path = getattr(file, 'src_uri', file.src_path)
+        if os.sep != '/':
+            rel_path = rel_path.replace(os.sep, '/')
+        if is_excluded(rel_path, exclude_list):
+            continue
+
+        # 过滤没有配置进导航里的文档
+        if file.page:
+            if not file.page.title:
+                continue
+            title, url = file.page.title, file.page.url
+        else:
+            title, url = file.name, file.url
+
+        mtime = os.path.getmtime(file.abs_src_path)
+        temp_results.append((mtime, rel_path, title, url))
+
+    # 按修改时间倒序
+    temp_results.sort(key=lambda x: x[0], reverse=True)
+    results = [
+        (datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"), *rest)
+        for mtime, *rest in temp_results
+    ]
+    return results[:limit]
 
 def read_json_cache(cache_file: Path):
     dates_cache = {}

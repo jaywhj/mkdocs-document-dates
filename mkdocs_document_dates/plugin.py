@@ -8,7 +8,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_modified_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -42,7 +42,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
-        ('show_author', config_options.Type(bool, default=True))
+        ('show_author', config_options.Type(bool, default=True)),
+        ('recently-updated', config_options.Type((dict, bool), default={}))
     )
 
     def __init__(self):
@@ -151,13 +152,34 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
+    def on_nav(self, nav, config, files):
+        recently_updated_config = self.config.get('recently-updated')
+        if not recently_updated_config:
+            return nav
+
+        # 兼容 true 配置
+        if recently_updated_config is True:
+            recently_updated_config = {}
+
+        # 获取配置
+        exclude_list = recently_updated_config.get('exclude', [])
+        limit = recently_updated_config.get('limit', 10)
+
+        # 获取 docs 目录下最近更新的文档
+        recently_modified_files = get_recently_modified_files(files, exclude_list, limit)
+
+        # 将数据注入到 config['extra'] 中供全局访问
+        if 'extra' not in config:
+            config['extra'] = {}
+        config['extra']['recently_updated_docs'] = recently_modified_files
+
+        return nav
+
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
-        rel_path = getattr(page.file, 'src_uri', None)
-        if not rel_path:
-            rel_path = page.file.src_path
-            if os.sep != '/':
-                rel_path = rel_path.replace(os.sep, '/')
+        rel_path = getattr(page.file, 'src_uri', page.file.src_path)
+        if os.sep != '/':
+            rel_path = rel_path.replace(os.sep, '/')
         file_path = page.file.abs_src_path
         
         # 获取时间信息
@@ -177,7 +199,7 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_authors'] = authors
         
         # 检查是否需要排除
-        if self._is_excluded(rel_path):
+        if is_excluded(rel_path, self.config['exclude']):
             return markdown
         
         # 生成日期和作者信息 HTML
@@ -215,17 +237,6 @@ class DocumentDatesPlugin(BasePlugin):
                 self.authors_yml[key] = author
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
-
-
-    def _is_excluded(self, rel_path):
-        for pattern in self.config['exclude']:
-            if pattern.endswith('*'):
-                if rel_path.startswith(pattern.partition('*')[0]):
-                    return True
-            else:
-                if rel_path == pattern:
-                    return True
-        return False
 
 
     def _find_meta_date(self, meta, field_names):
