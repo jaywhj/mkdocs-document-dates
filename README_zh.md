@@ -25,7 +25,7 @@
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)     |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)     |
 
-
+- 支持整体列表显示最近更新的文档功能
 
 ## 效果图
 
@@ -62,10 +62,11 @@ plugins:
 
 ## 手动指定时间
 
-默认情况下，插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
+插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
 
-- **优先级**：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
-- 如果你要自定义，则可在 Front Matter 中手动指定：
+**优先级**：`Front Matter` > `文件系统时间戳(缓存)` > `Git时间戳`
+
+- 如需要自定义，则可在 Front Matter 中手动指定：
     ```markdown
     ---
     created: 2023-01-01
@@ -78,10 +79,11 @@ plugins:
 
 ## 配置作者
 
-默认情况下，插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
+插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
 
-- **优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
-- 如果你要自定义，在 Front Matter 中通过字段 `name` 就可配置一个作者：
+**优先级**：`Front Matter` > `Git作者` > `site_author(mkdocs.yml)` > `PC用户名` 
+
+- 如需要自定义，在 Front Matter 中通过字段 `name` 就可配置一个作者：
     ```markdown
     ---
     name: any-name
@@ -92,7 +94,7 @@ plugins:
 
 ## 配置头像
 
-默认情况下，插件会**自动加载**作者头像，无需人工干预
+插件会**自动加载**作者头像，无需人工干预
 
 **优先级**：`自定义头像` > `GitHub头像` > `字符头像` 
 
@@ -116,7 +118,7 @@ plugins:
         - jaywhj
         - dawang
         - sunny
-
+    
     ---
     ```
 - 如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
@@ -135,10 +137,10 @@ plugins:
 
 ## 语言本地化
 
-- **tooltip** ：内置语言：`en zh zh_TW es fr de ar ja ko ru nl pt`，**无需手动配置**，智能识别，自动切换
+- <mark>tooltip</mark>：内置语言：`en zh zh_TW es fr de ar ja ko ru nl pt`，**无需手动配置**，智能识别，自动切换
     - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 issue
     - 保留了原来的配置项 `locale`，但已经不建议手动配置了
-- **timeago**：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
+- <mark>timeago</mark>：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
     - 在 `user.config.js` 中，参考 [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加
     - 在 `mkdocs.yml` 中，配置 full 版本的 timeago.full.min.js，一次性重载所有语言
         ```yaml
@@ -153,11 +155,21 @@ plugins:
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
+- config.extra.recently_updated_docs
 
 应用示例：
 
 - **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) 后覆盖：`docs/overrides/sitemap.xml`）
 - **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) 后覆盖：`docs/overrides/partials/source-file.html`）
+
+## 最近更新模块
+
+可在任意模板中通过 `config.extra.recently_updated_docs` 获取最近更新的文档数据，然后自定义渲染逻辑，或者直接使用预置的模板示例：
+
+- **示例1**：在侧边栏的导航中添加最近更新的模块（下载 [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) 后覆盖：`docs/overrides/partials/nav.html`）
+- **示例2**：在任意md文档的任意位置使用一行代码`<!-- RECENTLY_UPDATED_DOCS -->`添加此功能，则可安装插件 mkdocs-recently-updated-docs，也是基于此插件提供的数据能力拓展的，提供了更多的模板示例，使用起来更简单
+
+![recently-updated](recently-updated.png)
 
 ## 其它提示
 

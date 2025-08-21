@@ -25,6 +25,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
+- Support the overall list to display the recently updated documents
 
 ## Showcases
 
@@ -61,10 +62,11 @@ plugins:
 
 ## Specify time manually
 
-By default, the plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
+The plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
 
-- **Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
-- If you want to customize it, you can specify it manually in Front Matter:
+**Priority**: `Front Matter` > `File System Timestamps(Cached)` > `Git Timestamps`
+
+- If need to customize it, you can specify it manually in Front Matter:
     ```markdown
     ---
     created: 2023-01-01
@@ -77,10 +79,11 @@ By default, the plugin will **automatically** get the exact time of the document
 
 ## Configure Author
 
-By default, the plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
+The plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
 
-- **Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
-- If you want to customize it, you can configure an author in Front Matter with the field `name`:
+**Priority**: `Front Matter` > `Git Author` > `site_author(mkdocs.yml)` > `PC Username`
+
+- If need to customize it, you can configure an author in Front Matter with the field `name`:
     ```markdown
     ---
     name: any-name
@@ -91,7 +94,7 @@ By default, the plugin will **automatically** get the author of the document, an
 
 ## Configure Avatar
 
-By default, the plugin will **automatically** loads the author avatar, without manual intervention
+The plugin will **automatically** loads the author avatar, without manual intervention
 
 **Priority**: `Custom Avatar` > `GitHub Avatar` > `Character Avatar`
 
@@ -134,10 +137,10 @@ The plugin supports full customization, such as **icon style, theme color, font,
 
 ## Localization
 
-- **tooltip**: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need for manual configuration**, intelligent recognition, automatic switching
+- <mark>tooltip</mark>: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need for manual configuration**, intelligent recognition, automatic switching
     - If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit an issue
     - The original configuration option `locale` is retained, but manual configuration is no longer recommended
-- **timeago**: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
+- <mark>timeago</mark>: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
     - In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), register and add it yourself
     - In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to reload all languages at once
         ```yaml
@@ -152,11 +155,21 @@ You can access the meta-info of a document in a template using the following var
 - page.meta.document_dates_created
 - page.meta.document_dates_modified
 - page.meta.document_dates_authors
+- config.extra.recently_updated_docs
 
 Usage examples:
 
 - **Example 1**: Set the correct `lastmod` for your site's `sitemap.xml` so that search engines can better handle SEO and thus increase your site's exposure (download [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) and override this path: `docs/overrides/sitemap.xml`)
 - **Example 2**: Using the template to re-customize the plugin, you have full control over the rendering logic and the plugin is only responsible for providing the data (download [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) and override this path: `docs/overrides/partials/source-file.html`)
+
+## Recently updated module
+
+You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic, or use the preset template examples directly:
+
+- **Example 1**: Add the recently updated module to the navigation of the sidebar (download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path: `docs/overrides/partials/nav.html`)
+- **Example 2**: Add this feature anywhere in any md document using a line of code `<!-- RECENTLY_UPDATED_DOCS -->`, you can install plugin mkdocs-recently-updated-docs, which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
+
+![recently-updated](recently-updated.png)
 
 ## Other Tips
 
