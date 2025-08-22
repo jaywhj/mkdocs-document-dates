@@ -167,7 +167,7 @@ Usage examples:
 You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic, or use the preset template examples directly:
 
 - **Example 1**: Add the recently updated module to the navigation of the sidebar (download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path: `docs/overrides/partials/nav.html`)
-- **Example 2**: Add this feature anywhere in any md document using a line of code `<!-- RECENTLY_UPDATED_DOCS -->`, you can install plugin mkdocs-recently-updated-docs, which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
+- **Example 2**: Add this feature anywhere in any md document, you can install plugin [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs), which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
 
 ![recently-updated](recently-updated.png)
 
