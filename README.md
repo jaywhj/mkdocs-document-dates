@@ -138,7 +138,7 @@ The plugin supports full customization, such as **icon style, theme color, font,
 ## Localization
 
 - <mark>tooltip</mark>: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need for manual configuration**, intelligent recognition, automatic switching
-    - If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit an issue
+    - If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit a PR for built-in
     - The original configuration option `locale` is retained, but manual configuration is no longer recommended
 - <mark>timeago</mark>: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
     - In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), register and add it yourself

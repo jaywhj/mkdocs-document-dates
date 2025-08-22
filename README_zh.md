@@ -126,7 +126,7 @@ plugins:
 
 ## 插件定制化
 
-插件支持完全自定义，比如**图标样式、主题颜色、字体、动画、分界线**等，已经预置了入口，你只需要，找到下方文件取消里面的注释即可：
+插件支持完全自定义，比如**图标样式、主题颜色、字体、动画、分界线**等，已经预置了入口，你只需要找到下方文件取消里面的注释即可：
 
 |    类别：    | 位置：                                         |
 | :---------: | --------------------------------------------- |
@@ -138,7 +138,7 @@ plugins:
 ## 语言本地化
 
 - <mark>tooltip</mark>：内置语言：`en zh zh_TW es fr de ar ja ko ru nl pt`，**无需手动配置**，智能识别，自动切换
-    - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 issue
+    - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 PR 内置
     - 保留了原来的配置项 `locale`，但已经不建议手动配置了
 - <mark>timeago</mark>：当设置 `type: timeago` 时，会启用 timeago.js 来渲染动态时间，timeago.min.js 默认只包含英文和中文，如需加载其他语言，可以按如下方式配置（2选1）：
     - 在 `user.config.js` 中，参考 [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加
