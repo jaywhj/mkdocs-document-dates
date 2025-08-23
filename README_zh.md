@@ -58,6 +58,7 @@ plugins:
         - drafts/*             # 排除 drafts 目录下所有文件，包括子目录
       date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
+      show_author: true        # 是否显示作者信息，默认：true
 ```
 
 ## 手动指定时间

@@ -58,6 +58,7 @@ plugins:
         - drafts/*             # Exclude all files in drafts folder, including subfolders
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
+      show_author: true        # Show author or not, default: true
 ```
 
 ## Specify time manually
