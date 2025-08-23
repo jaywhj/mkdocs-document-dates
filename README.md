@@ -25,7 +25,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
-- Support the overall list to display the recently updated documents
+- Supports display of recently updated documents in an overall list
 
 ## Showcases
 
@@ -137,11 +137,11 @@ The plugin supports full customization, such as **icon style, theme color, font,
 
 ## Localization
 
-- <mark>tooltip</mark>: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need for manual configuration**, intelligent recognition, automatic switching
-    - If the language is missing or the built-in language is inaccurate, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to register and add it yourself, or submit a PR for built-in
-    - The original configuration option `locale` is retained, but manual configuration is no longer recommended
+- <mark>tooltip</mark>: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need to manually configure**, intelligent recognition, automatic switching
+    - If there is any missing language or inaccurate built-in language, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to add it by registering yourself, or submit PR for built-in
+    - The original configuration item `locale` has been retained, but manual configuration is no longer recommended
 - <mark>timeago</mark>: when `type: timeago` is set, timeago.js is enabled to render dynamic time, `timeago.min.js` only contains English and Chinese by default, if need to load other languages, you can configure it as below (choose one):
-    - In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), register and add it yourself
+    - In `user.config.js`, refer to [Part 2](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js), add it by registering yourself
     - In `mkdocs.yml`, configure the full version of `timeago.full.min.js` to reload all languages at once
         ```yaml
         extra_javascript:
@@ -164,10 +164,10 @@ Usage examples:
 
 ## Recently updated module
 
-You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic, or use the preset template examples directly:
+You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic yourself, or use the preset template examples directly:
 
 - **Example 1**: Add the recently updated module to the navigation of the sidebar (download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path: `docs/overrides/partials/nav.html`)
-- **Example 2**: Add this feature anywhere in any md document, you can install plugin [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs), which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
+- **Example 2**: Add this feature anywhere in any md document, you can install the plugin [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs), which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
 
 ![recently-updated](recently-updated.png)
 
@@ -203,10 +203,10 @@ A dispensable, insignificant little plug-in, friends who have time can take a lo
         - Solution: Reduce the number of I/Os + Use caching + Replace less efficient system functions
 - **Improve**:
     - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity, personalization, intelligence**
-        - **Ease of use**: there are no complex configurations, only 2-3 commonly used configuration options, in addition, a template is provided for personalized configurations
+        - **Ease of use**: no complex configuration, only 2-3 commonly used configuration items, in addition to providing the reference template for personalized configurations
         - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
         - **Personalization**: fully customizable and full control over the rendering logic, the plugin is only responsible for providing the data
-        - **Intelligence**: intelligently parse document time, author, avatar, intelligent recognition of user language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
+        - **Intelligence**: Intelligent parsing of document time, author, avatar, intelligent recognition of the user's language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
         - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
 - **The Last Secret**:
     - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
