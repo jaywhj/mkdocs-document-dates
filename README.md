@@ -127,7 +127,7 @@ The plugin will **automatically** loads the author avatar, without manual interv
 
 ## Customization
 
-The plugin supports full customization, such as **icon style, theme color, font, animation, dividing line** etc, and the entrance has been preset, you just need to find the file below and uncomment it:
+The plugin supports full customization, such as **icon, theme, color, font, animation, dividing line** etc, and the entrance has been preset, you just need to find the file below and uncomment it:
 
 |        Category:        | Location:                               |
 | :----------------------: | ---------------------------------------- |
