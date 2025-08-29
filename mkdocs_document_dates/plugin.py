@@ -2,6 +2,7 @@ import os
 import yaml
 import shutil
 import logging
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
@@ -51,6 +52,8 @@ class DocumentDatesPlugin(BasePlugin):
         self.dates_cache = {}
         self.authors_yml = {}
         self.github_username = None
+        self.recent_docs_html = None
+        self.recent_enable = False
 
     def on_config(self, config):
         docs_dir_path = Path(config['docs_dir'])
@@ -157,6 +160,7 @@ class DocumentDatesPlugin(BasePlugin):
         if not recently_updated_config:
             return nav
 
+        self.recent_enable = True
         # 兼容 true 配置
         if recently_updated_config is True:
             recently_updated_config = {}
@@ -164,6 +168,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取配置
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
+        template_path = recently_updated_config.get("template")
 
         # 获取 docs 目录下最近更新的文档
         recently_modified_files = get_recently_modified_files(files, exclude_list, limit)
@@ -173,7 +178,36 @@ class DocumentDatesPlugin(BasePlugin):
             config['extra'] = {}
         config['extra']['recently_updated_docs'] = recently_modified_files
 
+        # 渲染HTML
+        docs_dir = Path(config['docs_dir'])
+        self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_modified_files)
+
         return nav
+
+    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
+        # 获取自定义模板路径
+        if template_path:
+            user_full_path = docs_dir / template_path
+
+        # 选择模板路径
+        if template_path and user_full_path.is_file():
+            template_dir = user_full_path.parent
+            template_file = user_full_path.name
+        else:
+            # 默认模板路径
+            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
+            template_dir = default_template_path.parent
+            template_file = default_template_path.name
+
+        # 加载模板
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            autoescape=select_autoescape(["html", "xml"])
+        )
+        template = env.get_template(template_file)
+
+        # 渲染模板
+        return template.render(recent_docs=recently_updated_data)
 
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
@@ -197,6 +231,10 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_created'] = created.isoformat()
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
+        
+        # 占位符替换
+        if self.recent_enable and '<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
+            markdown = markdown.replace('<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
         
         # 检查是否需要排除
         if is_excluded(rel_path, self.config['exclude']):
