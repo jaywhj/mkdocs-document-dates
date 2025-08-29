@@ -22,11 +22,6 @@ class CustomInstallCommand(install):
         atexit.register(trigger_hook_install)
         install.run(self)
 
-try:
-    with open("README.md", "r", encoding="utf-8") as fh:
-        long_description = fh.read()
-except FileNotFoundError:
-    long_description = "A new generation MkDocs plugin for displaying exact creation time, last update time, authors, email of documents"
 
 VERSION = '3.4'
 
@@ -37,7 +32,7 @@ setup(
     author_email="aaronwqt@gmail.com",
     license="MIT",
     description="A new generation MkDocs plugin for displaying exact creation time, last update time, authors, email of documents",
-    long_description=long_description,
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/jaywhj/mkdocs-document-dates",
     packages=find_packages(),
