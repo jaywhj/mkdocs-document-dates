@@ -27,7 +27,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 
 - Supports display of recently updated documents in an overall list
 
-## In Action
+## Preview
 
 ![render](render.gif)
 
