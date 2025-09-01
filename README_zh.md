@@ -124,8 +124,7 @@ plugins:
     ---
     ```
 
-- 如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
-- 如果 URL 头像加载失败，则会自动回退到字符头像
+    如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
 
 ## 插件定制化
 
@@ -169,7 +168,7 @@ plugins:
 
 可在任意模板中通过 `config.extra.recently_updated_docs` 获取最近更新的文档数据，然后自行定制渲染逻辑，或者直接使用预置的模板示例：
 
-- **示例1**：在侧边栏的导航中添加最近更新的模块。先配置开关 `recently-updated: true`，然后下载 [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) 后覆盖 `docs/overrides/partials/nav.html` ：
+- **示例1**：在侧边栏的导航中添加最近更新的模块，先配置开关 `recently-updated: true`，然后下载 [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) 后覆盖 `docs/overrides/partials/nav.html` ：
     ```yaml
     - document-dates:
         type: timeago

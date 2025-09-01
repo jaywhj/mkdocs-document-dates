@@ -124,8 +124,7 @@ The plugin will **automatically** loads the author avatar, without manual interv
     ---
     ```
 
-- If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` folder, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
-- If the URL avatar fails to load, it automatically falls back to the character avatar
+    If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` folder, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
 
 ## Customization
 
@@ -169,7 +168,7 @@ Usage examples:
 
 You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic yourself, or use the preset template examples directly:
 
-- **Example 1**: Add the recently updated module to the navigation of the sidebar. First configure the switch `recently-updated: true`, then download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path `docs/overrides/partials/nav.html` :
+- **Example 1**: Add the recently updated module to the navigation of the sidebar, first configure the switch `recently-updated: true`, then download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path `docs/overrides/partials/nav.html` :
     ```yaml
     - document-dates:
         type: timeago
