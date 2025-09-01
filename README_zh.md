@@ -59,6 +59,7 @@ plugins:
       date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
       show_author: true        # 是否显示作者信息，默认：true
+      recently-updated: true   # 是否开启最近更新的数据，默认：false
 ```
 
 ## 手动指定时间
@@ -168,7 +169,12 @@ plugins:
 
 可在任意模板中通过 `config.extra.recently_updated_docs` 获取最近更新的文档数据，然后自行定制渲染逻辑，或者直接使用预置的模板示例：
 
-- **示例1**：在侧边栏的导航中添加最近更新的模块（下载 [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) 后覆盖：`docs/overrides/partials/nav.html`）
+- **示例1**：在侧边栏的导航中添加最近更新的模块。先配置开关 `recently-updated: true`，然后下载 [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) 后覆盖 `docs/overrides/partials/nav.html` ：
+    ```yaml
+    - document-dates:
+        type: timeago
+        recently-updated: true
+    ```
 - **示例2**：在任意md文档的任意位置添加此功能，则可安装插件 [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs)，也是基于此插件提供的数据能力拓展的，提供了更多的模板示例，使用起来更简单
 
 ![recently-updated](recently-updated.png)

@@ -59,6 +59,7 @@ plugins:
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Show author or not, default: true
+      recently-updated: true   # Whether to turn on recently updated data, default: false
 ```
 
 ## Specify time manually
@@ -168,7 +169,12 @@ Usage examples:
 
 You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic yourself, or use the preset template examples directly:
 
-- **Example 1**: Add the recently updated module to the navigation of the sidebar (download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path: `docs/overrides/partials/nav.html`)
+- **Example 1**: Add the recently updated module to the navigation of the sidebar. First configure the switch `recently-updated: true`, then download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path `docs/overrides/partials/nav.html` :
+    ```yaml
+    - document-dates:
+        type: timeago
+        recently-updated: true
+    ```
 - **Example 2**: Add this feature anywhere in any md document, you can install the plugin [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs), which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
 
 ![recently-updated](recently-updated.png)
