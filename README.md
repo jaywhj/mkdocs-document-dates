@@ -171,7 +171,7 @@ You can get the recently updated document data use `config.extra.recently_update
 - **Example 1**: Add the recently updated module to the navigation of the sidebar, first configure the switch `recently-updated: true`, then download [nav.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/nav.html) and override this path `docs/overrides/partials/nav.html` :
     ```yaml
     - document-dates:
-        type: timeago
+        ...
         recently-updated: true
     ```
 - **Example 2**: Add this feature anywhere in any md document, you can install the plugin [mkdocs-recently-updated-docs](https://github.com/jaywhj/mkdocs-recently-updated-docs), which is also based on the data capabilities provided by this plugin and provides more template examples, making it easier to use
