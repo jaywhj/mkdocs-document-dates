@@ -62,7 +62,11 @@ plugins:
       recently-updated: true   # 是否开启最近更新的数据，默认：false
 ```
 
-## 手动指定时间
+## 用法
+
+继续往下看，或参见文档：https://jaywhj.netlify.app/document-dates-zh
+
+### 手动指定时间
 
 插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
 
@@ -79,7 +83,7 @@ plugins:
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
-## 配置作者
+### 配置作者
 
 插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
 
@@ -94,7 +98,7 @@ plugins:
     
     ```
 
-## 配置头像
+### 配置头像
 
 插件会**自动加载**作者头像，无需人工干预
 
@@ -126,7 +130,7 @@ plugins:
 
     如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
 
-## 插件定制化
+### 插件定制化
 
 插件支持完全自定义，比如**图标、主题、颜色、字体、动画、分界线**等，已经预置了入口，你只需要找到下方文件取消里面的注释即可：
 
@@ -137,7 +141,7 @@ plugins:
 
 ![customization](customization.gif)
 
-## 语言本地化
+### 语言本地化
 
 - <mark>tooltip</mark>：内置语言：`en zh zh_TW es fr de ar ja ko ru nl pt`，**无需手动配置**，智能识别，自动切换
     - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 PR 内置
@@ -150,7 +154,7 @@ plugins:
           - assets/document_dates/core/timeago.full.min.js
         ```
 
-## 模板变量
+### 模板变量
 
 你可以在模板中使用如下变量访问文档的元信息：
 
@@ -164,7 +168,7 @@ plugins:
 - **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) 后覆盖：`docs/overrides/sitemap.xml`）
 - **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) 后覆盖：`docs/overrides/partials/source-file.html`）
 
-## 最近更新模块
+### 最近更新模块
 
 可在任意模板中通过 `config.extra.recently_updated_docs` 获取最近更新的文档数据，然后自行定制渲染逻辑，或者直接使用预置的模板示例：
 
@@ -178,42 +182,9 @@ plugins:
 
 ![recently-updated](recently-updated.png)
 
-## 其它提示
+### 其它提示
 
 - 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 docs 目录下（默认是隐藏的），请不要删除：
     - `docs/.dates_cache.jsonl`，缓存文件
     - `docs/.gitattributes`，缓存文件的合并机制
 - 采用了 Git Hooks 机制来自动触发缓存的存储（在每次执行 git commit 时），缓存文件也会随之自动提交，并且 Git Hooks 的安装在插件被安装时也会自动触发，全程无需任何手动干预
-
-<br />
-
-## 开发小故事（可选）
-
-一个可有可无、微不足道的小插件，没事的朋友可以看看 \^\_\^ 
-
-- **起源**：
-    - 是因为 [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin) ，一个很棒的项目。在2024年底使用时，发现我这本地用不了，因为我的 mkdocs 文档没有纳入 git 管理，然后我就不理解为什么不读取文件系统的时间，而要用 git 时间，而且文件系统时间更准确，还给作者提了 issue，结果等了一周左右没得到回复（后面作者回复了，人不错，估计他当时在忙没来得及），然后就想，过年期间没啥事，现在 AI 这么火，要不借助 AI 自己试试，就诞生了，诞生于2025年2月
-- **迭代**：
-    - 开发后，就理解了为什么不采用文件系统时间，因为文件在经过 git checkout 或 clone 时会被重建，从而导致原始时间戳信息丢失，解决办法有很多：
-    - 方法 1，采用最近一次 git commit 时间作为文档的最后更新时间，采用首次 git commit 时间作为文档的创建时间，mkdocs-git-revision-date-localized-plugin 就是这么做的（这种方式，存在一定的误差且无法在无Git环境中使用）
-    - 方法 2，可以提前缓存原始时间，后续读缓存就可以了（时间准确且不依赖任何环境）。缓存的地方，可以是源文档的 Front Matter 中，也可以是单独的文件，我选择了后者。存储在 Front Matter 中非常合理且更简单，但是这样会修改文档的源内容，虽然对正文无任何影响，但是我还是想保证数据的原始性
-- **难点**：
-    1. 什么时候去读取和存储原始时间？这只是 mkdocs 的一个插件，入口和权限非常有限，mkdocs 提供的只有 build 和 serve，那万一用户不执行 build 或 serve 而直接 commit 呢（比如使用 CI/CD 构建系统时），那就拿不到文件的时间信息了，更别说缓存了
-        - 直接说结论：利用 Git Hooks 机制，能在特定的 git 动作发生时触发自定义脚本，比如每次 commit 时
-    2. 如何自动安装 Git Hooks？在何时？怎么触发？通过 pip 从 PyPI 安装包并没有标准的 post-install 钩子机制
-        - 我的方案：分析了 pip 从 PyPI 安装包的流程，发现通过源码包编译安装时（sdist），会调用 setuptools 来处理，那么可以在 setuptools 的流程中想办法植入安装脚本，即在 setup.py 中添加自定义脚本
-    3. 跨平台的 hook 怎么设计？执行 python 脚本，需要明确指定 python 解释器，而用户的 python 环境，因操作系统、python 的安装方式以及配置的不同而各不相同，如何才能保证在所有环境下都能正常运行？
-        - 解决办法：考虑过 shell 脚本，但考虑到最终还是要回调 python 脚本，所以还是直接采用 python 脚本更方便。可以在 hook 安装时就检测用户的 python 环境，然后动态设置 hook 的 shebang 行，从而设置正确的 python 解释器
-    4. 在多人协作时，如何保证单独的缓存文件不冲突？
-        - 我的方案：采用 JSONL（JSON Lines）代替 JSON，配合并集的合并策略 merge=union
-    5. 在文档较多时( > 1000 )，如何降低 build 用时？获取某个文档的 git 信息的动作通常是一次文件 I/O 操作，如果文件多了，那运行效率会直线下降，1000个文档预计需要等待30秒以上，这让用户没法忍受
-        - 解决办法：减少 I/O 次数 + 使用缓存 + 替换运行效率较低的系统函数
-- **精进**：
-    - 既然是新开发的插件，那就奔着**优秀产品**的方向去设计，追求极致的**易用性、简洁性、个性化、智能化**
-        - **易用性**：无复杂配置，常用的配置项也就 2-3 条，另外为个性化配置提供了模板
-        - **简洁性**：无任何不必要的配置，无 Git 依赖，无 CI/CD 配置依赖，无其他包依赖
-        - **个性化**：可完全自定义插件，完全掌控渲染逻辑，插件只负责提供数据
-        - **智能化**：智能解析文档时间、作者、头像，智能识别用户语言并自动适配，此外，还有自动安装 Git Hooks、自动缓存、自动 commit 等
-        - **兼容性**：兼容旧版操作系统和浏览器，如 WIN7、MacOS 10.11、iOS 12、Chrome 63.0.3239
-- **最后的秘密**：
-    - 编程是业余爱好，我是一名从业八年的市场营销人员（欢迎留言）
