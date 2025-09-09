@@ -64,9 +64,11 @@ plugins:
 
 ## Usage
 
-Read on, or see doc: https://jaywhj.netlify.app/document-dates-en
+See doc: https://jaywhj.netlify.app/document-dates-en, or read down.
 
-### Specify time manually
+<br />
+
+## Specify time manually
 
 The plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
 
@@ -83,7 +85,7 @@ The plugin will **automatically** get the exact time of the document, and will a
 - `created` can be replaced with: `created, date, creation`
 - `modified` can be replaced with: `modified, updated, last_modified, last_updated`
 
-### Configure Author
+## Configure Author
 
 The plugin will **automatically** get the author of the document, and will automatically parse the email and then do the link, without manual intervention
 
@@ -98,7 +100,7 @@ The plugin will **automatically** get the author of the document, and will autom
     
     ```
 
-### Configure Avatar
+## Configure Avatar
 
 The plugin will **automatically** loads the author avatar, without manual intervention
 
@@ -130,7 +132,7 @@ The plugin will **automatically** loads the author avatar, without manual interv
 
     If you want to configure complete information for multiple authors, you can create a separate configuration file `authors.yml` in the `docs/` folder, see the [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) for its format
 
-### Customization
+## Customization
 
 The plugin supports full customization, such as **icon, theme, color, font, animation, dividing line** etc, and the entrance has been preset, you just need to find the file below and uncomment it:
 
@@ -141,7 +143,7 @@ The plugin supports full customization, such as **icon, theme, color, font, anim
 
 ![customization](customization.gif)
 
-### Localization
+## Localization
 
 - <mark>tooltip</mark>: built-in languages: `en zh zh_TW es fr de ar ja ko ru nl pt`, **no need to manually configure**, intelligent recognition, automatic switching
     - If there is any missing language or inaccurate built-in language, you can refer to [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js) in `user.config.js` to add it by registering yourself, or submit PR for built-in
@@ -154,7 +156,7 @@ The plugin supports full customization, such as **icon, theme, color, font, anim
           - assets/document_dates/core/timeago.full.min.js
         ```
 
-### Template Variables
+## Template Variables
 
 You can access the meta-info of a document in a template using the following variables:
 
@@ -168,7 +170,7 @@ Usage examples:
 - **Example 1**: Set the correct `lastmod` for your site's `sitemap.xml` so that search engines can better handle SEO and thus increase your site's exposure (download [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) and override this path: `docs/overrides/sitemap.xml`)
 - **Example 2**: Using the template to re-customize the plugin, you have full control over the rendering logic and the plugin is only responsible for providing the data (download [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) and override this path: `docs/overrides/partials/source-file.html`)
 
-### Recently updated module
+## Recently updated module
 
 You can get the recently updated document data use `config.extra.recently_updated_docs` in any template, then customize the rendering logic yourself, or use the preset template examples directly:
 
@@ -182,7 +184,7 @@ You can get the recently updated document data use `config.extra.recently_update
 
 ![recently-updated](recently-updated.png)
 
-### Other Tips
+## Other Tips
 
 - In order to always get the exact creation time, a separate cache file is used to store the creation time of the document, located in the docs folder (hidden by default), please don't remove it:
     - `docs/.dates_cache.jsonl`, cache file

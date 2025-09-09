@@ -64,9 +64,11 @@ plugins:
 
 ## 用法
 
-继续往下看，或参见文档：https://jaywhj.netlify.app/document-dates-zh
+参见文档：https://jaywhj.netlify.app/document-dates-zh , 或继续向下阅读
 
-### 手动指定时间
+<br />
+
+## 手动指定时间
 
 插件会**自动获取**文档的精确时间信息，会自动缓存创建时间，无需人工干预
 
@@ -83,7 +85,7 @@ plugins:
 - `created` 可替换为：`created, date, creation`
 - `modified` 可替换为：`modified, updated, last_modified, last_updated`
 
-### 配置作者
+## 配置作者
 
 插件会**自动获取**文档的作者信息，会自动解析邮件后做链接，无需人工干预
 
@@ -98,7 +100,7 @@ plugins:
     
     ```
 
-### 配置头像
+## 配置头像
 
 插件会**自动加载**作者头像，无需人工干预
 
@@ -130,7 +132,7 @@ plugins:
 
     如果要配置多个作者的完整信息，则可在 `docs/` 目录下新建单独的配置文件 `authors.yml`，格式参考 [authors.yml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/authors.yml) 
 
-### 插件定制化
+## 插件定制化
 
 插件支持完全自定义，比如**图标、主题、颜色、字体、动画、分界线**等，已经预置了入口，你只需要找到下方文件取消里面的注释即可：
 
@@ -141,7 +143,7 @@ plugins:
 
 ![customization](customization.gif)
 
-### 语言本地化
+## 语言本地化
 
 - <mark>tooltip</mark>：内置语言：`en zh zh_TW es fr de ar ja ko ru nl pt`，**无需手动配置**，智能识别，自动切换
     - 如语言缺失或内置语言不准确，可在 `user.config.js` 中，参考 [Part 3](https://github.com/jaywhj/mkdocs-document-dates/blob/main/mkdocs_document_dates/static/config/user.config.js)，自行注册添加，也可以提交 PR 内置
@@ -154,7 +156,7 @@ plugins:
           - assets/document_dates/core/timeago.full.min.js
         ```
 
-### 模板变量
+## 模板变量
 
 你可以在模板中使用如下变量访问文档的元信息：
 
@@ -168,7 +170,7 @@ plugins:
 - **示例1**：为你站点的 sitemap.xml 设置正确的 `lastmod`，以便搜索引擎能更好的处理 SEO，从而提高你网站的曝光率（下载 [sitemap.xml](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/sitemap.xml) 后覆盖：`docs/overrides/sitemap.xml`）
 - **示例2**：利用模板重新定制插件，你可以完全掌控渲染逻辑，插件只负责提供数据（下载 [source-file.html](https://github.com/jaywhj/mkdocs-document-dates/blob/main/templates/overrides/partials/source-file.html) 后覆盖：`docs/overrides/partials/source-file.html`）
 
-### 最近更新模块
+## 最近更新模块
 
 可在任意模板中通过 `config.extra.recently_updated_docs` 获取最近更新的文档数据，然后自行定制渲染逻辑，或者直接使用预置的模板示例：
 
@@ -182,7 +184,7 @@ plugins:
 
 ![recently-updated](recently-updated.png)
 
-### 其它提示
+## 其它提示
 
 - 为了始终能获取准确的创建时间，采用了单独的缓存文件来存储文档的创建时间，位于 docs 目录下（默认是隐藏的），请不要删除：
     - `docs/.dates_cache.jsonl`，缓存文件
