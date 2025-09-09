@@ -64,7 +64,7 @@ plugins:
 
 ## 用法
 
-参见文档：https://jaywhj.netlify.app/document-dates-zh，或继续向下阅读
+参见文档：https://jaywhj.netlify.app/document-dates-zh , 或继续向下阅读
 
 <br />
 
