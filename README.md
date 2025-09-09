@@ -62,6 +62,12 @@ plugins:
       recently-updated: true   # Whether to turn on recently updated data, default: false
 ```
 
+## Usage
+
+See doc: https://jaywhj.netlify.app/document-dates-en
+
+<br />
+
 ## Specify time manually
 
 The plugin will **automatically** get the exact time of the document, and will automatically cache the creation time, without manual intervention
@@ -184,36 +190,3 @@ You can get the recently updated document data use `config.extra.recently_update
     - `docs/.dates_cache.jsonl`, cache file
     - `docs/.gitattributes`, merge mechanism for cache file
 - The Git Hooks mechanism is used to automatically trigger the storing of the cache (on each git commit), and the cached file is automatically committed along with it, in addition, the installation of Git Hooks is automatically triggered when the plugin is installed, without any manual intervention!
-
-<br />
-
-## Development Stories (Optional)
-
-A dispensable, insignificant little plug-in, friends who have time can take a look \^\_\^ 
-
-- **Origin**:
-    - Because [mkdocs-git-revision-date-localized-plugin](https://github.com/timvink/mkdocs-git-revision-date-localized-plugin), a great project. When I used it at the end of 2024, I found that I couldn't use it locally because my mkdocs documentation was not included in git management, I don't understand why not read the file system time, but to use the git time, and the filesystem time is exact, then raised an issue to the author, but didn't get a reply for about a week (the author had a reply later, nice guy, I guess he was busy at the time), and then I thought, there is nothing to do during the Chinese New Year, and now AI is so hot, why not with the help of the AI try it out for myself, it was born, born in February 2025
-- **Iteration**:
-    - After development, I understood why not use filesystem time, because files will be rebuilt when they go through git checkout or clone, resulting in the loss of original timestamp information. There are many solutions:
-    - Method 1: Use the last git commit time as the last update time and the first git commit time as the creation time, mkdocs-git-revision-date-localized-plugin does this. (This way, there will be a margin of error and dependency on git)
-    - Method 2: Cache the original time in advance, and then read the cache subsequently (The time is exact and no dependency on any environment). The cache can be in Front Matter of the source document or in a separate file, I chose the latter. Storing in Front Matter makes sense and is easier, but this will modify the source content of the document, although it doesn't have any impact on the body, but I still want to ensure the originality of the data!
-- **Difficulty**:
-    1. When to read and store original time? This is just a plugin for mkdocs, with very limited access and permissions, mkdocs provides only build and serve, so in case a user commits directly without executing build or serve (e.g., when using a CI/CD build system), then you won't be able to retrieve the time information of the file, not to mention caching it!
-        - Straight to the bottom line: Git Hooks can be used to trigger custom scripts when specific git actions occur, such as every time a commit occurs
-    2. How to install Git Hooks automatically? When and how are they triggered? Installing packages from PyPI via pip doesn't have a standard post-install hook mechanism
-        - Workaround: After analyzing the flow of pip installing packages from PyPI, I found that when compiling and installing through the source package (sdist), setuptools will be called to handle it, so we can find a way to implant the installation script in the process of setuptools, i.e., we can add a custom script in setup.py
-    3. How to design a cross-platform hook? To execute a python script, we need to explicitly specify the python interpreter, and the user's python environment varies depending on the operating system, the way python is installed, and the configuration, so how can we ensure that it works properly in all environments?
-        - Solution: I considered using a shell script, but since I'd have to call back to python eventually, it's easier to use a python script. We can detect the user's python environment when the hook is installed, and then dynamically set the hook's shebang line to set the correct python interpreter
-    4. How can I ensure that a single cache file does not conflict when collaborating with multi-person?
-        - Workaround: use JSONL (JSON Lines) instead of JSON, and with the merge strategy 'merge=union'
-    5. How to reduce build time when there are a lot of documents ( >1000 )?  Getting git information about a document is usually a file I/O operation, and if there are a lot of files, the efficiency of the operation will plummet. 1,000 documents can be expected to take more than 30 seconds, which is intolerable to the user
-        - Solution: Reduce the number of I/Os + Use caching + Replace less efficient system functions
-- **Improve**:
-    - Since it's a newly developed plugin, it will be designed in the direction of **excellent products**, and the pursuit of the ultimate **ease of use, simplicity, personalization, intelligence**
-        - **Ease of use**: no complex configuration, only 2-3 commonly used configuration items, in addition to providing the reference template for personalized configurations
-        - **Simplicity**: no unnecessary configuration, no Git dependencies, no CI/CD configuration dependencies, no other package dependencies
-        - **Personalization**: fully customizable and full control over the rendering logic, the plugin is only responsible for providing the data
-        - **Intelligence**: Intelligent parsing of document time, author, avatar, intelligent recognition of the user's language and automatic adaptation, in addition, there are auto-install Git Hooks, auto-cache, auto-commit
-        - **Compatibility**: works well on older operating systems and browsers, such as WIN7, MacOS 10.11, iOS 12, Chrome 63.0.3239
-- **The Last Secret**:
-    - Programming is a hobby, and I'm a marketer of 8 years (Feel free to leave a comment)
