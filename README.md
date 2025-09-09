@@ -64,7 +64,7 @@ plugins:
 
 ## Usage
 
-See doc: https://jaywhj.netlify.app/document-dates-en, or read on.
+See doc: https://jaywhj.netlify.app/document-dates-en, or read down.
 
 <br />
 
