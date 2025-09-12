@@ -96,20 +96,10 @@ class DocumentDatesPlugin(BasePlugin):
             https://unpkg.com/tippy.js@6/themes/light.css
             https://unpkg.com/tippy.js@6/themes/material.css
         """
-        # 复制静态资源到用户目录
+
+        # 复制配置文件模板到用户目录（如果不存在）
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
         dest_dir.mkdir(parents=True, exist_ok=True)
-        
-        for dir_name in ['tippy', 'core', 'fonts']:
-            source_dir = Path(__file__).parent / 'static' / dir_name
-            target_dir = dest_dir / dir_name
-            # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
-            target_dir.mkdir(parents=True, exist_ok=True)
-            for item in source_dir.iterdir():
-                if item.is_file():
-                    shutil.copy2(item, target_dir / item.name)
-        
-        # 复制配置文件模板到用户目录（如果不存在）
         config_files = ['user.config.css', 'user.config.js']
         for config_file in config_files:
             source_config = Path(__file__).parent / 'static' / 'config' / config_file
@@ -117,35 +107,34 @@ class DocumentDatesPlugin(BasePlugin):
             if not target_config.exists():
                 shutil.copy2(source_config, target_config)
 
-        # 加载离线 Google Fonts Icons: https://fonts.google.com/icons
+        # 添加离线 Google Fonts Icons: https://fonts.google.com/icons
         # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         material_icons_url = 'assets/document_dates/fonts/material-icons.css'
-        if material_icons_url not in config['extra_css']:
-            config['extra_css'].append(material_icons_url)
+        config['extra_css'].append(material_icons_url)
         
-        # 加载 timeago.js
+        # 添加 timeago.js
         # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
         # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
         if self.config['type'] == 'timeago':
             config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
 
-        # 加载 Tippy CSS 文件
-        tippy_css_dir = dest_dir / 'tippy'
+        # 添加 Tippy CSS 文件
+        tippy_css_dir = Path(__file__).parent / 'static' / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
             config['extra_css'].append(f'assets/document_dates/tippy/{css_file.name}')
         
-        # 加载自定义 CSS 文件
+        # 添加自定义 CSS 文件
         config['extra_css'].extend([
             'assets/document_dates/core/core.css',
             'assets/document_dates/user.config.css'
         ])
         
-        # 按顺序加载 Tippy JS 文件
+        # 按顺序添加 Tippy JS 文件
         js_core_files = ['popper.min.js', 'tippy.umd.min.js']
         for js_file in js_core_files:
             config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
         
-        # 加载自定义 JS 文件
+        # 添加自定义 JS 文件
         config['extra_javascript'].extend([
             'assets/document_dates/core/default.config.js',
             'assets/document_dates/user.config.js',
@@ -246,6 +235,16 @@ class DocumentDatesPlugin(BasePlugin):
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
 
+    def on_post_build(self, config):
+        site_dest_dir = Path(config['site_dir']) / 'assets' / 'document_dates'
+        for dir_name in ['tippy', 'core', 'fonts']:
+            source_dir = Path(__file__).parent / 'static' / dir_name
+            target_dir = site_dest_dir / dir_name
+            # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            for item in source_dir.iterdir():
+                if item.is_file():
+                    shutil.copy2(item, target_dir / item.name)
 
     def _extract_github_username(self, url):
         try:
