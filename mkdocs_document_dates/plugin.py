@@ -81,6 +81,27 @@ class DocumentDatesPlugin(BasePlugin):
                 if filename in self.dates_cache:
                     self.dates_cache[filename].update(new_info)
 
+        # 复制配置文件到用户目录（如果不存在）
+        dest_dir = docs_dir_path / 'assets' / 'document_dates'
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        config_files = ['user.config.css', 'user.config.js']
+        for config_file in config_files:
+            source_config = Path(__file__).parent / 'static' / 'config' / config_file
+            target_config = dest_dir / config_file
+            if not target_config.exists():
+                shutil.copy2(source_config, target_config)
+
+        # 添加离线 Google Fonts Icons: https://fonts.google.com/icons
+        # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
+        material_icons_url = 'assets/document_dates/fonts/material-icons.css'
+        config['extra_css'].append(material_icons_url)
+
+        # 添加 timeago.js
+        # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
+        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
+        if self.config['type'] == 'timeago':
+            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
+
         """
         Tippy.js, for Tooltip
         # core
@@ -96,28 +117,6 @@ class DocumentDatesPlugin(BasePlugin):
             https://unpkg.com/tippy.js@6/themes/light.css
             https://unpkg.com/tippy.js@6/themes/material.css
         """
-
-        # 复制配置文件到用户目录（如果不存在）
-        dest_dir = docs_dir_path / 'assets' / 'document_dates'
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        config_files = ['user.config.css', 'user.config.js']
-        for config_file in config_files:
-            source_config = Path(__file__).parent / 'static' / 'config' / config_file
-            target_config = dest_dir / config_file
-            if not target_config.exists():
-                shutil.copy2(source_config, target_config)
-
-        # 添加离线 Google Fonts Icons: https://fonts.google.com/icons
-        # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
-        material_icons_url = 'assets/document_dates/fonts/material-icons.css'
-        config['extra_css'].append(material_icons_url)
-        
-        # 添加 timeago.js
-        # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
-        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
-        if self.config['type'] == 'timeago':
-            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
-
         # 添加 Tippy CSS 文件
         tippy_css_dir = Path(__file__).parent / 'static' / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
