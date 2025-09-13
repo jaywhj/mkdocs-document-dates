@@ -43,7 +43,7 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
-        ('show_author', config_options.Type(bool, default=True)),
+        ('show_author', config_options.Choice((True, False, 'text'), default=True)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
 
@@ -396,19 +396,32 @@ class DocumentDatesPlugin(BasePlugin):
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
                     return ""
 
-                icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                html_parts.append("<div class='avatar-group'>")
-                for author in authors:
-                    tooltip = get_author_tooltip(author)
-                    img_url = get_avatar_img_url(author)
+                if self.config['show_author'] == 'text':
+                    # 显示文本模式
+                    tooltip_text = ', '.join(get_author_tooltip(author) for author in authors)
+                    author_text = ', '.join(author.name for author in authors)
+                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
-                        f"<span class='avatar-text'></span>"
-                        f"<img class='avatar' src='{img_url}' />"
-                        f"</div>"
+                        f"<span data-tippy-content data-tippy-raw='{tooltip_text}'>"
+                        f"<span class='material-icons' data-icon='{icon}'></span>"
+                        f"{author_text}"
+                        f"</span>"
                     )
-                html_parts.append("</div>")
+                else:
+                    # 显示头像模式（默认）
+                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
+                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
+                    html_parts.append("<div class='avatar-group'>")
+                    for author in authors:
+                        tooltip = get_author_tooltip(author)
+                        img_url = get_avatar_img_url(author)
+                        html_parts.append(
+                            f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
+                            f"<span class='avatar-text'></span>"
+                            f"<img class='avatar' src='{img_url}' />"
+                            f"</div>"
+                        )
+                    html_parts.append("</div>")
 
             html_parts.append("</div></div>")
             return ''.join(html_parts)
