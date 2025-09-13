@@ -73,7 +73,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载 git 缓存
         self.dates_cache = load_git_cache(docs_dir_path)
-        # 加载 jsonl 缓存覆盖
+        # 覆盖 jsonl 文件缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
         if jsonl_cache_file.exists():
             jsonl_cache = read_jsonl_cache(jsonl_cache_file)
@@ -97,7 +97,7 @@ class DocumentDatesPlugin(BasePlugin):
             https://unpkg.com/tippy.js@6/themes/material.css
         """
 
-        # 复制配置文件模板到用户目录（如果不存在）
+        # 复制配置文件到用户目录（如果不存在）
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
         dest_dir.mkdir(parents=True, exist_ok=True)
         config_files = ['user.config.css', 'user.config.js']
