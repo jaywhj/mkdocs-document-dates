@@ -384,9 +384,9 @@ class DocumentDatesPlugin(BasePlugin):
             if self.config['show_author'] and authors:
                 def get_author_tooltip(author):
                     if author.url:
-                        return f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
+                        return f'<a href="{author.url}" target="_blank">{author.name}</a>'
                     elif author.email:
-                        return f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
+                        return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
                 def get_avatar_img_url(author):
@@ -398,7 +398,7 @@ class DocumentDatesPlugin(BasePlugin):
 
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
-                    tooltip_text = ', '.join(get_author_tooltip(author) for author in authors)
+                    tooltip_text = ',&nbsp;'.join(get_author_tooltip(author) for author in authors)
                     author_text = ', '.join(author.name for author in authors)
                     icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(
