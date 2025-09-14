@@ -51,14 +51,14 @@ Or, personalize the configuration:
 ```yaml
 plugins:
   - document-dates:
-      position: top            # Display position: top (after title), bottom (end of document)
-      type: date               # Date type: date  datetime  timeago, default: date
+      position: top            # Display position: top(after title) bottom(end of document)
+      type: date               # Date type: date datetime timeago, default: date
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - drafts/*             # Exclude all files in drafts folder, including subfolders
       date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
-      show_author: true        # Show author or not: true (avatar mode), false (hidden), text (text mode)
+      show_author: true        # Show author or not: true(avatar mode) false(hidden) text(text mode)
       recently-updated: true   # Whether to turn on recently updated data, default: false
 ```
 

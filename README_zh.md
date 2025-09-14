@@ -51,8 +51,8 @@ plugins:
 ```yaml
 plugins:
   - document-dates:
-      position: top            # 显示位置：top（标题后） bottom（文档末尾）
-      type: date               # 时间类型：date datetime timeago，默认：date
+      position: top            # 显示位置: top(标题后) bottom(文档末尾)
+      type: date               # 时间类型: date datetime timeago, 默认：date
       exclude:                 # 排除文件列表
         - temp.md              # 排除指定文件
         - drafts/*             # 排除 drafts 目录下所有文件，包括子目录
