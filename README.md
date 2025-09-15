@@ -21,7 +21,6 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 - Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
 - Cross-platform support (Windows, macOS, Linux)
 - **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
-
     | PK of Build Efficiency:     | 100 md: | 1000 md: | Time Complexity: |
     | --------------------------- | :-----: | :------: | :----------: |
     | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
