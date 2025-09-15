@@ -10,17 +10,17 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 
 ## Features
 
-✅ Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc.)
-✅ Support for manually specifying time and author in `Front Matter`
-✅ Support for multiple time formats (date, datetime, timeago)
-✅ Support for multiple author modes (avatar, text, hidden)
-✅ Flexible display position (top or bottom)
-✅ Elegant styling (fully customizable)
-✅ Smart Tooltip Hover Tips
-✅ Supports display of recently updated documents in an overall list
-✅ Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
-✅ Cross-platform support (Windows, macOS, Linux)
-✅ **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
+- [x] Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc.)
+- [x] Support for manually specifying time and author in `Front Matter`
+- [x] Support for multiple time formats (date, datetime, timeago)
+- [x] Support for multiple author modes (avatar, text, hidden)
+- [x] Flexible display position (top or bottom)
+- [x] Elegant styling (fully customizable)
+- [x] Smart Tooltip Hover Tips
+- [x] Supports display of recently updated documents in an overall list
+- [x] Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
+- [x] Cross-platform support (Windows, macOS, Linux)
+- [x] **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
 
 | PK of Build Efficiency:     | 100 md: | 1000 md: | Time Complexity: |
 | --------------------------- | :-----: | :------: | :----------: |
