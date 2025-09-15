@@ -2,7 +2,7 @@
 
 English | [简体中文](README_zh.md)
 
-
+<br />
 
 A new generation MkDocs plugin for displaying exact **creation time, last update time, authors, email** of documents
 
@@ -10,7 +10,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 
 ## Features
 
-- Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc)
+- Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc.)
 - Support for manually specifying time and author in `Front Matter`
 - Support for multiple time formats (date, datetime, timeago)
 - Support for multiple author modes (avatar, text, hidden)
@@ -21,6 +21,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 - Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
 - Cross-platform support (Windows, macOS, Linux)
 - **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
+- 
     | PK of Build Efficiency:     | 100 md: | 1000 md: | Time Complexity: |
     | --------------------------- | :-----: | :------: | :----------: |
     | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
@@ -52,7 +53,7 @@ plugins:
       exclude:                 # List of excluded files
         - temp.md              # Exclude specific file
         - drafts/*             # Exclude all files in drafts folder, including subfolders
-      date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y, etc
+      date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Author display mode: true(avatar) text(text) false(hidden)
       recently-updated: true   # Whether to turn on recently updated data, default: false
@@ -65,9 +66,9 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 - [Specify datetime](https://jaywhj.netlify.app/document-dates-en#Specify-datetime): You can manually specify the creation time and last update time for each document
 - [Specify author](https://jaywhj.netlify.app/document-dates-en#Specify-author): You can manually specify the author information for each document
 - [Specify avatar](https://jaywhj.netlify.app/document-dates-en#Specify-avatar): You can manually specify the avatar for each author
-- [Set plugin style](https://jaywhj.netlify.app/document-dates-en#Set-plugin-style): Such as icons, themes, colors, fonts, animations, dividing line, etc
+- [Set plugin style](https://jaywhj.netlify.app/document-dates-en#Set-plugin-style): Such as icons, themes, colors, fonts, animations, dividing line, etc.
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
-- [Use template variables](https://jaywhj.netlify.app/document-dates-en#Use-template-variables): Can be used to optimize `sitemap.xml` for site SEO, can be used to re-customize plug-ins, etc
+- [Use template variables](https://jaywhj.netlify.app/document-dates-en#Use-template-variables): Can be used to optimize `sitemap.xml` for site SEO, can be used to re-customize plug-ins, etc.
 - [Add recently updated module](https://jaywhj.netlify.app/document-dates-en#Add-recently-updated-module): Enable list of recently updated documents
 - [Other Tips](https://jaywhj.netlify.app/document-dates-en#Other-Tips): Introduction to technical indicators, caching mechanism
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
