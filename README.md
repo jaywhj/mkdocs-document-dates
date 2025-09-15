@@ -63,13 +63,13 @@ plugins:
 
 In addition to the above basic configuration, the plug-in also provides a wealth of customization options to meet a variety of individual needs:
 
-- [Specify datetime](https://jaywhj.netlify.app/document-dates-en#Specify-datetime): You can manually specify the creation time and last update time for each document
-- [Specify author](https://jaywhj.netlify.app/document-dates-en#Specify-author): You can manually specify the author information for each document
-- [Specify avatar](https://jaywhj.netlify.app/document-dates-en#Specify-avatar): You can manually specify the avatar for each author
-- [Set plugin style](https://jaywhj.netlify.app/document-dates-en#Set-plugin-style): Such as icons, themes, colors, fonts, animations, dividing line, etc.
+- [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): You can manually specify the creation time and last update time for each document
+- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): You can manually specify the author information for each document
+- [Specify Avatar](https://jaywhj.netlify.app/document-dates-en#Specify-Avatar): You can manually specify the avatar for each author
+- [Set Plugin Style](https://jaywhj.netlify.app/document-dates-en#Set-Plugin-Style): Such as icons, themes, colors, fonts, animations, dividing line, etc.
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
-- [Use template variables](https://jaywhj.netlify.app/document-dates-en#Use-template-variables): Can be used to optimize `sitemap.xml` for site SEO, can be used to re-customize plug-ins, etc.
-- [Add recently updated module](https://jaywhj.netlify.app/document-dates-en#Add-recently-updated-module): Enable list of recently updated documents
+- [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO, can be used to re-customize plug-ins, etc.
+- [Add Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Add-Recently-Updated-Module): Enable list of recently updated documents
 - [Other Tips](https://jaywhj.netlify.app/document-dates-en#Other-Tips): Introduction to technical indicators, caching mechanism
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
 
