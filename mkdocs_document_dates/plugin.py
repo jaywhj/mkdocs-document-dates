@@ -2,6 +2,7 @@ import os
 import yaml
 import shutil
 import logging
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin
@@ -42,7 +43,7 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
-        ('show_author', config_options.Type(bool, default=True)),
+        ('show_author', config_options.Choice((True, False, 'text'), default=True)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
 
@@ -51,6 +52,8 @@ class DocumentDatesPlugin(BasePlugin):
         self.dates_cache = {}
         self.authors_yml = {}
         self.github_username = None
+        self.recent_docs_html = None
+        self.recent_enable = False
 
     def on_config(self, config):
         docs_dir_path = Path(config['docs_dir'])
@@ -70,13 +73,34 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载 git 缓存
         self.dates_cache = load_git_cache(docs_dir_path)
-        # 加载 jsonl 缓存覆盖
+        # 覆盖 jsonl 文件缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
         if jsonl_cache_file.exists():
             jsonl_cache = read_jsonl_cache(jsonl_cache_file)
             for filename, new_info in jsonl_cache.items():
                 if filename in self.dates_cache:
                     self.dates_cache[filename].update(new_info)
+
+        # 复制配置文件到用户目录（如果不存在）
+        dest_dir = docs_dir_path / 'assets' / 'document_dates'
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        config_files = ['user.config.css', 'user.config.js']
+        for config_file in config_files:
+            source_config = Path(__file__).parent / 'static' / 'config' / config_file
+            target_config = dest_dir / config_file
+            if not target_config.exists():
+                shutil.copy2(source_config, target_config)
+
+        # 添加离线 Google Fonts Icons: https://fonts.google.com/icons
+        # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
+        material_icons_url = 'assets/document_dates/fonts/material-icons.css'
+        config['extra_css'].append(material_icons_url)
+
+        # 添加 timeago.js
+        # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
+        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
+        if self.config['type'] == 'timeago':
+            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
 
         """
         Tippy.js, for Tooltip
@@ -93,56 +117,23 @@ class DocumentDatesPlugin(BasePlugin):
             https://unpkg.com/tippy.js@6/themes/light.css
             https://unpkg.com/tippy.js@6/themes/material.css
         """
-        # 复制静态资源到用户目录
-        dest_dir = docs_dir_path / 'assets' / 'document_dates'
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        
-        for dir_name in ['tippy', 'core', 'fonts']:
-            source_dir = Path(__file__).parent / 'static' / dir_name
-            target_dir = dest_dir / dir_name
-            # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
-            target_dir.mkdir(parents=True, exist_ok=True)
-            for item in source_dir.iterdir():
-                if item.is_file():
-                    shutil.copy2(item, target_dir / item.name)
-        
-        # 复制配置文件模板到用户目录（如果不存在）
-        config_files = ['user.config.css', 'user.config.js']
-        for config_file in config_files:
-            source_config = Path(__file__).parent / 'static' / 'config' / config_file
-            target_config = dest_dir / config_file
-            if not target_config.exists():
-                shutil.copy2(source_config, target_config)
-
-        # 加载离线 Google Fonts Icons: https://fonts.google.com/icons
-        # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
-        material_icons_url = 'assets/document_dates/fonts/material-icons.css'
-        if material_icons_url not in config['extra_css']:
-            config['extra_css'].append(material_icons_url)
-        
-        # 加载 timeago.js
-        # https://cdn.jsdelivr.net/npm/timeago.js@4.0.2/dist/timeago.min.js
-        # https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js
-        if self.config['type'] == 'timeago':
-            config['extra_javascript'].insert(0, 'assets/document_dates/core/timeago.min.js')
-
-        # 加载 Tippy CSS 文件
-        tippy_css_dir = dest_dir / 'tippy'
+        # 添加 Tippy CSS 文件
+        tippy_css_dir = Path(__file__).parent / 'static' / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
             config['extra_css'].append(f'assets/document_dates/tippy/{css_file.name}')
         
-        # 加载自定义 CSS 文件
+        # 添加自定义 CSS 文件
         config['extra_css'].extend([
             'assets/document_dates/core/core.css',
             'assets/document_dates/user.config.css'
         ])
         
-        # 按顺序加载 Tippy JS 文件
+        # 按顺序添加 Tippy JS 文件
         js_core_files = ['popper.min.js', 'tippy.umd.min.js']
         for js_file in js_core_files:
             config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
         
-        # 加载自定义 JS 文件
+        # 添加自定义 JS 文件
         config['extra_javascript'].extend([
             'assets/document_dates/core/default.config.js',
             'assets/document_dates/user.config.js',
@@ -157,6 +148,7 @@ class DocumentDatesPlugin(BasePlugin):
         if not recently_updated_config:
             return nav
 
+        self.recent_enable = True
         # 兼容 true 配置
         if recently_updated_config is True:
             recently_updated_config = {}
@@ -164,6 +156,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取配置
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
+        template_path = recently_updated_config.get("template")
 
         # 获取 docs 目录下最近更新的文档
         recently_modified_files = get_recently_modified_files(files, exclude_list, limit)
@@ -173,7 +166,36 @@ class DocumentDatesPlugin(BasePlugin):
             config['extra'] = {}
         config['extra']['recently_updated_docs'] = recently_modified_files
 
+        # 渲染HTML
+        docs_dir = Path(config['docs_dir'])
+        self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_modified_files)
+
         return nav
+
+    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
+        # 获取自定义模板路径
+        if template_path:
+            user_full_path = docs_dir / template_path
+
+        # 选择模板路径
+        if template_path and user_full_path.is_file():
+            template_dir = user_full_path.parent
+            template_file = user_full_path.name
+        else:
+            # 默认模板路径
+            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
+            template_dir = default_template_path.parent
+            template_file = default_template_path.name
+
+        # 加载模板
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            autoescape=select_autoescape(["html", "xml"])
+        )
+        template = env.get_template(template_file)
+
+        # 渲染模板
+        return template.render(recent_docs=recently_updated_data)
 
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
@@ -198,6 +220,10 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
         
+        # 占位符替换
+        if self.recent_enable and '<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
+            markdown = markdown.replace('<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
+        
         # 检查是否需要排除
         if is_excluded(rel_path, self.config['exclude']):
             return markdown
@@ -208,6 +234,16 @@ class DocumentDatesPlugin(BasePlugin):
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
 
+    def on_post_build(self, config):
+        site_dest_dir = Path(config['site_dir']) / 'assets' / 'document_dates'
+        for dir_name in ['tippy', 'core', 'fonts']:
+            source_dir = Path(__file__).parent / 'static' / dir_name
+            target_dir = site_dest_dir / dir_name
+            # shutil.copytree(source_dir, target_dir, dirs_exist_ok=True)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            for item in source_dir.iterdir():
+                if item.is_file():
+                    shutil.copy2(item, target_dir / item.name)
 
     def _extract_github_username(self, url):
         try:
@@ -348,9 +384,9 @@ class DocumentDatesPlugin(BasePlugin):
             if self.config['show_author'] and authors:
                 def get_author_tooltip(author):
                     if author.url:
-                        return f'&lt;a href="{author.url}" target="_blank"&gt;{author.name}&lt;/a&gt;'
+                        return f'<a href="{author.url}" target="_blank">{author.name}</a>'
                     elif author.email:
-                        return f'&lt;a href="mailto:{author.email}"&gt;{author.name}&lt;/a&gt;'
+                        return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
                 def get_avatar_img_url(author):
@@ -360,19 +396,32 @@ class DocumentDatesPlugin(BasePlugin):
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
                     return ""
 
-                icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                html_parts.append("<div class='avatar-group'>")
-                for author in authors:
-                    tooltip = get_author_tooltip(author)
-                    img_url = get_avatar_img_url(author)
+                if self.config['show_author'] == 'text':
+                    # 显示文本模式
+                    tooltip_text = ',&nbsp;'.join(get_author_tooltip(author) for author in authors)
+                    author_text = ', '.join(author.name for author in authors)
+                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(
-                        f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
-                        f"<span class='avatar-text'></span>"
-                        f"<img class='avatar' src='{img_url}' />"
-                        f"</div>"
+                        f"<span data-tippy-content data-tippy-raw='{tooltip_text}'>"
+                        f"<span class='material-icons' data-icon='{icon}'></span>"
+                        f"{author_text}"
+                        f"</span>"
                     )
-                html_parts.append("</div>")
+                else:
+                    # 显示头像模式（默认）
+                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
+                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
+                    html_parts.append("<div class='avatar-group'>")
+                    for author in authors:
+                        tooltip = get_author_tooltip(author)
+                        img_url = get_avatar_img_url(author)
+                        html_parts.append(
+                            f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
+                            f"<span class='avatar-text'></span>"
+                            f"<img class='avatar' src='{img_url}' />"
+                            f"</div>"
+                        )
+                    html_parts.append("</div>")
 
             html_parts.append("</div></div>")
             return ''.join(html_parts)

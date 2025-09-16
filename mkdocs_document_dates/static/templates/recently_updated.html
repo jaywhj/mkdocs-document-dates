@@ -1,0 +1,42 @@
+<style>
+.recently-updated {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid rgba(142, 142, 142, 0.15);
+    border-radius: 4px;
+    font-family: system-ui, sans-serif;
+}
+.recently-updated-item {
+    display: flex;
+    align-items: center;
+}
+.recently-updated-item span {
+    font-size: 0.85em;
+    color: rgba(142, 142, 142, 0.5);
+    margin-right: 8px;
+    flex-shrink: 0;
+    width: 90px;
+}
+.recently-updated-item a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #0077cc;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.recently-updated-item a:hover {
+    text-decoration: underline;
+}
+</style>
+<div class="recently-updated">
+    {%- for mtime, rel_path, title, url in recent_docs %}
+    <div class="recently-updated-item">
+        <span>{{ mtime[:10] }}</span>
+        <a href="{{ url }}" target="_blank">{{ title }}</a>
+    </div>
+    {%- endfor %}
+</div>

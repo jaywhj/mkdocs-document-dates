@@ -33,7 +33,7 @@ TooltipConfig.setConfig({
 
 /*
 Part 2: 
-    Demonstrates how to register a local language when using 'timeago.js', 
+    Demonstrates how to register a local language for 'timeago.js', 
         then you can configure the localeStr you just registered anywhere!
 */
 /*

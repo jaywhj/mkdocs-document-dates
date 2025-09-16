@@ -1,0 +1,4 @@
+[build-system]
+requires = ["setuptools>=42"]
+# 使用 legacy backend，继续执行 setup.py
+build-backend = "setuptools.build_meta:__legacy__"

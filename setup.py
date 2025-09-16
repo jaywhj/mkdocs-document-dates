@@ -23,7 +23,7 @@ class CustomInstallCommand(install):
         install.run(self)
 
 
-VERSION = '3.4'
+VERSION = '3.4.1'
 
 setup(
     name="mkdocs-document-dates",
@@ -58,6 +58,7 @@ setup(
     package_data={
         'mkdocs_document_dates': [
             'hooks/*',
+            'static/templates/*',
             'static/fonts/*',
             'static/tippy/*',
             'static/core/*',
