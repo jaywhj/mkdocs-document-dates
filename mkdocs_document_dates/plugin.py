@@ -9,7 +9,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_modified_files
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_git_recently_updated
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -159,7 +159,9 @@ class DocumentDatesPlugin(BasePlugin):
         template_path = recently_updated_config.get("template")
 
         # 获取 docs 目录下最近更新的文档
-        recently_modified_files = get_recently_modified_files(files, exclude_list, limit)
+        doc_to_time_map, recently_modified_files = get_git_recently_updated(Path(config['docs_dir']), files, exclude_list, limit)
+        print(doc_to_time_map)
+        print(recently_modified_files)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if 'extra' not in config:

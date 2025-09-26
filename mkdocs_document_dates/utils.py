@@ -6,6 +6,7 @@ import subprocess
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
+from mkdocs.structure.files import Files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -102,6 +103,78 @@ def get_file_creation_time(file_path):
     except (OSError, ValueError) as e:
         logger.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
+
+def get_git_recently_updated(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10):
+    doc_to_time_map = {}
+    recently_updated_results = []
+    try:
+        cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%aI', '--', '*.md']
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+        if process.returncode == 0:
+            git_root = Path(subprocess.check_output(
+                ['git', 'rev-parse', '--show-toplevel'],
+                cwd=docs_dir_path,
+                text=True, encoding='utf-8'
+            ).strip())
+            docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
+            docs_prefix_with_slash = docs_prefix + '/'
+            prefix_len = len(docs_prefix_with_slash)
+
+            # 用于去重的文档集合
+            unique_docs = set()
+            current_time = None
+            current_docs = []
+            
+            def process_current_time_docs():
+                if current_time and current_docs:
+                    last_commit_time = current_time.split('|')[2];
+                    for doc in current_docs:
+                        file = files.get_file_from_path(doc)
+                        if not file:
+                            continue
+
+                        doc_to_time_map[doc] = last_commit_time
+                        if len(recently_updated_results) >= limit:
+                            continue
+
+                        rel_path = getattr(file, 'src_uri', file.src_path)
+                        if os.sep != '/':
+                            rel_path = rel_path.replace(os.sep, '/')
+                        if is_excluded(rel_path, exclude_list):
+                            continue
+
+                        # 过滤没有配置进导航里的文档
+                        if file.page:
+                            if not file.page.title:
+                                continue
+                            title, url = file.page.title, file.page.url
+                        else:
+                            title, url = file.name, file.url
+
+                        recently_updated_results.append((last_commit_time, rel_path, title, url))
+                    # time_docs_list.append((current_time, current_docs[:]))
+            
+            for line in process.stdout.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                if '|' in line:
+                    # 处理前一个时间点的文档
+                    process_current_time_docs()
+                    current_time = line
+                    current_docs = []
+                elif line.endswith('.md'):
+                    if line.startswith(docs_prefix_with_slash):
+                        line = line[prefix_len:]
+                    if line not in unique_docs:
+                        unique_docs.add(line)
+                        current_docs.append(line)
+            # 处理最后一组数据
+            process_current_time_docs()
+    except Exception as e:
+        # TODO: 如果有异常，则从文件系统获取数据返回
+        logger.info(f"Error getting recently updated docs in {docs_dir_path}: {e}")
+    return doc_to_time_map, recently_updated_results
 
 def get_recently_modified_files(files, exclude_list: list, limit: int = 10):
     if not files:
