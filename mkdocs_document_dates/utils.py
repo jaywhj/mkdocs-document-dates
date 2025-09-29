@@ -104,11 +104,17 @@ def get_file_creation_time(file_path):
         logger.error(f"Failed to get file creation time for {file_path}: {e}")
         return datetime.now()
 
-def get_git_recently_updated(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10):
+def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     doc_to_time_map = {}
-    recently_updated_results = []
+    git_files = {}
     try:
-        cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%aI', '--', '*.md']
+        # 获取 git 已跟踪的(tracked) markdown 文件列表
+        cmd = ["git", "ls-files", "*.md"]
+        result = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+        tracked_files = result.stdout.splitlines() if result.stdout else []
+
+        # 从 git log 中获取已跟踪的 markdown 文件详情
+        cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%at', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
         if process.returncode == 0:
             git_root = Path(subprocess.check_output(
@@ -124,36 +130,38 @@ def get_git_recently_updated(docs_dir_path: Path, files: Files, exclude_list: li
             unique_docs = set()
             current_time = None
             current_docs = []
-            
+
             def process_current_time_docs():
                 if current_time and current_docs:
                     last_commit_time = current_time.split('|')[2];
                     for doc in current_docs:
+                        # 过滤未跟踪的(untracked) markdown 文件
+                        if doc not in tracked_files:
+                            continue
+
+                        mtime = float(last_commit_time)
+                        # 存储：文档-最后修改时间映射
+                        doc_to_time_map[doc] = mtime
+
+                        # 最后更新文档列表：过滤要排除的文档
+                        if is_excluded(doc, exclude_list):
+                            continue
+
+                        # 获取文档详情
                         file = files.get_file_from_path(doc)
                         if not file:
                             continue
-
-                        doc_to_time_map[doc] = last_commit_time
-                        if len(recently_updated_results) >= limit:
-                            continue
-
-                        rel_path = getattr(file, 'src_uri', file.src_path)
-                        if os.sep != '/':
-                            rel_path = rel_path.replace(os.sep, '/')
-                        if is_excluded(rel_path, exclude_list):
-                            continue
-
-                        # 过滤没有配置进导航里的文档
                         if file.page:
+                            # 最后更新文档列表：过滤没有配置进导航里的文档
                             if not file.page.title:
                                 continue
                             title, url = file.page.title, file.page.url
                         else:
                             title, url = file.name, file.url
 
-                        recently_updated_results.append((last_commit_time, rel_path, title, url))
-                    # time_docs_list.append((current_time, current_docs[:]))
-            
+                        # 存储：最后更新文档列表
+                        git_files[doc] = (mtime, doc, title, url)
+
             for line in process.stdout.splitlines():
                 line = line.strip()
                 if not line:
@@ -171,12 +179,17 @@ def get_git_recently_updated(docs_dir_path: Path, files: Files, exclude_list: li
                         current_docs.append(line)
             # 处理最后一组数据
             process_current_time_docs()
+
     except Exception as e:
-        # TODO: 如果有异常，则从文件系统获取数据返回
         logger.info(f"Error getting recently updated docs in {docs_dir_path}: {e}")
+
+    # 将 git 已跟踪的 markdown 文件详情 与 本地文件系统的文件详情 合并
+    recently_updated_results = []
+    if recent_enable:
+        recently_updated_results = get_recently_modified_files(files, git_files, exclude_list, limit)
     return doc_to_time_map, recently_updated_results
 
-def get_recently_modified_files(files, exclude_list: list, limit: int = 10):
+def get_recently_modified_files(files: Files, git_files: dict, exclude_list: list, limit: int = 10):
     if not files:
         return []
     temp_results = []
@@ -186,19 +199,22 @@ def get_recently_modified_files(files, exclude_list: list, limit: int = 10):
         rel_path = getattr(file, 'src_uri', file.src_path)
         if os.sep != '/':
             rel_path = rel_path.replace(os.sep, '/')
-        if is_excluded(rel_path, exclude_list):
-            continue
 
-        # 过滤没有配置进导航里的文档
-        if file.page:
-            if not file.page.title:
-                continue
-            title, url = file.page.title, file.page.url
+        if rel_path in git_files:
+            temp_results.append(git_files[rel_path])
         else:
-            title, url = file.name, file.url
+            if is_excluded(rel_path, exclude_list):
+                continue
+            if file.page:
+                # 过滤没有配置进导航里的文档
+                if not file.page.title:
+                    continue
+                title, url = file.page.title, file.page.url
+            else:
+                title, url = file.name, file.url
 
-        mtime = os.path.getmtime(file.abs_src_path)
-        temp_results.append((mtime, rel_path, title, url))
+            mtime = os.path.getmtime(file.abs_src_path)
+            temp_results.append((mtime, rel_path, title, url))
 
     # 按修改时间倒序
     temp_results.sort(key=lambda x: x[0], reverse=True)

@@ -27,7 +27,6 @@
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)     |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)     |
 
-
 ## 安装
 
 ```bash
@@ -51,9 +50,9 @@ plugins:
       position: top            # 显示位置: top(标题后) bottom(文档末尾)
       type: date               # 时间类型: date datetime timeago, 默认：date
       exclude:                 # 排除文件列表
-        - temp.md              # 排除指定文件
-        - drafts/*             # 排除 drafts 目录下所有文件，包括子目录
-      date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
+        - temp.md                  # 示例：排除指定文件
+        - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
+      date_format: '%Y-%m-%d'  # 日期格式化字符串（例如：%Y年%m月%d日、%b %d, %Y）
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
       show_author: true        # 作者显示模式: true(头像) text(文本) false(隐藏)
       recently-updated: true   # 是否开启最近更新的数据，默认：false

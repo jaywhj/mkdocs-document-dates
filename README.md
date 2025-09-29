@@ -27,7 +27,6 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
-
 ## Installation
 
 ```bash
@@ -51,9 +50,9 @@ plugins:
       position: top            # Display position: top(after title) bottom(end of document)
       type: date               # Date type: date datetime timeago, default: date
       exclude:                 # List of excluded files
-        - temp.md              # Exclude specific file
-        - drafts/*             # Exclude all files in drafts folder, including subfolders
-      date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y
+        - temp.md                  # Example: Exclude the specified file
+        - blog/*                   # Example: Exclude all files in blog folder, including subfolders
+      date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Author display mode: true(avatar) text(text) false(hidden)
       recently-updated: true   # Whether to turn on recently updated data, default: false
