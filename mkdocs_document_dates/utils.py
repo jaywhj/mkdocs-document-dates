@@ -40,7 +40,14 @@ def get_git_first_commit_time(file_path):
 def load_git_cache(docs_dir_path: Path):
     dates_cache = {}
     try:
-        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={docs_dir_path}', '--', '*.md']
+        git_root = Path(subprocess.check_output(
+            ['git', 'rev-parse', '--show-toplevel'],
+            cwd=docs_dir_path,
+            text=True, encoding='utf-8'
+        ).strip())
+        rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
+
+        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
@@ -95,8 +102,15 @@ def get_file_creation_time(file_path):
 def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     doc_mtime_map = {}
     try:
+        git_root = Path(subprocess.check_output(
+            ['git', 'rev-parse', '--show-toplevel'],
+            cwd=docs_dir_path,
+            text=True, encoding='utf-8'
+        ).strip())
+        rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
+
         # 1. 获取 git log 信息
-        cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={docs_dir_path}', '--', '*.md']
+        cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
         if process.returncode == 0:
             # 2. 获取 git tracked 文件集合
@@ -117,7 +131,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                     # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
                     doc_mtime_map.setdefault(line, ts)
     except Exception as e:
-        logger.info(f"Error getting recently updated docs in {docs_dir_path}: {e}")
+        logger.info(f"Error getting git tracked files in {docs_dir_path}: {e}")
 
     # 3. 构建所有文档的元数据
     recently_updated_results = []
@@ -143,7 +157,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 title, url = file.page.title, file.page.url
             else:
                 title, url = file.name, file.url
-            
+
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
             doc_mtime_map[rel_path] = mtime
