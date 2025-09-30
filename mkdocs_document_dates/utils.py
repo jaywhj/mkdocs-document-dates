@@ -108,19 +108,21 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
     doc_to_time_map = {}
     git_files = {}
     try:
-        # 获取 git 已跟踪的(tracked) markdown 文件列表
-        cmd = ["git", "ls-files", "*.md"]
-        result = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
-        tracked_files = result.stdout.splitlines() if result.stdout else []
-
         # 从 git log 中获取已跟踪的 markdown 文件详情
         cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%at', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
         if process.returncode == 0:
+            # 获取 git 已跟踪的(tracked) markdown 文件列表
+            cmd = ["git", "ls-files", "*.md"]
+            result = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+            tracked_files = set(result.stdout.splitlines()) if result.stdout else set()
+
+            # 处理文档前缀
             git_root = Path(subprocess.check_output(
                 ['git', 'rev-parse', '--show-toplevel'],
                 cwd=docs_dir_path,
-                text=True, encoding='utf-8'
+                text=True,
+                encoding='utf-8'
             ).strip())
             docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
             docs_prefix_with_slash = docs_prefix + '/'
