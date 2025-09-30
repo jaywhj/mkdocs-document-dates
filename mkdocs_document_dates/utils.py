@@ -113,7 +113,6 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
         cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
         if process.returncode == 0:
-            # 2. 获取 git tracked 文件集合
             result = subprocess.run(
                 ["git", "ls-files", "*.md"],
                 cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8"
@@ -128,7 +127,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 if "|" in line:  # commit header
                     ts = float(line.split("|")[2])
                 elif line.endswith(".md") and line in tracked_files and ts:
-                    # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
+                    # 2. 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
                     doc_mtime_map.setdefault(line, ts)
     except Exception as e:
         logger.info(f"Error getting git tracked files in {docs_dir_path}: {e}")
