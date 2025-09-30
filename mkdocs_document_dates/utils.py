@@ -1,6 +1,7 @@
 import os
 import platform
 import json
+import heapq
 import logging
 import subprocess
 from pathlib import Path
@@ -39,18 +40,9 @@ def get_git_first_commit_time(file_path):
 def load_git_cache(docs_dir_path: Path):
     dates_cache = {}
     try:
-        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', '--', '*.md']
+        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={docs_dir_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
         if process.returncode == 0:
-            git_root = Path(subprocess.check_output(
-                ['git', 'rev-parse', '--show-toplevel'],
-                cwd=docs_dir_path,
-                text=True, encoding='utf-8'
-            ).strip())
-            docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
-            docs_prefix_with_slash = docs_prefix + '/'
-            prefix_len = len(docs_prefix_with_slash)
-
             authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
@@ -60,18 +52,14 @@ def load_git_cache(docs_dir_path: Path):
                 if not line:
                     continue
                 if '|' in line:
-                    name, email, created = line.split('|', 2)
                     # 使用元组，更轻量
-                    current_commit = (name, email, created)
+                    current_commit = tuple(line.split('|', 2))
                 elif line.endswith('.md') and current_commit:
-                    if line.startswith(docs_prefix_with_slash):
-                        line = line[prefix_len:]
                     # 解构元组，避免字典查找
                     name, email, created = current_commit
-                    # 使用有序去重结构，保持作者首次出现的顺序（Python 3.7+：字典会保持插入顺序）
+                    # 使用有序去重结构，保持作者首次出现的顺序（setdefault 机制不会覆盖已有值；Python 3.7+ 字典会保持插入顺序）
                     authors_dict[line].setdefault((name, email), None)
-                    if line not in first_commit:
-                        first_commit[line] = created
+                    first_commit.setdefault(line, created)
 
             # 构建最终的缓存数据
             for file_path in first_commit:
@@ -105,108 +93,49 @@ def get_file_creation_time(file_path):
         return datetime.now()
 
 def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
-    doc_to_time_map = {}
-    git_files = {}
+    doc_mtime_map = {}
     try:
-        # 从 git log 中获取已跟踪的 markdown 文件详情
-        cmd = ['git', 'log', '--no-merges', '--name-only', '--format=%an|%ae|%at', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+        # 1. 获取 git log 信息
+        cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={docs_dir_path}', '--', '*.md']
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
         if process.returncode == 0:
-            # 获取 git 已跟踪的(tracked) markdown 文件列表
-            cmd = ["git", "ls-files", "*.md"]
-            result = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+            # 2. 获取 git tracked 文件集合
+            result = subprocess.run(
+                ["git", "ls-files", "*.md"],
+                cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8"
+            )
             tracked_files = set(result.stdout.splitlines()) if result.stdout else set()
 
-            # 处理文档前缀
-            git_root = Path(subprocess.check_output(
-                ['git', 'rev-parse', '--show-toplevel'],
-                cwd=docs_dir_path,
-                text=True,
-                encoding='utf-8'
-            ).strip())
-            docs_prefix = docs_dir_path.relative_to(git_root).as_posix()
-            docs_prefix_with_slash = docs_prefix + '/'
-            prefix_len = len(docs_prefix_with_slash)
-
-            # 用于去重的文档集合
-            unique_docs = set()
-            current_time = None
-            current_docs = []
-
-            def process_current_time_docs():
-                if current_time and current_docs:
-                    last_commit_time = current_time.split('|')[2];
-                    for doc in current_docs:
-                        # 过滤未跟踪的(untracked) markdown 文件
-                        if doc not in tracked_files:
-                            continue
-
-                        mtime = float(last_commit_time)
-                        # 存储：文档-最后修改时间映射
-                        doc_to_time_map[doc] = mtime
-
-                        # 最后更新文档列表：过滤要排除的文档
-                        if is_excluded(doc, exclude_list):
-                            continue
-
-                        # 获取文档详情
-                        file = files.get_file_from_path(doc)
-                        if not file:
-                            continue
-                        if file.page:
-                            # 最后更新文档列表：过滤没有配置进导航里的文档
-                            if not file.page.title:
-                                continue
-                            title, url = file.page.title, file.page.url
-                        else:
-                            title, url = file.name, file.url
-
-                        # 存储：最后更新文档列表
-                        git_files[doc] = (mtime, doc, title, url)
-
+            ts = None
             for line in process.stdout.splitlines():
                 line = line.strip()
                 if not line:
                     continue
-                if '|' in line:
-                    # 处理前一个时间点的文档
-                    process_current_time_docs()
-                    current_time = line
-                    current_docs = []
-                elif line.endswith('.md'):
-                    if line.startswith(docs_prefix_with_slash):
-                        line = line[prefix_len:]
-                    if line not in unique_docs:
-                        unique_docs.add(line)
-                        current_docs.append(line)
-            # 处理最后一组数据
-            process_current_time_docs()
-
+                if "|" in line:  # commit header
+                    ts = float(line.split("|")[2])
+                elif line.endswith(".md") and line in tracked_files and ts:
+                    # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
+                    doc_mtime_map.setdefault(line, ts)
     except Exception as e:
         logger.info(f"Error getting recently updated docs in {docs_dir_path}: {e}")
 
-    # 将 git 已跟踪的 markdown 文件详情 与 本地文件系统的文件详情 合并
+    # 3. 构建所有文档的元数据
     recently_updated_results = []
     if recent_enable:
-        recently_updated_results = get_recently_modified_files(files, git_files, exclude_list, limit)
-    return doc_to_time_map, recently_updated_results
-
-def get_recently_modified_files(files: Files, git_files: dict, exclude_list: list, limit: int = 10):
-    if not files:
-        return []
-    temp_results = []
-    for file in files:
-        if not file.src_path.endswith('.md'):
-            continue
-        rel_path = getattr(file, 'src_uri', file.src_path)
-        if os.sep != '/':
-            rel_path = rel_path.replace(os.sep, '/')
-
-        if rel_path in git_files:
-            temp_results.append(git_files[rel_path])
-        else:
+        files_meta = []
+        for file in files:
+            if not file.src_path.endswith(".md"):
+                continue
+            rel_path = getattr(file, 'src_uri', file.src_path)
+            if os.sep != '/':
+                rel_path = rel_path.replace(os.sep, '/')
             if is_excluded(rel_path, exclude_list):
                 continue
+
+            # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
+            mtime = doc_mtime_map.get(rel_path, os.path.getmtime(file.abs_src_path))
+
+            # 获取文档标题和 URL
             if file.page:
                 # 过滤没有配置进导航里的文档
                 if not file.page.title:
@@ -214,17 +143,21 @@ def get_recently_modified_files(files: Files, git_files: dict, exclude_list: lis
                 title, url = file.page.title, file.page.url
             else:
                 title, url = file.name, file.url
+            
+            # 存储信息
+            files_meta.append((mtime, rel_path, title, url))
+            doc_mtime_map[rel_path] = mtime
 
-            mtime = os.path.getmtime(file.abs_src_path)
-            temp_results.append((mtime, rel_path, title, url))
+        # 4. 构建最近更新列表
+        if files_meta:
+            # heapq 取 top limit
+            top_results = heapq.nlargest(limit, files_meta, key=lambda x: x[0])
+            recently_updated_results = [
+                (datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"), *rest)
+                for mtime, *rest in top_results
+            ]
 
-    # 按修改时间倒序
-    temp_results.sort(key=lambda x: x[0], reverse=True)
-    results = [
-        (datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"), *rest)
-        for mtime, *rest in temp_results
-    ]
-    return results[:limit]
+    return doc_mtime_map, recently_updated_results
 
 def read_json_cache(cache_file: Path):
     dates_cache = {}
