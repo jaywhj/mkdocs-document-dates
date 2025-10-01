@@ -101,13 +101,13 @@ def get_file_creation_time(file_path):
 def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     doc_mtime_map = {}
     try:
+        # 1. 获取 git 信息，只记录已跟踪的文件首次出现的信息（最近一次提交时间）
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, text=True, encoding='utf-8'
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
-        # 1. 获取 git log 信息
         cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
         if process.returncode == 0:
@@ -125,12 +125,12 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 if "|" in line:  # commit header
                     ts = float(line.split("|")[2])
                 elif line.endswith(".md") and line in tracked_files and ts:
-                    # 2. 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
+                    # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
                     doc_mtime_map.setdefault(line, ts)
     except Exception as e:
         logger.info(f"Error getting git tracked files in {docs_dir_path}: {e}")
 
-    # 3. 构建所有文档的元数据
+    # 2. 构建所有文档的元数据
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -159,7 +159,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
             files_meta.append((mtime, rel_path, title, url))
             doc_mtime_map[rel_path] = mtime
 
-        # 4. 构建最近更新列表
+        # 3. 构建最近更新列表
         if files_meta:
             # heapq 取 top limit
             top_results = heapq.nlargest(limit, files_meta, key=lambda x: x[0])
