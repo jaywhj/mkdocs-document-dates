@@ -42,13 +42,12 @@ def load_git_cache(docs_dir_path: Path):
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            cwd=docs_dir_path,
-            text=True, encoding='utf-8'
+            cwd=docs_dir_path, text=True, encoding='utf-8'
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
         cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={rel_docs_path}', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True)
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
             first_commit = {}
@@ -104,8 +103,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            cwd=docs_dir_path,
-            text=True, encoding='utf-8'
+            cwd=docs_dir_path, text=True, encoding='utf-8'
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
@@ -145,9 +143,6 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
             if is_excluded(rel_path, exclude_list):
                 continue
 
-            # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
-            mtime = doc_mtime_map.get(rel_path, os.path.getmtime(file.abs_src_path))
-
             # 获取文档标题和 URL
             if file.page:
                 # 过滤没有配置进导航里的文档
@@ -156,6 +151,9 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 title, url = file.page.title, file.page.url
             else:
                 title, url = file.name, file.url
+
+            # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
+            mtime = doc_mtime_map.get(rel_path, os.path.getmtime(file.abs_src_path))
 
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
