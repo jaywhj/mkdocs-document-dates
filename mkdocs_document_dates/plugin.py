@@ -223,7 +223,7 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 占位符替换
         if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
-            markdown = markdown.replace('<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
+            markdown = markdown.replace('\n<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
         
         # 检查是否需要排除
         if is_excluded(rel_path, self.config['exclude']):
