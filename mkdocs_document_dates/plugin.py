@@ -222,7 +222,7 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_authors'] = authors
         
         # 占位符替换
-        if self.recent_enable and '<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
+        if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
             markdown = markdown.replace('<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
         
         # 检查是否需要排除
