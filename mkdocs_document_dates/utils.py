@@ -47,7 +47,7 @@ def load_git_cache(docs_dir_path: Path):
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
         cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={rel_docs_path}', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8')
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
             first_commit = {}
@@ -109,11 +109,11 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
         cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8")
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8')
         if process.returncode == 0:
             result = subprocess.run(
                 ["git", "ls-files", "*.md"],
-                cwd=docs_dir_path, capture_output=True, text=True, encoding="utf-8"
+                cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8'
             )
             tracked_files = set(result.stdout.splitlines()) if result.stdout else set()
 
@@ -122,9 +122,9 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 line = line.strip()
                 if not line:
                     continue
-                if "|" in line:  # commit header
-                    ts = float(line.split("|")[2])
-                elif line.endswith(".md") and line in tracked_files and ts:
+                if '|' in line:  # commit header
+                    ts = float(line.split('|')[2])
+                elif line.endswith('.md') and line in tracked_files and ts:
                     # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
                     doc_mtime_map.setdefault(line, ts)
     except Exception as e:
@@ -135,7 +135,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
     if recent_enable:
         files_meta = []
         for file in files:
-            if not file.src_path.endswith(".md"):
+            if not file.src_path.endswith('.md'):
                 continue
             rel_path = getattr(file, 'src_uri', file.src_path)
             if os.sep != '/':
@@ -174,7 +174,7 @@ def read_json_cache(cache_file: Path):
     dates_cache = {}
     if cache_file.exists():
         try:
-            with open(cache_file, "r", encoding='utf-8') as f:
+            with open(cache_file, 'r', encoding='utf-8') as f:
                 dates_cache = json.load(f)
         except (IOError, json.JSONDecodeError) as e:
             logger.warning(f"Error reading from '.dates_cache.json': {str(e)}")
@@ -184,7 +184,7 @@ def read_jsonl_cache(jsonl_file: Path):
     dates_cache = {}
     if jsonl_file.exists():
         try:
-            with open(jsonl_file, "r", encoding='utf-8') as f:
+            with open(jsonl_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     try:
                         entry = json.loads(line.strip())
@@ -201,7 +201,7 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
     try:
         # 使用临时文件写入，然后替换原文件，避免写入过程中的问题
         temp_file = jsonl_file.with_suffix('.jsonl.tmp')
-        with open(temp_file, "w", encoding='utf-8') as f:
+        with open(temp_file, 'w', encoding='utf-8') as f:
             for file_path in tracked_files:
                 if file_path in dates_cache:
                     entry = {file_path: dates_cache[file_path]}

@@ -156,7 +156,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取配置
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
-        template_path = recently_updated_config.get("template")
+        template_path = recently_updated_config.get('template')
 
         # 获取最近更新日期和最近更新的文档数据
         docs_dir = Path(config['docs_dir'])
