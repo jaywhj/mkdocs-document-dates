@@ -158,12 +158,9 @@ class DocumentDatesPlugin(BasePlugin):
         limit = recently_updated_config.get('limit', 10)
         template_path = recently_updated_config.get("template")
 
-        # 获取 docs 目录下最近更新的文档
+        # 获取最近更新日期和最近更新的文档数据
         docs_dir = Path(config['docs_dir'])
         self.last_updated_dates, recently_updated_docs = get_recently_updated_files(docs_dir, files, exclude_list, limit, self.recent_enable)
-
-        if not self.recent_enable:
-            return nav
 
         # 将数据注入到 config['extra'] 中供全局访问
         if 'extra' not in config:
@@ -171,7 +168,8 @@ class DocumentDatesPlugin(BasePlugin):
         config['extra']['recently_updated_docs'] = recently_updated_docs
 
         # 渲染HTML
-        self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
+        if self.recent_enable:
+            self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
 
         return nav
 
