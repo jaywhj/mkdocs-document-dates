@@ -29,7 +29,7 @@ def get_git_first_commit_time(file_path):
     try:
         # git log --reverse --format="%aI" -- {file_path} | head -n 1
         cmd_list = ['git', 'log', '--reverse', '--format=%aI', '--', file_path]
-        process = subprocess.run(cmd_list, capture_output=True, text=True)
+        process = subprocess.run(cmd_list, capture_output=True, encoding='utf-8')
         if process.returncode == 0 and process.stdout.strip():
             first_line = process.stdout.partition('\n')[0].strip()
             return datetime.fromisoformat(first_line)
@@ -42,12 +42,12 @@ def load_git_cache(docs_dir_path: Path):
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            cwd=docs_dir_path, text=True, encoding='utf-8'
+            cwd=docs_dir_path, encoding='utf-8'
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
         cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={rel_docs_path}', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8')
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
             first_commit = {}
@@ -104,16 +104,16 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
         # 1. 获取 git 信息，只记录已跟踪的文件首次出现的信息（最近一次提交时间）
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            cwd=docs_dir_path, text=True, encoding='utf-8'
+            cwd=docs_dir_path, encoding='utf-8'
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
         cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
-        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8')
+        process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             result = subprocess.run(
                 ["git", "ls-files", "*.md"],
-                cwd=docs_dir_path, capture_output=True, text=True, encoding='utf-8'
+                cwd=docs_dir_path, capture_output=True, encoding='utf-8'
             )
             tracked_files = set(result.stdout.splitlines()) if result.stdout else set()
 

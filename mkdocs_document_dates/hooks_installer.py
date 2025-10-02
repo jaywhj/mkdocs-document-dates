@@ -18,7 +18,7 @@ def check_python_version(interpreter):
     try:
         result = subprocess.run(
             [interpreter, "-c", "import sys; print(sys.version_info >= (3, 7))"],
-            capture_output=True, text=True)
+            capture_output=True, encoding='utf-8')
         if result.returncode == 0 and result.stdout.strip().lower() == 'true':
             return True
         else:
