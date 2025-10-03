@@ -17,7 +17,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 - [x] Flexible display position (top or bottom)
 - [x] Elegant styling (fully customizable)
 - [x] Smart Tooltip Hover Tips
-- [x] Supports display of recently updated documents in an overall list
+- [x] Support list display of recently updated documents
 - [x] Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
 - [x] Cross-platform support (Windows, macOS, Linux)
 - [x] **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
@@ -50,8 +50,8 @@ plugins:
       position: top            # Display position: top(after title) bottom(end of document)
       type: date               # Date type: date datetime timeago, default: date
       exclude:                 # List of excluded files
-        - temp.md                  # Example: Exclude the specified file
-        - blog/*                   # Example: Exclude all files in blog folder, including subfolders
+        - temp.md                  # Example: exclude the specified file
+        - blog/*                   # Example: exclude all files in blog folder, including subfolders
       date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Author display mode: true(avatar) text(text) false(hidden)
