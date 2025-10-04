@@ -46,7 +46,7 @@ def load_git_cache(docs_dir_path: Path):
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
-        cmd = ['git', 'log', '--reverse', '--no-merges', '--name-only', '--format=%an|%ae|%aI', f'--relative={rel_docs_path}', '--', '*.md']
+        cmd = ['git', 'log', '--reverse', '--no-merges', '--use-mailmap', '--name-only', '--format=%aN|%aE|%aI', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
@@ -61,9 +61,10 @@ def load_git_cache(docs_dir_path: Path):
                     # 使用元组，更轻量
                     current_commit = tuple(line.split('|', 2))
                 elif line.endswith('.md') and current_commit:
-                    # 解构元组，避免字典查找
                     name, email, created = current_commit
-                    # 使用有序去重结构，保持作者首次出现的顺序（setdefault 机制不会覆盖已有值；Python 3.7+ 字典会保持插入顺序）
+                    # 使用 defaultdict(dict)结构，有序去重，保持作者首次出现的顺序
+                        # a.巧用 Python 字典的 setdefault 特性来去重（setdefault 为不存在的键提供初始值，不会覆盖已有值）
+                        # b.巧用 Python 3.7+ 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
                     authors_dict[line].setdefault((name, email), None)
                     first_commit.setdefault(line, created)
 
@@ -71,7 +72,7 @@ def load_git_cache(docs_dir_path: Path):
             for file_path in first_commit:
                 authors_list = [
                     {'name': name, 'email': email}
-                    for name, email in authors_dict[file_path].keys()
+                    for name, email in authors_dict[file_path].keys()  # 这里的 keys() 是有序的
                 ]
                 dates_cache[file_path] = {
                     'created': first_commit[file_path],
@@ -108,7 +109,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
-        cmd = ['git', 'log', '--no-merges', '--format=%an|%ae|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
+        cmd = ['git', 'log', '--no-merges', '--use-mailmap', '--format=%aN|%aE|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             result = subprocess.run(
