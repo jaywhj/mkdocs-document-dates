@@ -10,14 +10,14 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 
 ## Features
 
-- [x] Always display **exact** meta-info of the document for any environment (no-Git, Git, all CI/CD build systems, etc.)
+- [x] Always displays **exact** meta information of the document and works in any environment (no Git, Git environments, Docker containers, all CI/CD build systems, etc.)
 - [x] Support for manually specifying time and author in `Front Matter`
 - [x] Support for multiple time formats (date, datetime, timeago)
 - [x] Support for multiple author modes (avatar, text, hidden)
 - [x] Flexible display position (top or bottom)
 - [x] Elegant styling (fully customizable)
 - [x] Smart Tooltip Hover Tips
-- [x] Supports display of recently updated documents in an overall list
+- [x] Support list display of recently updated documents
 - [x] Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
 - [x] Cross-platform support (Windows, macOS, Linux)
 - [x] **Ultimate build efficiency**: O(1), no need to set env vars to distinguish runs
@@ -26,7 +26,6 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 | --------------------------- | :-----: | :------: | :----------: |
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
-
 
 ## Installation
 
@@ -51,9 +50,9 @@ plugins:
       position: top            # Display position: top(after title) bottom(end of document)
       type: date               # Date type: date datetime timeago, default: date
       exclude:                 # List of excluded files
-        - temp.md              # Exclude specific file
-        - drafts/*             # Exclude all files in drafts folder, including subfolders
-      date_format: '%Y-%m-%d'  # Date format strings, e.g., %Y-%m-%d, %b %d, %Y
+        - temp.md                  # Example: exclude the specified file
+        - blog/*                   # Example: exclude all files in blog folder, including subfolders
+      date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Author display mode: true(avatar) text(text) false(hidden)
       recently-updated: true   # Whether to turn on recently updated data, default: false

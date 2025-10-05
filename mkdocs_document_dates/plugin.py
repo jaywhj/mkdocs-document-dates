@@ -9,7 +9,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_modified_files
+from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_updated_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -50,6 +50,7 @@ class DocumentDatesPlugin(BasePlugin):
     def __init__(self):
         super().__init__()
         self.dates_cache = {}
+        self.last_updated_dates = {}
         self.authors_yml = {}
         self.github_username = None
         self.recent_docs_html = None
@@ -145,10 +146,9 @@ class DocumentDatesPlugin(BasePlugin):
 
     def on_nav(self, nav, config, files):
         recently_updated_config = self.config.get('recently-updated')
-        if not recently_updated_config:
-            return nav
+        if recently_updated_config:
+            self.recent_enable = True
 
-        self.recent_enable = True
         # 兼容 true 配置
         if recently_updated_config is True:
             recently_updated_config = {}
@@ -156,19 +156,20 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取配置
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
-        template_path = recently_updated_config.get("template")
+        template_path = recently_updated_config.get('template')
 
-        # 获取 docs 目录下最近更新的文档
-        recently_modified_files = get_recently_modified_files(files, exclude_list, limit)
+        # 获取最近更新日期和最近更新的文档数据
+        docs_dir = Path(config['docs_dir'])
+        self.last_updated_dates, recently_updated_docs = get_recently_updated_files(docs_dir, files, exclude_list, limit, self.recent_enable)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if 'extra' not in config:
             config['extra'] = {}
-        config['extra']['recently_updated_docs'] = recently_modified_files
+        config['extra']['recently_updated_docs'] = recently_updated_docs
 
         # 渲染HTML
-        docs_dir = Path(config['docs_dir'])
-        self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_modified_files)
+        if self.recent_enable:
+            self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
 
         return nav
 
@@ -210,7 +211,7 @@ class DocumentDatesPlugin(BasePlugin):
         if not created:
             created = self._get_file_creation_time(file_path, rel_path)
         if not modified:
-            modified = self._get_file_modification_time(file_path)
+            modified = self._get_file_modification_time(file_path, rel_path)
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
@@ -221,8 +222,8 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_authors'] = authors
         
         # 占位符替换
-        if self.recent_enable and '<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
-            markdown = markdown.replace('<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
+        if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
+            markdown = markdown.replace('\n<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
         
         # 检查是否需要排除
         if is_excluded(rel_path, self.config['exclude']):
@@ -293,7 +294,10 @@ class DocumentDatesPlugin(BasePlugin):
         # 从文件系统获取
         return get_file_creation_time(file_path).astimezone()
 
-    def _get_file_modification_time(self, file_path):
+    def _get_file_modification_time(self, file_path, rel_path):
+        # 优先从缓存中读取
+        if rel_path in self.last_updated_dates:
+            return datetime.fromtimestamp(self.last_updated_dates[rel_path]).astimezone()
         # 从文件系统获取最后修改时间
         stat = os.stat(file_path)
         return datetime.fromtimestamp(stat.st_mtime).astimezone()

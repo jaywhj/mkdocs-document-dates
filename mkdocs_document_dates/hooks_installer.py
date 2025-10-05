@@ -12,13 +12,20 @@ def get_config_dir():
     if platform.system().lower().startswith('win'):
         return Path(os.getenv('APPDATA', str(Path.home() / 'AppData' / 'Roaming')))
     else:
-        return Path.home() / '.config'
+        # 优先级：XDG_CONFIG_HOME > $HOME/.config > cwd/.config
+        xdg_config = os.getenv('XDG_CONFIG_HOME')
+        if xdg_config:
+            return Path(xdg_config)
+        home = os.getenv('HOME')
+        if home:
+            return Path(home) / '.config'
+        return Path.cwd() / '.config'
 
 def check_python_version(interpreter):
     try:
         result = subprocess.run(
             [interpreter, "-c", "import sys; print(sys.version_info >= (3, 7))"],
-            capture_output=True, text=True)
+            capture_output=True, encoding='utf-8')
         if result.returncode == 0 and result.stdout.strip().lower() == 'true':
             return True
         else:

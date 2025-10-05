@@ -10,14 +10,14 @@
 
 ## 特性
 
-- [x] 始终显示文档的**精确**元信息，且适用于任何环境（无 Git、Git 环境、所有 CI/CD 构建系统等）
+- [x] 始终显示文档的**精确**元信息，且适用于任何环境（无 Git、Git 环境、Docker 容器、所有 CI/CD 构建系统等）
 - [x] 支持在 `Front Matter` 中手动指定时间和作者
 - [x] 支持多种时间格式（date、datetime、timeago）
 - [x] 支持多种作者模式（头像、文本、隐藏）
 - [x] 灵活的显示位置（顶部或底部）
 - [x] 优雅的样式设计（完全可定制）
 - [x] 智能 Tooltip 悬浮提示
-- [x] 支持整体列表显示最近更新的文档功能
+- [x] 支持列表显示最近更新的文档
 - [x] 多语言支持，本地化支持，智能识别用户语言，自动适配
 - [x] 跨平台支持（Windows、macOS、Linux）
 - [x] **极致的构建效率**：O(1)，无需设置环境变量 `!ENV` 来区别运行
@@ -26,7 +26,6 @@
 | --------------------------- | :------: | :-------: | :---------: |
 | git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)     |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)     |
-
 
 ## 安装
 
@@ -51,9 +50,9 @@ plugins:
       position: top            # 显示位置: top(标题后) bottom(文档末尾)
       type: date               # 时间类型: date datetime timeago, 默认：date
       exclude:                 # 排除文件列表
-        - temp.md              # 排除指定文件
-        - drafts/*             # 排除 drafts 目录下所有文件，包括子目录
-      date_format: '%Y-%m-%d'  # 日期格式化字符串，例如：%Y年%m月%d日、%b %d, %Y
+        - temp.md                  # 示例：排除指定文件
+        - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
+      date_format: '%Y-%m-%d'  # 日期格式化字符串（例如：%Y年%m月%d日、%b %d, %Y）
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
       show_author: true        # 作者显示模式: true(头像) text(文本) false(隐藏)
       recently-updated: true   # 是否开启最近更新的数据，默认：false

@@ -23,7 +23,7 @@ class CustomInstallCommand(install):
         install.run(self)
 
 
-VERSION = '3.4.1'
+VERSION = '3.4.5'
 
 setup(
     name="mkdocs-document-dates",

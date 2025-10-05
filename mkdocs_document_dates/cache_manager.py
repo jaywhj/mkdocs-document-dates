@@ -11,7 +11,7 @@ def find_mkdocs_projects():
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
-            text=True, encoding='utf-8'
+            encoding='utf-8'
         ).strip())
 
         # 遍历 git_root 及子目录, 寻找 mkdocs.yml 文件
@@ -65,7 +65,7 @@ def update_cache():
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
             cmd = ["git", "ls-files", "*.md"]
-            result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, text=True)
+            result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, encoding='utf-8')
             tracked_files = result.stdout.splitlines() if result.stdout else []
 
             if not tracked_files:
