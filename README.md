@@ -69,7 +69,7 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
 - [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO, can be used to re-customize plug-ins, etc.
 - [Add Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Add-Recently-Updated-Module): Enable list of recently updated documents
-- [Other Tips](https://jaywhj.netlify.app/document-dates-en#Other-Tips): Introduction to technical principles, caching mechanisms
+- [Other Tips](https://jaywhj.netlify.app/document-dates-en#Other-Tips): Introduction to technical principles, caching mechanisms, and how to use it in Docker
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
