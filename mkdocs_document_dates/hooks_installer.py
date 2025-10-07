@@ -51,7 +51,11 @@ def setup_hooks_directory():
         os.chmod(config_dir, 0o755)
         return config_dir
     except PermissionError:
-        logger.error(f"No permission to create directory: {config_dir}")
+        logger.error(
+            f"No permission to create directory: {config_dir}\n"
+            "If running inside Docker, please set environment variable HOME=/docs "
+            "or XDG_CONFIG_HOME to a writable path."
+        )
     except Exception as e:
         logger.error(f"Failed to create directory {config_dir}: {str(e)}")
     return None
