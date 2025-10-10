@@ -41,8 +41,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
         ('position', config_options.Type(str, default='top')),
         ('exclude', config_options.Type(list, default=[])),
-        ('created_field_names', config_options.Type(list, default=['created', 'date', 'creation'])),
-        ('modified_field_names', config_options.Type(list, default=['modified', 'updated', 'last_modified', 'last_updated'])),
+        ('created_field_names', config_options.Type(list, default=['created', 'date'])),
+        ('modified_field_names', config_options.Type(list, default=['modified', 'updated'])),
         ('show_author', config_options.Choice((True, False, 'text'), default=True)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
