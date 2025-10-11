@@ -102,7 +102,7 @@ def get_file_creation_time(file_path):
 def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     doc_mtime_map = {}
     try:
-        # 1. 获取 git 信息，只记录已跟踪的文件首次出现的信息（最近一次提交时间）
+        # 1. 获取 git 信息，只记录已跟踪的文件最近一次的提交信息
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
