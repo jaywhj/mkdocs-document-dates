@@ -64,7 +64,7 @@ def load_git_cache(docs_dir_path: Path):
                     name, email, created = current_commit
                     # 使用 defaultdict(dict)结构，有序与去重，保持作者首次出现的顺序
                         # a.巧用 Python 字典的 setdefault 特性来去重（setdefault 为不存在的键提供初始值，不会覆盖已有值）
-                        # b.巧用 Python 3.7+ 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
+                        # b.巧用 Python 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
                     authors_dict[line].setdefault((name, email), None)
                     first_commit.setdefault(line, created)
 
