@@ -62,9 +62,9 @@ def load_git_cache(docs_dir_path: Path):
                     current_commit = tuple(line.split('|', 2))
                 elif line.endswith('.md') and current_commit:
                     name, email, created = current_commit
-                    # 使用 defaultdict(dict)结构，有序去重，保持作者首次出现的顺序
+                    # 使用 defaultdict(dict)结构，有序与去重，保持作者首次出现的顺序
                         # a.巧用 Python 字典的 setdefault 特性来去重（setdefault 为不存在的键提供初始值，不会覆盖已有值）
-                        # b.巧用 Python 3.7+ 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
+                        # b.巧用 Python 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
                     authors_dict[line].setdefault((name, email), None)
                     first_commit.setdefault(line, created)
 
@@ -102,7 +102,7 @@ def get_file_creation_time(file_path):
 def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     doc_mtime_map = {}
     try:
-        # 1. 获取 git 信息，只记录已跟踪的文件首次出现的信息（最近一次提交时间）
+        # 1. 获取 git 信息，只记录已跟踪的文件最近一次的提交信息
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
