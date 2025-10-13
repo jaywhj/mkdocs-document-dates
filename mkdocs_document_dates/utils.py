@@ -123,7 +123,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 line = line.strip()
                 if not line:
                     continue
-                if '|' in line:  # commit header
+                if '|' in line:
                     ts = float(line.split('|')[2])
                 elif line.endswith('.md') and line in tracked_files and ts:
                     # 只记录第一次出现的文件，即最近一次提交（setdefault 机制不会覆盖已有值）
