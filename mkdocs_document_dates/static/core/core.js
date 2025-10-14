@@ -34,9 +34,10 @@ function generateAvatar() {
 
         const imgEl = wrapper.querySelector('img.avatar');
         if (imgEl) {
-            const src = (imgEl.getAttribute('src') || '').trim();
-            if (src) {
-                imgEl.onerror = () => imgEl.style.display = 'none';
+            imgEl.onerror = () => imgEl.style.display = 'none';
+            const dataSrc = (imgEl.getAttribute('data-src') || '').trim();
+            if (dataSrc) {
+                imgEl.src = dataSrc;
             } else {
                 imgEl.style.display = 'none';
             }
