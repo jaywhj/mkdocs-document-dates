@@ -29,7 +29,7 @@
             {%- set avatar_url = author.avatar if author.avatar else "" %}
         <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
             <span class="avatar-text"></span>
-            <img class="avatar" src="{{ avatar_url }}" />
+            <img class="avatar" data-src="{{ avatar_url }}" />
         </div>
         {%- endfor %}
     </div>
