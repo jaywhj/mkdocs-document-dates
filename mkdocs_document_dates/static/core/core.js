@@ -1,5 +1,5 @@
 /*
-    1.生成字符头像
+    1.生成头像
 */
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
