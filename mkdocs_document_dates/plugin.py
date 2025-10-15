@@ -422,7 +422,7 @@ class DocumentDatesPlugin(BasePlugin):
                         html_parts.append(
                             f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
                             f"<span class='avatar-text'></span>"
-                            f"<img class='avatar' src='{img_url}' />"
+                            f"<img class='avatar' data-src='{img_url}' />"
                             f"</div>"
                         )
                     html_parts.append("</div>")
