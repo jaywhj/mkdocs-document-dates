@@ -11,7 +11,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 ## Features
 
 - [x] Always displays **exact** meta information of the document and works in any environment (no Git, Git environments, Docker containers, all CI/CD build systems, etc.)
-- [x] Support list display of recently updated documents
+- [x] Support list display of recently updated documents (in descending order of update time)
 - [x] Support for manually specifying time and author in `Front Matter`
 - [x] Support for multiple time formats (date, datetime, timeago)
 - [x] Support for multiple author modes (avatar, text, hidden)
