@@ -55,7 +55,6 @@ plugins:
       date_format: '%Y-%m-%d'  # 日期格式化字符串（例如：%Y年%m月%d日、%b %d, %Y）
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
       show_author: true        # 作者显示模式: true(头像) text(文本) false(隐藏)
-      recently-updated: true   # 是否开启最近更新的数据，默认：false
 ```
 
 ## 自定义设置

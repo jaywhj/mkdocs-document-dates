@@ -55,7 +55,6 @@ plugins:
       date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
       show_author: true        # Author display mode: true(avatar) text(text) false(hidden)
-      recently-updated: true   # Whether to turn on recently updated data, default: false
 ```
 
 ## Customization Settings
