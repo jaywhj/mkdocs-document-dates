@@ -16,21 +16,12 @@ logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class Author:
-    def __init__(self, name="", email="", avatar="", url="", desc=""):
+    def __init__(self, name="", email="", avatar="", url="", description="", **kwargs):
         self.name = name
         self.email = email
         self.avatar = avatar
         self.url = url
-        self.desc = desc
-    
-    def to_dict(self):
-        return {
-            'name': self.name,
-            'email': self.email,
-            'avatar': self.avatar,
-            'url': self.url,
-            'description': self.desc
-        }
+        self.description = description
 
 
 class DocumentDatesPlugin(BasePlugin):
@@ -264,14 +255,7 @@ class DocumentDatesPlugin(BasePlugin):
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
             for key, info in (data or {}).get('authors', {}).items():
-                author = Author(
-                    name=info.get('name', ''),
-                    email=info.get('email', ''),
-                    avatar=info.get('avatar', ''),
-                    url=info.get('url', ''),
-                    desc=info.get('description', '')
-                )
-                self.authors_yml[key] = author
+                self.authors_yml[key] = Author(**info)
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
 
@@ -314,9 +298,23 @@ class DocumentDatesPlugin(BasePlugin):
         if rel_path in self.dates_cache:
             authors_list = self.dates_cache[rel_path].get('authors')
             if authors_list:
-                return [Author(**dict) for dict in authors_list]
+                authors = []
+                for dict in authors_list:
+                    full_author = self.authors_yml.get(dict['name'])
+                    if full_author:
+                        authors.append(full_author)
+                        # authors.append(Author(**{**vars(full_author), **dict}))
+                    else:
+                        authors.append(Author(**dict))
+                return authors
         # 3. site_author 或 PC username
-        return [Author(name=config.get('site_author') or Path.home().name)]
+        name = config.get('site_author') or Path.home().name
+        full_author = self.authors_yml.get(name)
+        if full_author:
+            return [full_author]
+            # return [Author(**{**vars(full_author), "name": name})]
+        else:
+            return [Author(name=name)]
 
     def _process_meta_author(self, meta):
         try:
@@ -331,27 +329,18 @@ class DocumentDatesPlugin(BasePlugin):
             if author_objs:
                 return author_objs
 
-            # 匹配 author 对象，或 author 字符串
-            author_data = meta.get('author')
-            if author_data:
-                if isinstance(author_data, dict):
-                    name = author_data.get('name')
-                    if not name:
-                        return None
-                    email = author_data.get('email')
-                    avatar = author_data.get('avatar')
-                    url = author_data.get('url')
-                    desc = author_data.get('description')
-                    return [Author(name=name, email=email, avatar=avatar, url=url, desc=desc)]
-                return [Author(name=str(author_data))]
-
             # 匹配独立字段: name, email
             name = meta.get('name')
             email = meta.get('email')
             if name or email:
                 if not name and email:
                     name = email.partition('@')[0]
-                return [Author(name=name, email=email)]
+                full_author = self.authors_yml.get(name)
+                if full_author:
+                    return [full_author]
+                    # return [Author(**{**vars(full_author), "name": name, "email": email or full_author.email})]
+                else:
+                    return [Author(name=name, email=email)]
         except Exception as e:
             logger.warning(f"Error processing author meta: {e}")
         return None
@@ -422,7 +411,7 @@ class DocumentDatesPlugin(BasePlugin):
                         html_parts.append(
                             f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
                             f"<span class='avatar-text'></span>"
-                            f"<img class='avatar' data-src='{img_url}' />"
+                            f"<img class='avatar' src='{img_url}' onerror=\"this.style.display='none'\" />"
                             f"</div>"
                         )
                     html_parts.append("</div>")

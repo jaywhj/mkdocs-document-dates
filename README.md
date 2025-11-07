@@ -15,6 +15,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 - [x] Support for manually specifying time and author in `Front Matter`
 - [x] Support for multiple time formats (date, datetime, timeago)
 - [x] Support for multiple author modes (avatar, text, hidden)
+- [x] Support for manually configuring author's name, link, avatar, email, etc.
 - [x] Flexible display position (top or bottom)
 - [x] Elegant styling (fully customizable)
 - [x] Smart Tooltip Hover Tips
@@ -62,7 +63,7 @@ plugins:
 In addition to the above basic configuration, the plug-in also provides a wealth of customization options to meet a variety of individual needs:
 
 - [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): You can manually specify the creation time and last update time for each document
-- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): You can manually specify the author information for each document
+- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): You can manually specify the author information for each document, such as name, link, avatar, email, etc.
 - [Specify Avatar](https://jaywhj.netlify.app/document-dates-en#Specify-Avatar): You can manually specify the avatar for each author
 - [Set Plugin Style](https://jaywhj.netlify.app/document-dates-en#Set-Plugin-Style): Such as icons, themes, colors, fonts, animations, dividing line, etc.
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
