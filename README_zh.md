@@ -15,6 +15,7 @@
 - [x] 支持在 `Front Matter` 中手动指定时间和作者
 - [x] 支持多种时间格式（date、datetime、timeago）
 - [x] 支持多种作者模式（头像、文本、隐藏）
+- [x] 支持手动配置作者的姓名、链接、头像、邮箱等
 - [x] 灵活的显示位置（顶部或底部）
 - [x] 优雅的样式设计（完全可定制）
 - [x] 智能 Tooltip 悬浮提示
@@ -62,7 +63,7 @@ plugins:
 除了以上基础配置外，插件还提供了丰富的自定义选项，可满足各种个性化需求：
 
 - [指定日期时间](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4)：可手动指定每个文档的创建时间和最后更新时间
-- [指定作者](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E4%BD%9C%E8%80%85)：可手动指定每个文档的作者信息
+- [指定作者](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E4%BD%9C%E8%80%85)：可手动指定每个文档的作者信息，比如姓名、链接、头像、邮箱等
 - [指定头像](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E5%A4%B4%E5%83%8F)：可手动指定每个作者的头像
 - [设置插件样式](https://jaywhj.netlify.app/document-dates-zh#%E8%AE%BE%E7%BD%AE%E6%8F%92%E4%BB%B6%E6%A0%B7%E5%BC%8F)：如图标、主题、颜色、字体、动画、分界线等
 - [添加本地化语言](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%AC%E5%9C%B0%E5%8C%96%E8%AF%AD%E8%A8%80)：为 `timeago` 和 `tooltip` 补充更多本地化语言
