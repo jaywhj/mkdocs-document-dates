@@ -171,16 +171,6 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
 
     return doc_mtime_map, recently_updated_results
 
-def read_json_cache(cache_file: Path):
-    dates_cache = {}
-    if cache_file.exists():
-        try:
-            with open(cache_file, 'r', encoding='utf-8') as f:
-                dates_cache = json.load(f)
-        except (IOError, json.JSONDecodeError) as e:
-            logger.warning(f"Error reading from '.dates_cache.json': {str(e)}")
-    return dates_cache
-
 def read_jsonl_cache(jsonl_file: Path):
     dates_cache = {}
     if jsonl_file.exists():

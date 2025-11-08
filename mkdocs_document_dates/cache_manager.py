@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from pathlib import Path
-from .utils import read_json_cache, read_jsonl_cache, write_jsonl_cache, get_file_creation_time, get_git_first_commit_time
+from .utils import read_jsonl_cache, write_jsonl_cache, get_file_creation_time, get_git_first_commit_time
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -72,29 +72,21 @@ def update_cache():
                 logger.info(f"No tracked markdown files found in {docs_dir}")
                 continue
 
-            # 读取旧的JSON缓存文件（如果存在）
-            json_cache_file = docs_dir / '.dates_cache.json'
-            json_dates_cache = read_json_cache(json_cache_file)
-
-            # 读取新的JSONL缓存文件（如果存在）
+            # 读取 JSONL 缓存
             jsonl_cache_file = docs_dir / '.dates_cache.jsonl'
             jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
 
             # 根据 git已跟踪的文件来更新
             for rel_path in tracked_files:
                 try:
-                    # 如果文件已在JSONL缓存中，跳过
+                    # 如果文件已在 JSONL 缓存中，跳过
                     if rel_path in jsonl_dates_cache:
                         continue
 
                     full_path = docs_dir / rel_path
-                    # 处理新文件或迁移旧JSON缓存
-                    if rel_path in json_dates_cache:
-                        jsonl_dates_cache[rel_path] = json_dates_cache[rel_path]
-                        project_updated = True
-                    elif full_path.exists():
+                    if full_path.exists():
                         created_time = get_file_creation_time(full_path).astimezone()
-                        if not jsonl_cache_file.exists() and not json_cache_file.exists():
+                        if not jsonl_cache_file.exists():
                             git_time = get_git_first_commit_time(full_path)
                             if git_time:
                                 created_time = min(created_time, git_time)
@@ -110,7 +102,7 @@ def update_cache():
             if len(jsonl_dates_cache) > len(tracked_files):
                 project_updated = True
 
-            # 如果有更新，写入JSONL缓存文件
+            # 如果有更新，写入 JSONL 缓存文件
             if project_updated or not jsonl_cache_file.exists():
                 global_updated = write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files)
         except subprocess.CalledProcessError as e:
