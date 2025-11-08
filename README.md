@@ -21,7 +21,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 - [x] Smart Tooltip Hover Tips
 - [x] Multi-language support, localization support, intelligent recognition of user language, automatic adaptation
 - [x] Cross-platform support (Windows, macOS, Linux)
-- [x] **Ultimate build efficiency**: O(1), no need to set env vars `!ENV` to distinguish runs
+- [x] **Ultimate build efficiency**: O(1), no need to set the env var `!ENV` to distinguish runs
 
 | Build Speed Comparison:     | 100 md: | 1000 md: | Time Complexity: |
 | --------------------------- | :-----: | :------: | :----------: |
