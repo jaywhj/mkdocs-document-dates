@@ -388,13 +388,15 @@ class DocumentDatesPlugin(BasePlugin):
                 def get_avatar_img_url(author):
                     avatar = author.avatar.strip()
                     if avatar:
-                        # 支持 URL 路径和本地文件路径
-                        if avatar.startswith(('http://', 'https://', '//', 'data:')):
+                        # avatar 支持路径类型：http/https data blob file ftp
+                        parsed = urlparse(avatar)
+                        if parsed.scheme or avatar.startswith('//'):
                             return avatar
                         avatar = avatar.lstrip('/')
                         return get_relative_url(avatar, page_url or '')
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
+                    
                     return ""
 
                 if self.config['show_author'] == 'text':
