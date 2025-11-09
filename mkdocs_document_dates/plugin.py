@@ -195,8 +195,10 @@ class DocumentDatesPlugin(BasePlugin):
         if is_excluded(rel_path, self.config['exclude']):
             return markdown
         
+        # 计算从当前页面到站点根目录的相对前缀（用于本地资源引用）
+        root_prefix = self._get_site_root_prefix(page)
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, modified, authors)
+        info_html = self._generate_html_info(created, modified, authors, root_prefix)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
@@ -355,7 +357,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
+    def _generate_html_info(self, created: datetime, modified: datetime, authors=None, root_prefix: str = ""):
         try:
             # 构建基本的日期信息 HTML
             html_parts = []
@@ -385,8 +387,14 @@ class DocumentDatesPlugin(BasePlugin):
                     return author.name
 
                 def get_avatar_img_url(author):
-                    if author.avatar:
-                        return author.avatar
+                    avatar = author.avatar.strip()
+                    if avatar:
+                        # 支持 URL 和站点相对路径
+                        if avatar.startswith(('http://', 'https://', '//', 'data:')):
+                            return avatar
+                        # 站点内资源：将绝对/相对路径转换为相对于当前页面的路径
+                        avatar = avatar.lstrip('/')
+                        return f"{root_prefix}{avatar}"
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
                     return ""
@@ -424,6 +432,34 @@ class DocumentDatesPlugin(BasePlugin):
         except Exception as e:
             logger.warning(f"Error generating HTML info: {e}")
             return ""
+
+    def _get_site_root_prefix(self, page: Page) -> str:
+        """根据当前页面 URL 计算到站点根目录的相对路径前缀。
+
+        例如：
+        - page.url == '' 或 '/'        -> ''
+        - 'guide/'                      -> '../'
+        - 'guide/setup/'                -> '../../'
+        - 'guide/setup/index.html'      -> '../../'
+        - 'index.html'                  -> ''
+        """
+        try:
+            url = (page.url or '').strip()
+            if not url or url == '/':
+                return ''
+            # 去掉首尾斜杠
+            url = url.strip('/')
+            if not url:
+                return ''
+            parts = url.split('/')
+            # 如果最后一段是文件（含扩展名），则不计入层级
+            last = parts[-1]
+            if '.' in last:
+                parts = parts[:-1]
+            depth = len(parts)
+            return '../' * depth if depth > 0 else ''
+        except Exception:
+            return ''
 
 
     def _insert_date_info(self, markdown: str, date_info: str):
