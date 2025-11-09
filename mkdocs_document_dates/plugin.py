@@ -164,31 +164,6 @@ class DocumentDatesPlugin(BasePlugin):
 
         return nav
 
-    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
-        # 获取自定义模板路径
-        if template_path:
-            user_full_path = docs_dir / template_path
-
-        # 选择模板路径
-        if template_path and user_full_path.is_file():
-            template_dir = user_full_path.parent
-            template_file = user_full_path.name
-        else:
-            # 默认模板路径
-            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
-            template_dir = default_template_path.parent
-            template_file = default_template_path.name
-
-        # 加载模板
-        env = Environment(
-            loader=FileSystemLoader(str(template_dir)),
-            autoescape=select_autoescape(["html", "xml"])
-        )
-        template = env.get_template(template_file)
-
-        # 渲染模板
-        return template.render(recent_docs=recently_updated_data)
-
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', page.file.src_path)
@@ -237,6 +212,7 @@ class DocumentDatesPlugin(BasePlugin):
                 if item.is_file():
                     shutil.copy2(item, target_dir / item.name)
 
+
     def _extract_github_username(self, url):
         try:
             parsed = urlparse(url)
@@ -258,6 +234,32 @@ class DocumentDatesPlugin(BasePlugin):
                 self.authors_yml[key] = Author(**info)
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
+
+
+    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
+        # 获取自定义模板路径
+        if template_path:
+            user_full_path = docs_dir / template_path
+
+        # 选择模板路径
+        if template_path and user_full_path.is_file():
+            template_dir = user_full_path.parent
+            template_file = user_full_path.name
+        else:
+            # 默认模板路径
+            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
+            template_dir = default_template_path.parent
+            template_file = default_template_path.name
+
+        # 加载模板
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            autoescape=select_autoescape(["html", "xml"])
+        )
+        template = env.get_template(template_file)
+
+        # 渲染模板
+        return template.render(recent_docs=recently_updated_data)
 
 
     def _find_meta_date(self, meta, field_names):
@@ -426,14 +428,14 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _insert_date_info(self, markdown: str, date_info: str):
         if self.config['position'] == 'top':
-            first_line, insert_pos = self.find_markdown_body_start(markdown)
+            first_line, insert_pos = self._find_markdown_body_start(markdown)
             if first_line.startswith(('# ', '<h1')):
                 return markdown[:insert_pos] + '\n' + date_info + '\n' + markdown[insert_pos:]
             else:
                 return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"
 
-    def find_markdown_body_start(self, text: str):
+    def _find_markdown_body_start(self, text: str):
         pos = 0
         length = len(text)
         in_comment = False
