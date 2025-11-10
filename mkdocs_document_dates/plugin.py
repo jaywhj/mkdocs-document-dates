@@ -303,22 +303,19 @@ class DocumentDatesPlugin(BasePlugin):
             authors_list = self.dates_cache[rel_path].get('authors')
             if authors_list:
                 authors = []
-                for dict in authors_list:
-                    full_author = self.authors_yml.get(dict['name'])
+                for data in authors_list:
+                    full_author = self.authors_yml.get(data['name'])
                     if full_author:
-                        avatar = self._resolve_avatar_url(full_author.avatar, page.url)
-                        authors.append(Author(**{**vars(full_author), 'avatar': avatar}))
-                        # authors.append(Author(**{**vars(full_author), **dict, 'avatar': avatar}))
+                        authors.append(self._get_repaired_author(full_author, page.url))
                     else:
-                        authors.append(Author(**dict))
+                        authors.append(Author(**data))
                 return authors
 
         # 3. site_author 或 PC username
         name = config.get('site_author') or Path.home().name
         full_author = self.authors_yml.get(name)
         if full_author:
-            avatar = self._resolve_avatar_url(full_author.avatar, page.url)
-            return [Author(**{**vars(full_author), 'avatar': avatar})]
+            return [self._get_repaired_author(full_author, page.url)]
         else:
             return [Author(name=name)]
 
@@ -329,12 +326,10 @@ class DocumentDatesPlugin(BasePlugin):
             authors_data = meta.get('authors')
             for key in authors_data or []:
                 full_author = self.authors_yml.get(key)
-                avatar = ""
                 if full_author:
-                    avatar = self._resolve_avatar_url(full_author.avatar, page_url)
+                    author_objs.append(self._get_repaired_author(full_author, page_url))
                 else:
-                    full_author = Author(name=str(key))
-                author_objs.append(Author(**{**vars(full_author), 'avatar': avatar}))
+                    author_objs.append(Author(name=str(key)))
             if author_objs:
                 return author_objs
 
@@ -346,25 +341,25 @@ class DocumentDatesPlugin(BasePlugin):
                     name = email.partition('@')[0]
                 full_author = self.authors_yml.get(name)
                 if full_author:
-                    avatar = self._resolve_avatar_url(full_author.avatar, page_url)
-                    return [Author(**{**vars(full_author), 'avatar': avatar})]
+                    return [self._get_repaired_author(full_author, page_url)]
                 else:
                     return [Author(name=name, email=email)]
         except Exception as e:
             logger.warning(f"Error processing author meta: {e}")
         return None
 
-    def _resolve_avatar_url(self, avatar: str, page_url: str) -> str:
+    def _get_repaired_author(self, author: Author, page_url: str) -> Author:
         try:
-            if not avatar:
-                return ""
-            parsed = urlparse(avatar)
-            if parsed.scheme or avatar.startswith('//'):
-                return avatar
-            avatar = avatar.lstrip('/')
-            return get_relative_url(avatar, page_url or '')
+            if not author.avatar:
+                return author
+            parsed = urlparse(author.avatar)
+            if parsed.scheme or author.avatar.startswith('//'):
+                return author
+            # 处理本地路径（相对路径 & 绝对路径）
+            avatar = get_relative_url(author.avatar.lstrip('/'), page_url or '')
+            return Author(**{**vars(author), 'avatar': avatar})
         except Exception:
-            return avatar
+            return author
 
 
     def _get_formatted_date(self, date: datetime):
