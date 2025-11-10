@@ -294,9 +294,10 @@ class DocumentDatesPlugin(BasePlugin):
         if not self.config['show_author']:
             return None
         # 1. meta author
-        authors = self._process_meta_author(page.meta)
+        authors = self._process_meta_author(page.meta, page.url)
         if authors:
             return authors
+
         # 2. git author
         if rel_path in self.dates_cache:
             authors_list = self.dates_cache[rel_path].get('authors')
@@ -305,30 +306,35 @@ class DocumentDatesPlugin(BasePlugin):
                 for dict in authors_list:
                     full_author = self.authors_yml.get(dict['name'])
                     if full_author:
-                        authors.append(full_author)
-                        # authors.append(Author(**{**vars(full_author), **dict}))
+                        avatar = self._resolve_avatar_url(full_author.avatar, page.url)
+                        authors.append(Author(**{**vars(full_author), 'avatar': avatar}))
+                        # authors.append(Author(**{**vars(full_author), **dict, 'avatar': avatar}))
                     else:
                         authors.append(Author(**dict))
                 return authors
+
         # 3. site_author 或 PC username
         name = config.get('site_author') or Path.home().name
         full_author = self.authors_yml.get(name)
         if full_author:
-            return [full_author]
-            # return [Author(**{**vars(full_author), "name": name})]
+            avatar = self._resolve_avatar_url(full_author.avatar, page.url)
+            return [Author(**{**vars(full_author), 'avatar': avatar})]
         else:
             return [Author(name=name)]
 
-    def _process_meta_author(self, meta):
+    def _process_meta_author(self, meta, page_url):
         try:
             # 匹配 authors 数组
             author_objs = []
             authors_data = meta.get('authors')
             for key in authors_data or []:
-                author = self.authors_yml.get(key)
-                if not author:
-                    author = Author(name=str(key))
-                author_objs.append(author)
+                full_author = self.authors_yml.get(key)
+                avatar = ""
+                if full_author:
+                    avatar = self._resolve_avatar_url(full_author.avatar, page_url)
+                else:
+                    full_author = Author(name=str(key))
+                author_objs.append(Author(**{**vars(full_author), 'avatar': avatar}))
             if author_objs:
                 return author_objs
 
@@ -340,13 +346,25 @@ class DocumentDatesPlugin(BasePlugin):
                     name = email.partition('@')[0]
                 full_author = self.authors_yml.get(name)
                 if full_author:
-                    return [full_author]
-                    # return [Author(**{**vars(full_author), "name": name, "email": email or full_author.email})]
+                    avatar = self._resolve_avatar_url(full_author.avatar, page_url)
+                    return [Author(**{**vars(full_author), 'avatar': avatar})]
                 else:
                     return [Author(name=name, email=email)]
         except Exception as e:
             logger.warning(f"Error processing author meta: {e}")
         return None
+
+    def _resolve_avatar_url(self, avatar: str, page_url: str) -> str:
+        try:
+            if not avatar:
+                return ""
+            parsed = urlparse(avatar)
+            if parsed.scheme or avatar.startswith('//'):
+                return avatar
+            avatar = avatar.lstrip('/')
+            return get_relative_url(avatar, page_url or '')
+        except Exception:
+            return avatar
 
 
     def _get_formatted_date(self, date: datetime):
@@ -386,14 +404,8 @@ class DocumentDatesPlugin(BasePlugin):
                     return author.name
 
                 def get_avatar_img_url(author):
-                    avatar = author.avatar.strip()
-                    if avatar:
-                        # avatar 支持路径类型：http/https data blob file ftp
-                        parsed = urlparse(avatar)
-                        if parsed.scheme or avatar.startswith('//'):
-                            return avatar
-                        avatar = avatar.lstrip('/')
-                        return get_relative_url(avatar, page_url or '')
+                    if author.avatar:
+                        return author.avatar
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
                     
