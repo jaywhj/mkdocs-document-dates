@@ -182,6 +182,10 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
+        if len(authors) == 1:
+            a = authors[0]
+            if not a.avatar and self.github_username:
+                a.avatar = f"https://avatars.githubusercontent.com/{self.github_username}"
         
         # 在排除前暴露 meta 信息给前端使用
         page.meta['document_dates_created'] = created.isoformat()
@@ -369,7 +373,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created: datetime, modified: datetime, authors=None, page_url: str = ""):
+    def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
         try:
             # 构建基本的日期信息 HTML
             html_parts = []
@@ -398,14 +402,6 @@ class DocumentDatesPlugin(BasePlugin):
                         return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
-                def get_avatar_img_url(author):
-                    if author.avatar:
-                        return author.avatar
-                    elif self.github_username and len(authors) == 1:
-                        return f"https://avatars.githubusercontent.com/{self.github_username}"
-                    
-                    return ""
-
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
                     tooltip_text = ',&nbsp;'.join(get_author_tooltip(author) for author in authors)
@@ -424,11 +420,10 @@ class DocumentDatesPlugin(BasePlugin):
                     html_parts.append("<div class='avatar-group'>")
                     for author in authors:
                         tooltip = get_author_tooltip(author)
-                        img_url = get_avatar_img_url(author)
                         html_parts.append(
                             f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
                             f"<span class='avatar-text'></span>"
-                            f"<img class='avatar' src='{img_url}' onerror=\"this.style.display='none'\" />"
+                            f"<img class='avatar' src='{author.avatar}' onerror=\"this.style.display='none'\" />"
                             f"</div>"
                         )
                     html_parts.append("</div>")
