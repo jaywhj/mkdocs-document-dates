@@ -201,7 +201,7 @@ class DocumentDatesPlugin(BasePlugin):
             return markdown
         
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, modified, authors, page.url)
+        info_html = self._generate_html_info(created, modified, authors)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
