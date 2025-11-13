@@ -8,6 +8,7 @@ from pathlib import Path
 from mkdocs.plugins import BasePlugin
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
+from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
 from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_updated_files
 
@@ -164,31 +165,6 @@ class DocumentDatesPlugin(BasePlugin):
 
         return nav
 
-    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
-        # 获取自定义模板路径
-        if template_path:
-            user_full_path = docs_dir / template_path
-
-        # 选择模板路径
-        if template_path and user_full_path.is_file():
-            template_dir = user_full_path.parent
-            template_file = user_full_path.name
-        else:
-            # 默认模板路径
-            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
-            template_dir = default_template_path.parent
-            template_file = default_template_path.name
-
-        # 加载模板
-        env = Environment(
-            loader=FileSystemLoader(str(template_dir)),
-            autoescape=select_autoescape(["html", "xml"])
-        )
-        template = env.get_template(template_file)
-
-        # 渲染模板
-        return template.render(recent_docs=recently_updated_data)
-
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', page.file.src_path)
@@ -221,7 +197,7 @@ class DocumentDatesPlugin(BasePlugin):
             return markdown
         
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, modified, authors)
+        info_html = self._generate_html_info(created, modified, authors, page.url)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
@@ -236,6 +212,7 @@ class DocumentDatesPlugin(BasePlugin):
             for item in source_dir.iterdir():
                 if item.is_file():
                     shutil.copy2(item, target_dir / item.name)
+
 
     def _extract_github_username(self, url):
         try:
@@ -258,6 +235,32 @@ class DocumentDatesPlugin(BasePlugin):
                 self.authors_yml[key] = Author(**info)
         except Exception as e:
             logger.info(f"Error parsing .authors.yml: {e}")
+
+
+    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
+        # 获取自定义模板路径
+        if template_path:
+            user_full_path = docs_dir / template_path
+
+        # 选择模板路径
+        if template_path and user_full_path.is_file():
+            template_dir = user_full_path.parent
+            template_file = user_full_path.name
+        else:
+            # 默认模板路径
+            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
+            template_dir = default_template_path.parent
+            template_file = default_template_path.name
+
+        # 加载模板
+        env = Environment(
+            loader=FileSystemLoader(str(template_dir)),
+            autoescape=select_autoescape(["html", "xml"])
+        )
+        template = env.get_template(template_file)
+
+        # 渲染模板
+        return template.render(recent_docs=recently_updated_data)
 
 
     def _find_meta_date(self, meta, field_names):
@@ -291,41 +294,42 @@ class DocumentDatesPlugin(BasePlugin):
         if not self.config['show_author']:
             return None
         # 1. meta author
-        authors = self._process_meta_author(page.meta)
+        authors = self._process_meta_author(page.meta, page.url)
         if authors:
             return authors
+
         # 2. git author
         if rel_path in self.dates_cache:
             authors_list = self.dates_cache[rel_path].get('authors')
             if authors_list:
                 authors = []
-                for dict in authors_list:
-                    full_author = self.authors_yml.get(dict['name'])
+                for data in authors_list:
+                    full_author = self.authors_yml.get(data['name'])
                     if full_author:
-                        authors.append(full_author)
-                        # authors.append(Author(**{**vars(full_author), **dict}))
+                        authors.append(self._get_repaired_author(full_author, page.url))
                     else:
-                        authors.append(Author(**dict))
+                        authors.append(Author(**data))
                 return authors
+
         # 3. site_author 或 PC username
         name = config.get('site_author') or Path.home().name
         full_author = self.authors_yml.get(name)
         if full_author:
-            return [full_author]
-            # return [Author(**{**vars(full_author), "name": name})]
+            return [self._get_repaired_author(full_author, page.url)]
         else:
             return [Author(name=name)]
 
-    def _process_meta_author(self, meta):
+    def _process_meta_author(self, meta, page_url):
         try:
             # 匹配 authors 数组
             author_objs = []
             authors_data = meta.get('authors')
             for key in authors_data or []:
-                author = self.authors_yml.get(key)
-                if not author:
-                    author = Author(name=str(key))
-                author_objs.append(author)
+                full_author = self.authors_yml.get(key)
+                if full_author:
+                    author_objs.append(self._get_repaired_author(full_author, page_url))
+                else:
+                    author_objs.append(Author(name=str(key)))
             if author_objs:
                 return author_objs
 
@@ -337,13 +341,25 @@ class DocumentDatesPlugin(BasePlugin):
                     name = email.partition('@')[0]
                 full_author = self.authors_yml.get(name)
                 if full_author:
-                    return [full_author]
-                    # return [Author(**{**vars(full_author), "name": name, "email": email or full_author.email})]
+                    return [self._get_repaired_author(full_author, page_url)]
                 else:
                     return [Author(name=name, email=email)]
         except Exception as e:
             logger.warning(f"Error processing author meta: {e}")
         return None
+
+    def _get_repaired_author(self, author: Author, page_url: str) -> Author:
+        try:
+            if not author.avatar:
+                return author
+            parsed = urlparse(author.avatar)
+            if parsed.scheme or author.avatar.startswith('//'):
+                return author
+            # 处理本地路径（相对路径 & 绝对路径）
+            avatar = get_relative_url(author.avatar.lstrip('/'), page_url or '')
+            return Author(**{**vars(author), 'avatar': avatar})
+        except Exception:
+            return author
 
 
     def _get_formatted_date(self, date: datetime):
@@ -353,7 +369,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
+    def _generate_html_info(self, created: datetime, modified: datetime, authors=None, page_url: str = ""):
         try:
             # 构建基本的日期信息 HTML
             html_parts = []
@@ -387,6 +403,7 @@ class DocumentDatesPlugin(BasePlugin):
                         return author.avatar
                     elif self.github_username and len(authors) == 1:
                         return f"https://avatars.githubusercontent.com/{self.github_username}"
+                    
                     return ""
 
                 if self.config['show_author'] == 'text':
@@ -426,14 +443,14 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _insert_date_info(self, markdown: str, date_info: str):
         if self.config['position'] == 'top':
-            first_line, insert_pos = self.find_markdown_body_start(markdown)
+            first_line, insert_pos = self._find_markdown_body_start(markdown)
             if first_line.startswith(('# ', '<h1')):
                 return markdown[:insert_pos] + '\n' + date_info + '\n' + markdown[insert_pos:]
             else:
                 return f"{date_info}\n{markdown}"
         return f"{markdown}\n\n{date_info}"
 
-    def find_markdown_body_start(self, text: str):
+    def _find_markdown_body_start(self, text: str):
         pos = 0
         length = len(text)
         in_comment = False
