@@ -182,7 +182,7 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
-        if len(authors) == 1:
+        if authors and len(authors) == 1:
             a = authors[0]
             if not a.avatar and self.github_username:
                 a.avatar = f"https://avatars.githubusercontent.com/{self.github_username}"
@@ -297,6 +297,7 @@ class DocumentDatesPlugin(BasePlugin):
     def _get_author_info(self, rel_path, page, config):
         if not self.config['show_author']:
             return None
+
         # 1. meta author
         authors = self._process_meta_author(page.meta, page.url)
         if authors:
