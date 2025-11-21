@@ -55,9 +55,9 @@ plugins:
         - blog/*                   # Example: exclude all files in blog folder, including subfolders
       date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
-      show_author: true        # Author display mode: true(avatar) text(text) false(hidden), default: true
       show_created: true       # Show creation date: true false, default: true
       show_modified: true      # Show last modified date: true false, default: true
+      show_author: true        # Show author: true(avatar) text(text) false(hidden), default: true
 ```
 
 ## Customization Settings
