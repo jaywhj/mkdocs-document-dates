@@ -48,14 +48,16 @@ plugins:
 ```yaml
 plugins:
   - document-dates:
-      position: top            # 显示位置: top(标题后) bottom(文档末尾)
-      type: date               # 时间类型: date datetime timeago, 默认：date
+      position: top            # 显示位置: top(标题后) bottom(文档末尾), 默认: top
+      type: date               # 时间类型: date datetime timeago, 默认: date
       exclude:                 # 排除文件列表
         - temp.md                  # 示例：排除指定文件
         - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
-      date_format: '%Y-%m-%d'  # 日期格式化字符串（例如：%Y年%m月%d日、%b %d, %Y）
+      date_format: '%Y-%m-%d'  # 日期格式化字符串（例如: %Y年%m月%d日、%b %d, %Y）
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
-      show_author: true        # 作者显示模式: true(头像) text(文本) false(隐藏)
+      show_author: true        # 作者显示模式: true(头像) text(文本) false(隐藏), 默认: true
+      show_created: true       # 显示创建日期: true false, 默认: true
+      show_modified: true      # 显示最后修改日期: true false, 默认: true
 ```
 
 ## 自定义设置
