@@ -35,6 +35,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date'])),
         ('modified_field_names', config_options.Type(list, default=['modified', 'updated'])),
+        ('show_created', config_options.Type(bool, default=True)),
+        ('show_modified', config_options.Type(bool, default=True)),
         ('show_author', config_options.Choice((True, False, 'text'), default=True)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
@@ -52,17 +54,16 @@ class DocumentDatesPlugin(BasePlugin):
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 author 配置
-        if self.config['show_author']:
-            self._extract_github_username(config.get('repo_url'))
-            authors_file = docs_dir_path / 'authors.yml'
-            if not authors_file.exists():
-                try:
-                    blog_config = config['plugins']['material/blog'].config
-                    authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
-                    authors_file = docs_dir_path / authors_file_resolved
-                except Exception:
-                    pass
-            self._load_authors_from_yaml(authors_file)
+        self._extract_github_username(config.get('repo_url'))
+        authors_file = docs_dir_path / 'authors.yml'
+        if not authors_file.exists():
+            try:
+                blog_config = config['plugins']['material/blog'].config
+                authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
+                authors_file = docs_dir_path / authors_file_resolved
+            except Exception:
+                pass
+        self._load_authors_from_yaml(authors_file)
 
         # 加载 git 缓存
         self.dates_cache = load_git_cache(docs_dir_path)
@@ -295,9 +296,6 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _get_author_info(self, rel_path, page, config):
-        if not self.config['show_author']:
-            return None
-
         # 1. meta author
         authors = self._process_meta_author(page.meta, page.url)
         if authors:
@@ -391,8 +389,10 @@ class DocumentDatesPlugin(BasePlugin):
                     f"{self._get_formatted_date(time_obj)}</time></span>"
                 )
 
-            html_parts.append(build_time_icon(created, 'doc_created'))
-            html_parts.append(build_time_icon(modified, 'doc_modified'))
+            if self.config['show_created']:
+                html_parts.append(build_time_icon(created, 'doc_created'))
+            if self.config['show_modified']:
+                html_parts.append(build_time_icon(modified, 'doc_modified'))
 
             # 添加作者信息
             if self.config['show_author'] and authors:
