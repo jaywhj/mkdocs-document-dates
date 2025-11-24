@@ -25,7 +25,7 @@ A new generation MkDocs plugin for displaying exact **creation time, last update
 
 | Build Speed Comparison:     | 100 md: | 1000 md: | Time Complexity: |
 | --------------------------- | :-----: | :------: | :----------: |
-| git-revision-date-localized |  > 3 s   |  > 30 s   |    O(n)    |
+| git-revision-date-localized<br />git-authors |  > 3 s   |  > 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
 ## Installation
