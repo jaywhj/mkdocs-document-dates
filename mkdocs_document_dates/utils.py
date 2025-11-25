@@ -136,6 +136,8 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
     if recent_enable:
         files_meta = []
         for file in files:
+            if file.inclusion.is_excluded():
+                continue
             if not file.src_path.endswith('.md'):
                 continue
             rel_path = getattr(file, 'src_uri', file.src_path)
@@ -144,17 +146,12 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
             if is_excluded(rel_path, exclude_list):
                 continue
 
-            # 获取文档标题和 URL
-            if file.page:
-                # 过滤没有配置进导航里的文档
-                if not file.page.title:
-                    continue
-                title, url = file.page.title, file.page.url
-            else:
-                title, url = file.name, file.url
-
             # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
             mtime = doc_mtime_map.get(rel_path, os.path.getmtime(file.abs_src_path))
+
+            # 获取文档标题和 URL
+            title = file.page.title if file.page and file.page.title else file.name
+            url = file.page.url if file.page and file.page.url else file.url
 
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
