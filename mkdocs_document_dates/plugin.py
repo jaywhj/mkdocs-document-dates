@@ -179,7 +179,6 @@ class DocumentDatesPlugin(BasePlugin):
         return self._insert_date_info(markdown, info_html)
 
     def on_env(self, env, config, files):
-
         recently_updated_config = self.config.get('recently-updated')
         if recently_updated_config:
             self.recent_enable = True
@@ -193,8 +192,7 @@ class DocumentDatesPlugin(BasePlugin):
         limit = recently_updated_config.get('limit', 10)
         template_path = recently_updated_config.get('template')
 
-        # 获取最近更新日期和最近更新的文档数据
-        docs_dir = Path(config['docs_dir'])
+        # 获取最近更新的文档数据
         recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, exclude_list, limit, self.recent_enable)
 
         # 将数据注入到 config['extra'] 中供全局访问
@@ -204,6 +202,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 渲染HTML
         if self.recent_enable:
+            docs_dir = Path(config['docs_dir'])
             self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
 
         return env

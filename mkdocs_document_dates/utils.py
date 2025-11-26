@@ -148,7 +148,7 @@ def get_recently_updated_files(existing_map: dict, files: Files, exclude_list: l
             if is_excluded(rel_path, exclude_list):
                 continue
 
-            # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
+            # 优先从现有数据获取 mtime，如果不存在则 fallback 到文件系统 mtime
             mtime = existing_map.get(rel_path, os.path.getmtime(file.abs_src_path))
 
             # 获取文档标题和 URL
