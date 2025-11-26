@@ -54,7 +54,6 @@ def get_git_first_commit_time(file_path):
         logger.info(f"Error getting git first commit time for {file_path}: {e}")
     return None
 
-
 def load_git_metadata(docs_dir_path: Path):
     dates_cache = {}
     try:
