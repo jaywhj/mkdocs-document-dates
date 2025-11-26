@@ -10,7 +10,7 @@ from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_creation_date, load_git_last_updated_date, read_jsonl_cache,is_excluded, get_recently_updated_files
+from .utils import get_file_creation_time, load_git_metadata, load_git_last_updated_date, read_jsonl_cache,is_excluded, get_recently_updated_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -65,9 +65,9 @@ class DocumentDatesPlugin(BasePlugin):
                 pass
         self._load_authors_from_yaml(authors_file)
 
-        # 加载文档创建时间缓存
-        self.dates_cache = load_git_creation_date(docs_dir_path)
-        # 覆盖 jsonl 文件缓存
+        # 加载文档元数据
+        self.dates_cache = load_git_metadata(docs_dir_path)
+        # 覆盖 jsonl 缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
         if jsonl_cache_file.exists():
             jsonl_cache = read_jsonl_cache(jsonl_cache_file)
@@ -75,7 +75,7 @@ class DocumentDatesPlugin(BasePlugin):
                 if filename in self.dates_cache:
                     self.dates_cache[filename].update(new_info)
 
-        # 加载文档最近更新时间缓存
+        # 加载文档最近更新时间
         self.last_updated_dates = load_git_last_updated_date(docs_dir_path)
 
 

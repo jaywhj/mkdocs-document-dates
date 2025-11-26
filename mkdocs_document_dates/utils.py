@@ -55,7 +55,7 @@ def get_git_first_commit_time(file_path):
     return None
 
 
-def load_git_creation_date(docs_dir_path: Path):
+def load_git_metadata(docs_dir_path: Path):
     dates_cache = {}
     try:
         git_root = Path(subprocess.check_output(
@@ -103,7 +103,6 @@ def load_git_creation_date(docs_dir_path: Path):
 def load_git_last_updated_date(docs_dir_path: Path):
     doc_mtime_map = {}
     try:
-        # 1. 获取 git 信息，只记录已跟踪的文件最近一次的提交信息
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
@@ -117,6 +116,7 @@ def load_git_last_updated_date(docs_dir_path: Path):
                 ["git", "ls-files", "*.md"],
                 cwd=docs_dir_path, capture_output=True, encoding='utf-8'
             )
+            # 只记录已跟踪的文件（还有已删除、重命名、不再跟踪）
             tracked_files = set(result.stdout.splitlines()) if result.stdout else set()
 
             ts = None
@@ -134,8 +134,7 @@ def load_git_last_updated_date(docs_dir_path: Path):
 
     return doc_mtime_map
 
-def get_recently_updated_files(doc_mtime_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
-
+def get_recently_updated_files(last_updated_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -151,7 +150,7 @@ def get_recently_updated_files(doc_mtime_map: dict, files: Files, exclude_list: 
                 continue
 
             # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
-            mtime = doc_mtime_map.get(rel_path, os.path.getmtime(file.abs_src_path))
+            mtime = last_updated_map.get(rel_path, os.path.getmtime(file.abs_src_path))
 
             # 获取文档标题和 URL
             title = file.page.title if file.page and file.page.title else file.name
@@ -159,9 +158,9 @@ def get_recently_updated_files(doc_mtime_map: dict, files: Files, exclude_list: 
 
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
-            # doc_mtime_map[rel_path] = mtime
+            # last_updated_map[rel_path] = mtime
 
-        # 3. 构建最近更新列表
+        # 构建最近更新列表
         if files_meta:
             # heapq 取 top limit
             top_results = heapq.nlargest(limit, files_meta, key=lambda x: x[0])
