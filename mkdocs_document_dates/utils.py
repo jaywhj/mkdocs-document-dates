@@ -133,7 +133,7 @@ def load_git_last_updated_date(docs_dir_path: Path):
 
     return doc_mtime_map
 
-def get_recently_updated_files(last_updated_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
+def get_recently_updated_files(existing_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -149,7 +149,7 @@ def get_recently_updated_files(last_updated_map: dict, files: Files, exclude_lis
                 continue
 
             # 获取 git 记录的 mtime，没有则 fallback 到文件系统 mtime
-            mtime = last_updated_map.get(rel_path, os.path.getmtime(file.abs_src_path))
+            mtime = existing_map.get(rel_path, os.path.getmtime(file.abs_src_path))
 
             # 获取文档标题和 URL
             title = file.page.title if file.page and file.page.title else file.name
@@ -157,7 +157,7 @@ def get_recently_updated_files(last_updated_map: dict, files: Files, exclude_lis
 
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
-            # last_updated_map[rel_path] = mtime
+            # existing_map[rel_path] = mtime
 
         # 构建最近更新列表
         if files_meta:
