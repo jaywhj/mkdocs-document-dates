@@ -10,7 +10,7 @@ from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_cache, read_jsonl_cache,is_excluded, get_recently_updated_files
+from .utils import get_file_creation_time, load_git_creation_date, load_git_last_updated_date, read_jsonl_cache,is_excluded, get_recently_updated_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -65,8 +65,8 @@ class DocumentDatesPlugin(BasePlugin):
                 pass
         self._load_authors_from_yaml(authors_file)
 
-        # 加载 git 缓存
-        self.dates_cache = load_git_cache(docs_dir_path)
+        # 加载文档创建时间缓存
+        self.dates_cache = load_git_creation_date(docs_dir_path)
         # 覆盖 jsonl 文件缓存
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
         if jsonl_cache_file.exists():
@@ -74,6 +74,10 @@ class DocumentDatesPlugin(BasePlugin):
             for filename, new_info in jsonl_cache.items():
                 if filename in self.dates_cache:
                     self.dates_cache[filename].update(new_info)
+
+        # 加载文档最近更新时间缓存
+        self.last_updated_dates = load_git_last_updated_date(docs_dir_path)
+
 
         # 复制配置文件到用户目录（如果不存在）
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
@@ -137,35 +141,6 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
-    def on_nav(self, nav, config, files):
-        recently_updated_config = self.config.get('recently-updated')
-        if recently_updated_config:
-            self.recent_enable = True
-
-        # 兼容 true 配置
-        if recently_updated_config is True:
-            recently_updated_config = {}
-
-        # 获取配置
-        exclude_list = recently_updated_config.get('exclude', [])
-        limit = recently_updated_config.get('limit', 10)
-        template_path = recently_updated_config.get('template')
-
-        # 获取最近更新日期和最近更新的文档数据
-        docs_dir = Path(config['docs_dir'])
-        self.last_updated_dates, recently_updated_docs = get_recently_updated_files(docs_dir, files, exclude_list, limit, self.recent_enable)
-
-        # 将数据注入到 config['extra'] 中供全局访问
-        if 'extra' not in config:
-            config['extra'] = {}
-        config['extra']['recently_updated_docs'] = recently_updated_docs
-
-        # 渲染HTML
-        if self.recent_enable:
-            self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
-
-        return nav
-
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', page.file.src_path)
@@ -193,10 +168,6 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_modified'] = modified.isoformat()
         page.meta['document_dates_authors'] = authors
         
-        # 占位符替换
-        if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in markdown:
-            markdown = markdown.replace('\n<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
-        
         # 检查是否需要排除
         if is_excluded(rel_path, self.config['exclude']):
             return markdown
@@ -206,6 +177,42 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
+
+    def on_env(self, env, config, files):
+
+        recently_updated_config = self.config.get('recently-updated')
+        if recently_updated_config:
+            self.recent_enable = True
+
+        # 兼容 true 配置
+        if recently_updated_config is True:
+            recently_updated_config = {}
+
+        # 获取配置
+        exclude_list = recently_updated_config.get('exclude', [])
+        limit = recently_updated_config.get('limit', 10)
+        template_path = recently_updated_config.get('template')
+
+        # 获取最近更新日期和最近更新的文档数据
+        docs_dir = Path(config['docs_dir'])
+        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, exclude_list, limit, self.recent_enable)
+
+        # 将数据注入到 config['extra'] 中供全局访问
+        if 'extra' not in config:
+            config['extra'] = {}
+        config['extra']['recently_updated_docs'] = recently_updated_docs
+
+        # 渲染HTML
+        if self.recent_enable:
+            self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
+
+        return env
+
+    def on_post_page(self, output, page, config):
+        if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in output:
+            output = output.replace('\n<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
+
+        return output
 
     def on_post_build(self, config):
         site_dest_dir = Path(config['site_dir']) / 'assets' / 'document_dates'
@@ -259,8 +266,8 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载模板
         env = Environment(
-            loader=FileSystemLoader(str(template_dir)),
-            autoescape=select_autoescape(["html", "xml"])
+            loader = FileSystemLoader(str(template_dir)),
+            autoescape = select_autoescape(["html", "xml"])
         )
         template = env.get_template(template_file)
 

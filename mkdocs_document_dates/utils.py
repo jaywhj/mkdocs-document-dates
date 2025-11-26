@@ -25,6 +25,23 @@ def is_excluded(path, exclude_list):
                 return True
     return False
 
+def get_file_creation_time(file_path):
+    try:
+        stat = os.stat(file_path)
+        system = platform.system().lower()
+        if system.startswith('win'):  # Windows
+            return datetime.fromtimestamp(stat.st_ctime)
+        elif system == 'darwin':  # macOS
+            try:
+                return datetime.fromtimestamp(stat.st_birthtime)
+            except AttributeError:
+                return datetime.fromtimestamp(stat.st_ctime)
+        else:  # Linux, 没有创建时间，使用修改时间
+            return datetime.fromtimestamp(stat.st_mtime)
+    except (OSError, ValueError) as e:
+        logger.error(f"Failed to get file creation time for {file_path}: {e}")
+        return datetime.now()
+
 def get_git_first_commit_time(file_path):
     try:
         # git log --reverse --format="%aI" -- {file_path} | head -n 1
@@ -37,7 +54,8 @@ def get_git_first_commit_time(file_path):
         logger.info(f"Error getting git first commit time for {file_path}: {e}")
     return None
 
-def load_git_cache(docs_dir_path: Path):
+
+def load_git_creation_date(docs_dir_path: Path):
     dates_cache = {}
     try:
         git_root = Path(subprocess.check_output(
@@ -82,24 +100,7 @@ def load_git_cache(docs_dir_path: Path):
         logger.info(f"Error getting git info in {docs_dir_path}: {e}")
     return dates_cache
 
-def get_file_creation_time(file_path):
-    try:
-        stat = os.stat(file_path)
-        system = platform.system().lower()
-        if system.startswith('win'):  # Windows
-            return datetime.fromtimestamp(stat.st_ctime)
-        elif system == 'darwin':  # macOS
-            try:
-                return datetime.fromtimestamp(stat.st_birthtime)
-            except AttributeError:
-                return datetime.fromtimestamp(stat.st_ctime)
-        else:  # Linux, 没有创建时间，使用修改时间
-            return datetime.fromtimestamp(stat.st_mtime)
-    except (OSError, ValueError) as e:
-        logger.error(f"Failed to get file creation time for {file_path}: {e}")
-        return datetime.now()
-
-def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
+def load_git_last_updated_date(docs_dir_path: Path):
     doc_mtime_map = {}
     try:
         # 1. 获取 git 信息，只记录已跟踪的文件最近一次的提交信息
@@ -131,7 +132,10 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
     except Exception as e:
         logger.info(f"Error getting git tracked files in {docs_dir_path}: {e}")
 
-    # 2. 构建所有文档的元数据
+    return doc_mtime_map
+
+def get_recently_updated_files(doc_mtime_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
+
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -155,7 +159,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
 
             # 存储信息
             files_meta.append((mtime, rel_path, title, url))
-            doc_mtime_map[rel_path] = mtime
+            # doc_mtime_map[rel_path] = mtime
 
         # 3. 构建最近更新列表
         if files_meta:
@@ -166,7 +170,7 @@ def get_recently_updated_files(docs_dir_path: Path, files: Files, exclude_list: 
                 for mtime, *rest in top_results
             ]
 
-    return doc_mtime_map, recently_updated_results
+    return recently_updated_results
 
 def read_jsonl_cache(jsonl_file: Path):
     dates_cache = {}
