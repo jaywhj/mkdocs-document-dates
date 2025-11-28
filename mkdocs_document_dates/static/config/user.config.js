@@ -70,7 +70,7 @@ Part 3:
 // Way 1: User-defined one language
 TooltipLanguage.register('en', {
     created_time: "Custom Created",
-    modified_time: "Custom Last Update",
+    updated_time: "Custom Last Update",
     author: "Custom Author",
     authors: "Custom Authors"
 });
@@ -79,13 +79,13 @@ TooltipLanguage.register('en', {
 const userLanguages = {
     en: {
         created_time: "Created",
-        modified_time: "Last Update",
+        updated_time: "Last Update",
         author: "Author",
         authors: "Authors"
     },
     zh: {
         created_time: "创建时间",
-        modified_time: "最后更新",
+        updated_time: "最后更新",
         author: "作者",
         authors: "作者"
     }

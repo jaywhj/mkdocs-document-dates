@@ -14,14 +14,15 @@
     Google Fonts Icons (2500+): https://fonts.google.com/icons
 
     doc_created:  add_circle, add_circle, note_add, more_time
-    doc_modified: update, check_circle, task, refresh
+    doc_updated:  update, check_circle, task, refresh
     doc_author:   person, account_circle
     doc_authors:  group, groups */
+
 /* 
 .document-dates-plugin .material-icons[data-icon="doc_created"]::before {
     content: "more_time";
 }
-.document-dates-plugin .material-icons[data-icon="doc_modified"]::before {
+.document-dates-plugin .material-icons[data-icon="doc_updated"]::before {
     content: "refresh";
 }
 .document-dates-plugin .material-icons[data-icon="doc_author"]::before {
@@ -36,6 +37,7 @@
 /* 2. Plug-in wrapper styles
     including divider line, margin, padding, and the hiding of this plugin, etc
     */
+
 /* Remove the divider line: */
 /* 
 .document-dates-plugin-wrapper.document-dates-top,

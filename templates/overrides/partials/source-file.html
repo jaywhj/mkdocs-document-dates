@@ -6,9 +6,9 @@
     </span>
 
     {#- Render date of last update #}
-    <span data-tippy-content data-tippy-raw="{{ page.meta.document_dates_modified[:10] }}">
-        <span class="material-icons" data-icon="doc_modified"></span>
-        <time datetime="{{ page.meta.document_dates_modified }}"></time>
+    <span data-tippy-content data-tippy-raw="{{ page.meta.document_dates_updated[:10] }}">
+        <span class="material-icons" data-icon="doc_updated"></span>
+        <time datetime="{{ page.meta.document_dates_updated }}"></time>
     </span>
 
     {#- Render authors #}

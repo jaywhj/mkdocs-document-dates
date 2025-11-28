@@ -34,9 +34,9 @@ class DocumentDatesPlugin(BasePlugin):
         ('position', config_options.Type(str, default='top')),
         ('exclude', config_options.Type(list, default=[])),
         ('created_field_names', config_options.Type(list, default=['created', 'date'])),
-        ('modified_field_names', config_options.Type(list, default=['modified', 'updated'])),
+        ('updated_field_names', config_options.Type(list, default=['updated', 'modified'])),
         ('show_created', config_options.Type(bool, default=True)),
-        ('show_modified', config_options.Type(bool, default=True)),
+        ('show_updated', config_options.Type(bool, default=True)),
         ('show_author', config_options.Choice((True, False, 'text'), default=True)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
@@ -150,11 +150,11 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 获取时间信息
         created = self._find_meta_date(page.meta, self.config['created_field_names'])
-        modified = self._find_meta_date(page.meta, self.config['modified_field_names'])
+        updated = self._find_meta_date(page.meta, self.config['updated_field_names'])
         if not created:
             created = self._get_file_creation_time(file_path, rel_path)
-        if not modified:
-            modified = self._get_file_modification_time(file_path, rel_path)
+        if not updated:
+            updated = self._get_file_modification_time(file_path, rel_path)
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
@@ -165,7 +165,7 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 在排除前暴露 meta 信息给前端使用
         page.meta['document_dates_created'] = created.isoformat()
-        page.meta['document_dates_modified'] = modified.isoformat()
+        page.meta['document_dates_updated'] = updated.isoformat()
         page.meta['document_dates_authors'] = authors
         
         # 检查是否需要排除
@@ -173,7 +173,7 @@ class DocumentDatesPlugin(BasePlugin):
             return markdown
         
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, modified, authors)
+        info_html = self._generate_html_info(created, updated, authors)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
@@ -378,7 +378,7 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created: datetime, modified: datetime, authors=None):
+    def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
         try:
             # 构建基本的日期信息 HTML
             html_parts = []
@@ -397,8 +397,8 @@ class DocumentDatesPlugin(BasePlugin):
 
             if self.config['show_created']:
                 html_parts.append(build_time_icon(created, 'doc_created'))
-            if self.config['show_modified']:
-                html_parts.append(build_time_icon(modified, 'doc_modified'))
+            if self.config['show_updated']:
+                html_parts.append(build_time_icon(updated, 'doc_updated'))
 
             # 添加作者信息
             if self.config['show_author'] and authors:
