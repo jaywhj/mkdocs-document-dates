@@ -64,14 +64,14 @@ plugins:
 
 除了以上基础配置外，插件还提供了丰富的自定义选项，可满足各种个性化需求：
 
-- [指定日期时间](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4)：可手动指定每个文档的创建时间和最后更新时间
-- [指定作者](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E4%BD%9C%E8%80%85)：可手动指定每个文档的作者信息，比如姓名、链接、头像、邮箱等
-- [指定头像](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E5%A4%B4%E5%83%8F)：可手动指定每个作者的头像
-- [设置插件样式](https://jaywhj.netlify.app/document-dates-zh#%E8%AE%BE%E7%BD%AE%E6%8F%92%E4%BB%B6%E6%A0%B7%E5%BC%8F)：如图标、主题、颜色、字体、动画、分界线等
+- [指定日期时间](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4)：介绍了文档日期的获取机制以及个性化自定义的方法，可手动指定每个文档的创建时间和最后更新时间
+- [指定作者](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E4%BD%9C%E8%80%85)：介绍了文档作者的获取机制以及个性化自定义的方法，可手动指定每个文档的作者信息，比如姓名、链接、头像、邮箱等
+- [指定头像](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E5%A4%B4%E5%83%8F)：可手动指定每个作者的头像，支持本地文件路径、URL 路径
+- [设置插件样式](https://jaywhj.netlify.app/document-dates-zh#%E8%AE%BE%E7%BD%AE%E6%8F%92%E4%BB%B6%E6%A0%B7%E5%BC%8F)：可通过预置入口快速设置插件样式，比如图标、主题、颜色、字体、动画、分界线等
 - [添加本地化语言](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%AC%E5%9C%B0%E5%8C%96%E8%AF%AD%E8%A8%80)：为 `timeago` 和 `tooltip` 补充更多本地化语言
 - [使用模板变量](https://jaywhj.netlify.app/document-dates-zh#%E4%BD%BF%E7%94%A8%E6%A8%A1%E6%9D%BF%E5%8F%98%E9%87%8F)：可用于优化 sitemap.xml 以便优化站点 SEO、可用于重新定制插件等
-- [添加最近更新模块](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97)：启用最近更新的文档列表（按更新时间降序排列）
-- [其它提示](https://jaywhj.netlify.app/document-dates-zh#%E5%85%B6%E5%AE%83%E6%8F%90%E7%A4%BA)：介绍了技术原理、缓存机制，以及在 Docker 中如何使用
+- [添加最近更新模块](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97)：启用最近更新的文档列表（按更新时间降序排列），这特别适合拥有大量文档的站点，方便读者快速浏览新内容
+- [其它提示](https://jaywhj.netlify.app/document-dates-zh#%E5%85%B6%E5%AE%83%E6%8F%90%E7%A4%BA)：介绍在 Docker 中使用插件的注意事项
 - [开发小故事](https://jaywhj.netlify.app/document-dates-zh#%E5%BC%80%E5%8F%91%E5%B0%8F%E6%95%85%E4%BA%8B)：描述了插件的由来、开发遇到的难点及解决方案、产品设计原则与方向
 
 具体内容参见文档：https://jaywhj.netlify.app/document-dates-zh
