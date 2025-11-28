@@ -10,8 +10,8 @@
             1.date only (2025-06-22)
             2.full time zone datetime (2025-06-22T15:30:00+08:00) 
         -#}
-        {%- if file.page.meta.document_dates_modified %}
-        <lastmod>{{ file.page.meta.document_dates_modified[:10] }}</lastmod>
+        {%- if file.page.meta.document_dates_updated %}
+        <lastmod>{{ file.page.meta.document_dates_updated[:10] }}</lastmod>
         {%- endif %}
         
         {#- daily weekly monthly #}
