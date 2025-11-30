@@ -412,12 +412,13 @@ class DocumentDatesPlugin(BasePlugin):
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
                     tooltip_text = ',&nbsp;'.join(get_author_tooltip(author) for author in authors)
-                    author_text = ', '.join(author.name for author in authors)
+                    # author_text = ', '.join(author.name for author in authors)
                     icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(
                         f"<span data-tippy-content data-tippy-raw='{tooltip_text}'>"
                         f"<span class='material-icons' data-icon='{icon}'></span>"
-                        f"{author_text}"
+                        f"{tooltip_text}"
+                        # f"{author_text}"
                         f"</span>"
                     )
                 else:
