@@ -23,7 +23,7 @@ class CustomInstallCommand(install):
         install.run(self)
 
 
-VERSION = '3.5'
+VERSION = '3.5.1'
 
 setup(
     name="mkdocs-document-dates",
@@ -31,7 +31,7 @@ setup(
     author="Aaron Wang",
     author_email="aaronwqt@gmail.com",
     license="MIT",
-    description="A new generation MkDocs plugin for displaying exact creation time, last update time, authors, email of documents",
+    description="A new generation MkDocs plugin for displaying exact creation date, last updated date, authors, email of documents",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/jaywhj/mkdocs-document-dates",
