@@ -68,28 +68,16 @@
 
 
     <!-- Recently Updated Docs -->
-    <style>
-    .md-nav__link:hover {
-        text-decoration: underline;
-    }
-    .md-nav__title {
-        padding-left: 0;
-        background-color: transparent;
-    }
-    @media (max-width: 1220px) {
-        .md-nav__title {
-            padding-left: 20px;
-        }
-    }
-    </style>
     {%- if config.extra.recently_updated_docs %}
-    <div class="md-nav__list" style="padding: 40px 0 20px 0;">
-        <span class="md-nav__title">Recently updated</span>
+    <div style="padding: 20px 0;">
+      <span class="md-nav__link" style="font-weight: 700;">最近更新</span>
+      <div>
         {%- for mtime, rel_path, title, url in config.extra.recently_updated_docs %}
         <div class="md-nav__item">
-            <a href="/{{ url }}" class="md-nav__link" style="color: #0077cc;">{{ title }}</a>
+            <a href="/{{ url }}" class="md-nav__link">{{ title }}</a>
         </div>
         {%- endfor %}
+      </div>
     </div>
     {%- endif %}
 
