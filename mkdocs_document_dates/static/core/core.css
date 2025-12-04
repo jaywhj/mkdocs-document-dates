@@ -59,7 +59,7 @@
 .document-dates-plugin-wrapper.document-dates-top,
 .document-dates-plugin-wrapper.document-dates-bottom {
     margin: 1rem 0;
-    border-bottom: 1px solid rgba(142, 142, 142, 0.15);
+    border-bottom: 1px solid rgba(142, 142, 142, 0.1);
 }
 .md-main .document-dates-plugin-wrapper.document-dates-top {
     margin: -1rem 0 1rem 0;
