@@ -8,6 +8,7 @@ Part 1:
 // tooltip_config.theme.light = 'tomato';
 // tooltip_config.placement = 'top';
 // tooltip_config.arrow = false;
+// tooltip_config.zIndex = 2;
 
 /* Or, override all configuration items: */
 /*
@@ -23,6 +24,7 @@ TooltipConfig.setConfig({
     interactive: true,      // content in Tooltip is interactive
     animation: 'scale',     // animation type: scale shift-away
     inertia: true,          // animation inertia
+    // zIndex: 2,              // control the display layer(z-index) of the tooltip element
     // arrow: false,           // whether to allow arrows
     // animateFill: true,      // determines if the background fill color should be animated
     // delay: [400, null],     // delay: [show, hide]: show is 400ms, and hide is null for the default value
