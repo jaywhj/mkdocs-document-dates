@@ -73,3 +73,13 @@ plugins:
 - [开发小故事](https://jaywhj.netlify.app/document-dates-zh#%E5%BC%80%E5%8F%91%E5%B0%8F%E6%95%85%E4%BA%8B)：描述了插件的由来、开发遇到的难点及解决方案、产品设计原则与方向
 
 具体内容参见文档：https://jaywhj.netlify.app/document-dates-zh
+
+<br />
+
+## 交流群
+
+**Discord**: https://discord.gg/cvTfge4AUy
+
+**Wechat**: 
+
+<img src="wechat-group.jpg" width="150" />

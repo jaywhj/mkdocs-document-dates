@@ -73,3 +73,14 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
+
+
+<br />
+
+## Chat Group
+
+**Discord**: https://discord.gg/cvTfge4AUy
+
+**Wechat**: 
+
+<img src="wechat-group.jpg" width="150" />
