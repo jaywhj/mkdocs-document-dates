@@ -83,4 +83,4 @@ See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
 **Wechat**: 
 
-<img src="wechat-group.jpg" width="150" />
+<img src="wechat-group.jpg" width="140" />
