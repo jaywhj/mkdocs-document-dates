@@ -43,7 +43,7 @@
     <span class="material-icons" data-icon="{{ icon }}"></span>
     <div class="avatar-group">
         {%- for author in page.meta.document_dates_authors %}
-            {%- if not loop.first -%},&nbsp;{%- endif -%}
+            {%- if not loop.first -%},&nbsp;&nbsp;{%- endif -%}
             {%- set tooltip %}
                 {%- if author.url -%}
                     <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
