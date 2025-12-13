@@ -47,9 +47,27 @@
 
 
 
-/* 3. Tooltip styles
+/* 3. Author Avatar styles
+    e.g. shape, hover scale, grayscale mode
+    */
+/* 
+.avatar-wrapper {
+    border-radius: 4px;
+    filter: grayscale(0%);
+}
+.avatar-wrapper:hover {
+    transform: scale(1.08);
+} */
+
+
+
+/* 4. Tooltip styles
     including theme, arrow, font, color, background color, etc
     */
+
+/* .tippy-box {
+    font-size: 12px;
+} */    
 
 /* Demo of the custom theme 'sorrel' and 'sublime', you can configure it in user.config.js (optional) */
 /* 
@@ -67,18 +85,4 @@
 }
 .tippy-box[data-theme~='sublime'] > .tippy-arrow::before {
     color: #474747;
-} */
-
-
-
-/* 4. Author Avatar styles
-    e.g. shape, hover scale, grayscale mode
-    */
-/* 
-.avatar-wrapper {
-    border-radius: 4px;
-    filter: grayscale(0%);
-}
-.avatar-wrapper:hover {
-    transform: scale(1.08);
 } */

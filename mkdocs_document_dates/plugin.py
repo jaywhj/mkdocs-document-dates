@@ -391,8 +391,8 @@ class DocumentDatesPlugin(BasePlugin):
                 return (
                     f"<span data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
-                    f"<time datetime='{time_obj.isoformat()}'>"
-                    f"{self._get_formatted_date(time_obj)}</time></span>"
+                    f"<time datetime='{time_obj.isoformat()}'>{self._get_formatted_date(time_obj)}</time>"
+                    f"</span>"
                 )
 
             if self.config['show_created']:
