@@ -54,7 +54,6 @@ class DocumentDatesPlugin(BasePlugin):
         docs_dir_path = Path(config['docs_dir'])
 
         # 加载 author 配置
-        self._extract_github_username(config.get('repo_url'))
         authors_file = docs_dir_path / 'authors.yml'
         if not authors_file.exists():
             try:
@@ -158,10 +157,6 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
-        if authors and len(authors) == 1:
-            a = authors[0]
-            if not a.avatar and self.github_username:
-                a.avatar = f"https://avatars.githubusercontent.com/{self.github_username}"
         
         # 在排除前暴露 meta 信息给前端使用
         page.meta['document_dates_created'] = created.isoformat()
@@ -224,17 +219,6 @@ class DocumentDatesPlugin(BasePlugin):
                 if item.is_file():
                     shutil.copy2(item, target_dir / item.name)
 
-
-    def _extract_github_username(self, url):
-        try:
-            parsed = urlparse(url)
-            if parsed.netloc != 'github.com':
-                return
-            path_parts = [p for p in parsed.path.split('/') if p]
-            if path_parts:
-                self.github_username = path_parts[0]
-        except Exception as e:
-            logger.info(f"Error parsing URL: {e}")
 
     def _load_authors_from_yaml(self, file_path: Path):
         if not file_path.exists():
