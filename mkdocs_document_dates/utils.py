@@ -3,6 +3,8 @@ import platform
 import json
 import heapq
 import logging
+import hashlib
+import requests
 import subprocess
 from pathlib import Path
 from datetime import datetime
@@ -66,10 +68,11 @@ def load_git_metadata(docs_dir_path: Path):
         cmd = ['git', 'log', '--reverse', '--no-merges', '--use-mailmap', '--name-only', '--format=%aN|%aE|%aI', f'--relative={rel_docs_path}', '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
+            init_avatar_provider()
+
             authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
-
             for line in process.stdout.splitlines():
                 line = line.strip()
                 if not line:
@@ -82,14 +85,14 @@ def load_git_metadata(docs_dir_path: Path):
                     # 使用 defaultdict(dict)结构，处理有序与去重
                         # a.巧用 Python 字典的 setdefault 特性来去重（setdefault 为不存在的键提供初始值，不会覆盖已有值）
                         # b.巧用 Python 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
-                    authors_dict[line].setdefault((name, email), None)
+                    authors_dict[line].setdefault((name, email, get_avatar_url(email)), None)
                     first_commit.setdefault(line, created)
 
             # 构建最终的缓存数据
             for file_path in first_commit:
                 authors_list = [
-                    {'name': name, 'email': email}
-                    for name, email in authors_dict[file_path].keys()  # 这里的 keys() 是有序的
+                    {'name': name, 'email': email, 'avatar': avatar}
+                    for name, email, avatar in authors_dict[file_path].keys()  # 这里的 keys() 是有序的
                 ]
                 dates_cache[file_path] = {
                     'created': first_commit[file_path],
@@ -209,3 +212,43 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
     except Exception as e:
         logger.warning(f"Failed to add JSONL cache file to git: {e}")
     return False
+
+
+_GRAVATAR = "https://www.gravatar.com/avatar"   # Gravatar 头像，全球通用头像服务商，国内访问不稳定 ✓
+_WEAVATAR = "https://weavatar.com/avatar"       # Gravatar 国内镜像，实测发现国内外访问都正常，数据跟 Gravatar 一致 ✓
+_CRAVATAR = "https://cravatar.cn/avatar"        # 国内头像服务商，有国际 CDN，很多开源项目在用，实测发现只包含部分 Gravatar 数据
+_BASE: str = None
+
+def get_avatar_url(email: str, size: int = 64, default: str = "404") -> str:
+    """
+    Generate a avatar URL from an email address.
+
+    :param email: Author email
+    :param size: Avatar size in pixels (1~2048)
+    :param default: Default avatar style when no avatar exists
+        options: '404' 'wavatar' 'retro' 'identicon' 'mp' 'monsterid' 'robohash' 'blank'
+    :return: Avatar URL
+    """
+
+    if not _BASE or not email:
+        return ""
+
+    email_hash = hashlib.md5(email.strip().lower().encode("utf-8")).hexdigest()
+    return f"{_BASE}/{email_hash}?d={default}&s={size}"
+
+def init_avatar_provider(timeout: float = 0.5) -> None:
+    global _BASE
+
+    if _BASE is not None:
+        return
+
+    for base in (_GRAVATAR, _WEAVATAR):
+        try:
+            r = requests.head(f"{base}/", timeout=timeout, allow_redirects=True)
+            if r.status_code < 500:
+                _BASE = base
+                return
+        except requests.RequestException:
+            continue
+
+    _BASE = ""

@@ -11,7 +11,8 @@
         <time datetime="{{ page.meta.document_dates_updated }}"></time>
     </span>
 
-    {#- Render authors (avatar mode) #}
+
+    {#- Render authors (avatar mode) -#}
     {%- if page.meta.document_dates_authors %}
         {%- set icon = 'doc_author' if page.meta.document_dates_authors|length == 1 else 'doc_authors' %}
     <span class="material-icons" data-icon="{{ icon }}"></span>
@@ -33,13 +34,17 @@
         {%- endfor %}
     </div>
     {%- endif %}
-<!-- 
-    {#- Render authors (text mode) #}
+
+
+    {#- Render authors (text mode) -#}
+{#
     {%- if page.meta.document_dates_authors %}
         {%- set icon = 'doc_author' if page.meta.document_dates_authors|length == 1 else 'doc_authors' %}
-        {%- set tooltip_text %}
-            {%- for author in page.meta.document_dates_authors -%}
-                {%- if not loop.first -%},&nbsp;{%- endif -%}
+    <span class="material-icons" data-icon="{{ icon }}"></span>
+    <div class="avatar-group">
+        {%- for author in page.meta.document_dates_authors %}
+            {%- if not loop.first -%},&nbsp;&nbsp;{%- endif -%}
+            {%- set tooltip %}
                 {%- if author.url -%}
                     <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
                 {%- elif author.email -%}
@@ -47,11 +52,10 @@
                 {%- else -%}
                     {{ author.name }}
                 {%- endif -%}
-            {%- endfor -%}
-        {%- endset %}
-    <span data-tippy-content data-tippy-raw='{{ tooltip_text | trim }}'>
-        <span class="material-icons" data-icon="{{ icon }}"></span>
-        {{ tooltip_text | trim | safe }}
-    </span>
-    {%- endif %} -->
+            {%- endset %}
+        <span data-tippy-content data-tippy-raw='{{ tooltip }}'>{{ tooltip }}</span>
+        {%- endfor %}
+    </div>
+    {%- endif %}
+#}
 </div>

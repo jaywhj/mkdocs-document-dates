@@ -1,5 +1,23 @@
+/* 1. Plug-in wrapper styles
+    including divider, margin, padding, etc
+    */
+.document-dates-plugin-wrapper.document-dates-top,
+.document-dates-plugin-wrapper.document-dates-bottom {
+    margin: 1rem 0;
+    border-bottom: 1px solid rgba(142, 142, 142, 0.1);
+}
+.md-main .document-dates-plugin-wrapper.document-dates-top {
+    margin: -1rem 0 1rem 0;
+}
 
-/* 1. Plug-in styles
+/* Hide the footnote divider immediately following the date information with the CSS adjacent sibling selector */
+.document-dates-plugin-wrapper + .footnote hr {
+    display: none;
+}
+
+
+
+/* 2. Plug-in styles
     including icons, fonts, colors, etc
     */
 .document-dates-plugin {
@@ -53,60 +71,7 @@
 
 
 
-/* 2. Plug-in wrapper styles
-    including divider, margin, padding, etc
-    */
-.document-dates-plugin-wrapper.document-dates-top,
-.document-dates-plugin-wrapper.document-dates-bottom {
-    margin: 1rem 0;
-    border-bottom: 1px solid rgba(142, 142, 142, 0.1);
-}
-.md-main .document-dates-plugin-wrapper.document-dates-top {
-    margin: -1rem 0 1rem 0;
-}
-
-/* Hide the footnote divider immediately following the date information with the CSS adjacent sibling selector */
-.document-dates-plugin-wrapper + .footnote hr {
-    display: none;
-}
-
-
-
-/* 3. Tooltip styles
-    including theme, arrow, font, color, background color, etc
-    */
-
-/* .tippy-box {
-    font-size: 12px;
-} */
-
-/* Demo of the custom theme 'tomato' (optional) */
-.tippy-box[data-theme~='tomato'] {
-    background-color: tomato;
-    color: white;
-}
-/* Customize the arrow corresponding to the theme tomato */
-.tippy-box[data-theme~='tomato'] > .tippy-arrow::before {
-    color: tomato;
-}
-/* 
-Recommended Colors:
-    tomato: rgb(241, 112, 91);
-    mung_bean: rgb(122, 145, 109);
-    cloisonné: rgb(15, 89, 164);
-    soft_blue: rgb(16, 104, 152);
-*/
-
-/* Customize arrows, resize */
-.tippy-arrow::before {
-    -webkit-transform: scale(0.75);
-    -ms-transform: scale(0.75);
-    transform: scale(0.75);
-}
-
-
-
-/* 4. Author Avatar styles */
+/* 3. Author Avatar styles */
 .avatar-group {
     display: flex;
     align-items: center;
@@ -149,4 +114,38 @@ Recommended Colors:
     align-items: center;
     justify-content: center;
     text-transform: capitalize;
+}
+
+
+
+/* 4. Tooltip styles
+    including theme, arrow, font, color, background color, etc
+    */
+
+/* .tippy-box {
+    font-size: 12px;
+} */
+
+/* Demo of the custom theme 'tomato' (optional) */
+.tippy-box[data-theme~='tomato'] {
+    background-color: tomato;
+    color: white;
+}
+/* Customize the arrow corresponding to the theme tomato */
+.tippy-box[data-theme~='tomato'] > .tippy-arrow::before {
+    color: tomato;
+}
+/* 
+Recommended Colors:
+    tomato: rgb(241, 112, 91);
+    mung_bean: rgb(122, 145, 109);
+    cloisonné: rgb(15, 89, 164);
+    soft_blue: rgb(16, 104, 152);
+*/
+
+/* Customize arrows, resize */
+.tippy-arrow::before {
+    -webkit-transform: scale(0.75);
+    -ms-transform: scale(0.75);
+    transform: scale(0.75);
 }
