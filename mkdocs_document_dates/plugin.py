@@ -424,7 +424,7 @@ class DocumentDatesPlugin(BasePlugin):
                             f"<img class='avatar' src='{author.avatar}' onerror=\"this.style.display='none'\" />"
                             f"</div>"
                         )
-                    html_parts.append("</div>")    
+                    html_parts.append("</div>")
                 html_parts.append("</div>")
 
             html_parts.append("</div></div>")
