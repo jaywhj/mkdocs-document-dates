@@ -225,7 +225,8 @@ def get_avatar_url(email: str, size: int = 64, default: str = "404") -> str:
 
     :param email: Author email
     :param size: Avatar size in pixels (1~2048)
-    :param default: Default avatar style when no avatar exists, e.g. 'identicon', 'mp', 'retro', 'robohash', 'wavatar', '404'
+    :param default: Default avatar style when no avatar exists
+        options: '404' 'wavatar' 'retro' 'identicon' 'mp' 'monsterid' 'robohash' 'blank'
     :return: Avatar URL
     """
 
