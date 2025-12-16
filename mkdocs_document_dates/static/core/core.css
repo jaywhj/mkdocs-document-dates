@@ -85,7 +85,6 @@
     justify-content: flex-end;
     flex: 1 1 auto;
     min-width: 0;
-    position: relative;             /* 为可能的遮罩提示做定位基准 */
 }
 
 /* .dd-right::after {
@@ -115,7 +114,6 @@
 
     margin-right: 10px;
 
-    /* 隐藏滚动条 */
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -126,8 +124,8 @@
 .avatar-wrapper {
     margin-left: 0.3rem;
     position: relative;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -175,8 +173,8 @@
     flex-shrink: 0;
 }
 
-/* 极窄屏幕下（比如手机竖屏），可能还是需要换行，否则内容实在看不清 */
-@media screen and (max-width: 540px) {
+/* 极窄屏幕下，还是需要换行 */
+@media screen and (max-width: 359px) {
     .document-dates-plugin {
         flex-wrap: wrap; 
     }
