@@ -407,22 +407,18 @@ class DocumentDatesPlugin(BasePlugin):
                     html_parts.append("<div class='dd-right'>")
                 else:
                     html_parts.append("<div class='dd-left'>")
+                icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
+                html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
+                html_parts.append("<div class='author-group'>")
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
-                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='author-group'>")
                     for index, author in enumerate(authors):
                         if index > 0:
                             html_parts.append(",&nbsp;&nbsp;")
                         tooltip = get_author_tooltip(author)
                         html_parts.append(f"<span class='text-wrapper' data-tippy-content data-tippy-raw='{ tooltip }'>{ tooltip }</span>")
-                    html_parts.append("</div>")
                 else:
                     # 显示头像模式（默认）
-                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='author-group'>")
                     for author in authors:
                         tooltip = get_author_tooltip(author)
                         html_parts.append(
@@ -431,7 +427,7 @@ class DocumentDatesPlugin(BasePlugin):
                             f"<img class='avatar' src='{author.avatar}' onerror=\"this.style.display='none'\" />"
                             f"</div>"
                         )
-                    html_parts.append("</div>")
+                html_parts.append("</div>")
                 html_parts.append("</div>")
 
             html_parts.append("</div></div>")
