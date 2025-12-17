@@ -54,7 +54,6 @@
     <span class="material-icons" data-icon="{{ icon }}"></span>
     <div class="author-group">
     {%- for author in page.meta.document_dates_authors %}
-      {%- if not loop.first -%},&nbsp;&nbsp;{%- endif -%}
       {%- set tooltip %}
         {%- if author.url -%}
           <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
@@ -65,6 +64,7 @@
         {%- endif -%}
       {%- endset %}
       <span class="text-wrapper" data-tippy-content data-tippy-raw='{{ tooltip }}'>{{ tooltip }}</span>
+      {%- if not loop.last -%},&nbsp;&nbsp;{%- endif -%}
     {%- endfor %}
     </div>
   </div>

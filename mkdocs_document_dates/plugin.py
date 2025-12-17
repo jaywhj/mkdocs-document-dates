@@ -364,8 +364,8 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
         try:
-            show_time_icons = self.config['show_created'] or self.config['show_updated']
-            show_plugin = show_time_icons or self.config['show_author']
+            show_dates = self.config['show_created'] or self.config['show_updated']
+            show_plugin = show_dates or self.config['show_author']
             if not show_plugin:
                 return ""
 
@@ -385,13 +385,13 @@ class DocumentDatesPlugin(BasePlugin):
                 )
 
             # 添加日期信息
-            if show_time_icons:
+            if show_dates:
                 html_parts.append("<div class='dd-left'>")
             if self.config['show_created']:
                 html_parts.append(build_time_icon(created, 'doc_created'))
             if self.config['show_updated']:
                 html_parts.append(build_time_icon(updated, 'doc_updated'))
-            if show_time_icons:
+            if show_dates:
                 html_parts.append("</div>")
 
             # 添加作者信息
@@ -403,7 +403,10 @@ class DocumentDatesPlugin(BasePlugin):
                         return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
-                html_parts.append("<div class='dd-right'>")
+                if show_dates:
+                    html_parts.append("<div class='dd-right'>")
+                else:
+                    html_parts.append("<div class='dd-left'>")
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
                     icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
