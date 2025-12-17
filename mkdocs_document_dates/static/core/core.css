@@ -67,6 +67,7 @@
 .dd-left {
     display: flex;
     align-items: center;
+    margin-right: 1.5rem;
 }
 .dd-item {
     display: inline-flex;
@@ -79,12 +80,11 @@
 }
 
 .dd-right {
-    margin-left: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     flex: 1 1 auto;
-    min-width: 0;
+    min-width: 110px;
 }
 
 /* ==========================================================================
