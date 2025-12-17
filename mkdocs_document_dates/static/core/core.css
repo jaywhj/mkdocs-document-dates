@@ -67,12 +67,12 @@
 .dd-left {
     display: flex;
     align-items: center;
-    flex-shrink: 0;
 }
 .dd-item {
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 .dd-left > .dd-item + .dd-item {
     margin-left: 1.5rem;
@@ -87,17 +87,6 @@
     min-width: 0;
 }
 
-/* .dd-right::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 20px;
-    background: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,1));
-    pointer-events: none;
-} */
-
 /* ==========================================================================
    3. Author Avatar styles
    ========================================================================== */
@@ -109,7 +98,7 @@
     overflow-x: auto;
     overflow-y: hidden;
 
-    /* 防止缩放导致的内容溢出 */
+    /* 防止缩放时子元素溢出 */
     padding: 0.15rem 0.15rem 0.15rem 0;
 
     margin-right: 10px;
@@ -132,8 +121,6 @@
     opacity: 0.85;
     filter: grayscale(90%);
     transition: transform 0.2s ease, filter 0.2s ease;
-
-    /* 修正 display，防止 inline 元素导致布局怪异 */
     display: block;
 
     /* 修复 Safari 下的 bug：圆角可能会闪烁显示方角 */
