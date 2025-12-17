@@ -364,6 +364,11 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
         try:
+            show_time_icons = self.config['show_created'] or self.config['show_updated']
+            show_plugin = show_time_icons or self.config['show_author']
+            if not show_plugin:
+                return ""
+
             # 构建基本的日期信息 HTML
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
@@ -373,16 +378,21 @@ class DocumentDatesPlugin(BasePlugin):
             def build_time_icon(time_obj: datetime, icon: str):
                 formatted = time_obj.strftime(self.config['date_format'])
                 return (
-                    f"<span data-tippy-content data-tippy-raw='{formatted}'>"
+                    f"<span class='dd-item' data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
                     f"<time datetime='{time_obj.isoformat()}'>{self._get_formatted_date(time_obj)}</time>"
                     f"</span>"
                 )
 
+            # 添加日期信息
+            if show_time_icons:
+                html_parts.append("<div class='dd-left'>")
             if self.config['show_created']:
                 html_parts.append(build_time_icon(created, 'doc_created'))
             if self.config['show_updated']:
                 html_parts.append(build_time_icon(updated, 'doc_updated'))
+            if show_time_icons:
+                html_parts.append("</div>")
 
             # 添加作者信息
             if self.config['show_author'] and authors:
@@ -393,22 +403,23 @@ class DocumentDatesPlugin(BasePlugin):
                         return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
+                html_parts.append("<div class='dd-right'>")
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
                     icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='avatar-group'>")
+                    html_parts.append("<div class='author-group'>")
                     for index, author in enumerate(authors):
                         if index > 0:
                             html_parts.append(",&nbsp;&nbsp;")
                         tooltip = get_author_tooltip(author)
-                        html_parts.append(f"<span data-tippy-content data-tippy-raw='{ tooltip }'>{ tooltip }</span>")
+                        html_parts.append(f"<span class='text-wrapper' data-tippy-content data-tippy-raw='{ tooltip }'>{ tooltip }</span>")
                     html_parts.append("</div>")
                 else:
                     # 显示头像模式（默认）
                     icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                     html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='avatar-group'>")
+                    html_parts.append("<div class='author-group'>")
                     for author in authors:
                         tooltip = get_author_tooltip(author)
                         html_parts.append(
@@ -418,6 +429,7 @@ class DocumentDatesPlugin(BasePlugin):
                             f"</div>"
                         )
                     html_parts.append("</div>")
+                html_parts.append("</div>")
 
             html_parts.append("</div></div>")
             return ''.join(html_parts)
@@ -428,6 +440,8 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _insert_date_info(self, markdown: str, date_info: str):
+        if not date_info:
+            return markdown
         if self.config['position'] == 'top':
             first_line, insert_pos = self._find_markdown_body_start(markdown)
             if first_line.startswith(('# ', '<h1')):
