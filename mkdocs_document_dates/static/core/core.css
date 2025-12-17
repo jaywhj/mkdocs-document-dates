@@ -98,7 +98,7 @@
     overflow-x: auto;
     overflow-y: hidden;
 
-    /* 防止缩放时子元素溢出 */
+    /* Prevent overflow of child elements when scaling */
     padding: 0.15rem 0.15rem 0.15rem 0;
 
     margin-right: 10px;
@@ -123,7 +123,7 @@
     transition: transform 0.2s ease, filter 0.2s ease;
     display: block;
 
-    /* 修复 Safari 下的 bug：圆角可能会闪烁显示方角 */
+    /* Fix bug in Safari: rounded corners may blink to show square corners */
     will-change: transform;
     transform: translateZ(0);
 }
@@ -160,10 +160,10 @@
     flex-shrink: 0;
 }
 
-/* 极窄屏幕下，还是需要换行 */
+/* Optimize the experience with line breaks on very narrow screens */
 @media screen and (max-width: 359px) {
     .document-dates-plugin {
-        flex-wrap: wrap; 
+        flex-wrap: wrap;
     }
     .dd-right {
         justify-content: flex-start;
