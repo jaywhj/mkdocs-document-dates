@@ -364,6 +364,11 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
         try:
+            show_time_icons = self.config['show_created'] or self.config['show_updated']
+            show_plugin = show_time_icons or self.config['show_author']
+            if not show_plugin:
+                return ""
+
             # 构建基本的日期信息 HTML
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
@@ -380,7 +385,6 @@ class DocumentDatesPlugin(BasePlugin):
                 )
 
             # 添加日期信息
-            show_time_icons = self.config['show_created'] or self.config['show_updated']
             if show_time_icons:
                 html_parts.append("<div class='dd-left'>")
             if self.config['show_created']:
@@ -436,6 +440,8 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _insert_date_info(self, markdown: str, date_info: str):
+        if not date_info:
+            return markdown
         if self.config['position'] == 'top':
             first_line, insert_pos = self._find_markdown_body_start(markdown)
             if first_line.startswith(('# ', '<h1')):
