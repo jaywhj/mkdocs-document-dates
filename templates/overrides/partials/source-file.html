@@ -20,14 +20,14 @@
   </div>
 
   
-  {#- Render authors (avatar mode) -#}
+  {#- Render authors -#}
   {%- if page.meta.document_dates_authors %}
   <div class="dd-right">
     {%- set icon = 'doc_author' if page.meta.document_dates_authors|length == 1 else 'doc_authors' %}
     <span class="material-icons" data-icon="{{ icon }}"></span>
     <div class="author-group">
     {%- for author in page.meta.document_dates_authors %}
-      {%- set tooltip %}
+      {%- set tooltip -%}
         {%- if author.url -%}
           <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
         {%- elif author.email -%}
@@ -35,40 +35,23 @@
         {%- else -%}
           {{ author.name }}
         {%- endif -%}
-      {%- endset %}
+      {%- endset -%}
+
+      {#- AVATAR mode #}
       <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
         <span class="avatar-text"></span>
         <img class="avatar" src="{{ author.avatar }}" onerror="this.style.display='none'" />
       </div>
-    {%- endfor %}
-    </div>
-  </div>
-  {%- endif %}
 
-  
-  {#- Render authors (text mode) -#}
-{#
-  {%- if page.meta.document_dates_authors %}
-  <div class="dd-right">
-    {%- set icon = 'doc_author' if page.meta.document_dates_authors|length == 1 else 'doc_authors' %}
-    <span class="material-icons" data-icon="{{ icon }}"></span>
-    <div class="author-group">
-    {%- for author in page.meta.document_dates_authors %}
-      {%- set tooltip %}
-        {%- if author.url -%}
-          <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>
-        {%- elif author.email -%}
-          <a href="mailto:{{ author.email }}">{{ author.name }}</a>
-        {%- else -%}
-          {{ author.name }}
-        {%- endif -%}
-      {%- endset %}
+      {#- TEXT mode #}
+      {#-
       <span class="text-wrapper" data-tippy-content data-tippy-raw='{{ tooltip }}'>{{ tooltip }}</span>
       {%- if not loop.last -%},&nbsp;&nbsp;{%- endif -%}
+      -#}
+
     {%- endfor %}
     </div>
   </div>
   {%- endif %}
-#}
 </div>
 {%- endif -%}
