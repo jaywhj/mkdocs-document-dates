@@ -369,7 +369,7 @@ class DocumentDatesPlugin(BasePlugin):
             if not show_plugin:
                 return ""
 
-            # 构建基本的日期信息 HTML
+            # 构建插件骨架 HTML
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
             html_parts.append(f"<div class='document-dates-plugin-wrapper {position_class}'>")
@@ -384,7 +384,7 @@ class DocumentDatesPlugin(BasePlugin):
                     f"</span>"
                 )
 
-            # 添加日期信息
+            # 构建日期
             if show_dates:
                 html_parts.append("<div class='dd-left'>")
             if self.config['show_created']:
@@ -394,7 +394,7 @@ class DocumentDatesPlugin(BasePlugin):
             if show_dates:
                 html_parts.append("</div>")
 
-            # 添加作者信息
+            # 构建作者
             if self.config['show_author'] and authors:
                 def get_author_tooltip(author):
                     if author.url:
