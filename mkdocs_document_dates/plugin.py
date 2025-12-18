@@ -364,12 +364,12 @@ class DocumentDatesPlugin(BasePlugin):
 
     def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
         try:
-            show_time_icons = self.config['show_created'] or self.config['show_updated']
-            show_plugin = show_time_icons or self.config['show_author']
+            show_dates = self.config['show_created'] or self.config['show_updated']
+            show_plugin = show_dates or self.config['show_author']
             if not show_plugin:
                 return ""
 
-            # 构建基本的日期信息 HTML
+            # 构建插件骨架 HTML
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
             html_parts.append(f"<div class='document-dates-plugin-wrapper {position_class}'>")
@@ -384,17 +384,17 @@ class DocumentDatesPlugin(BasePlugin):
                     f"</span>"
                 )
 
-            # 添加日期信息
-            if show_time_icons:
+            # 构建日期
+            if show_dates:
                 html_parts.append("<div class='dd-left'>")
             if self.config['show_created']:
                 html_parts.append(build_time_icon(created, 'doc_created'))
             if self.config['show_updated']:
                 html_parts.append(build_time_icon(updated, 'doc_updated'))
-            if show_time_icons:
+            if show_dates:
                 html_parts.append("</div>")
 
-            # 添加作者信息
+            # 构建作者
             if self.config['show_author'] and authors:
                 def get_author_tooltip(author):
                     if author.url:
@@ -403,23 +403,22 @@ class DocumentDatesPlugin(BasePlugin):
                         return f'<a href="mailto:{author.email}">{author.name}</a>'
                     return author.name
 
-                html_parts.append("<div class='dd-right'>")
+                if show_dates:
+                    html_parts.append("<div class='dd-right'>")
+                else:
+                    html_parts.append("<div class='dd-right dd-right-start'>")
+                icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
+                html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
+                html_parts.append("<div class='author-group'>")
                 if self.config['show_author'] == 'text':
                     # 显示文本模式
-                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='author-group'>")
                     for index, author in enumerate(authors):
                         if index > 0:
                             html_parts.append(",&nbsp;&nbsp;")
                         tooltip = get_author_tooltip(author)
                         html_parts.append(f"<span class='text-wrapper' data-tippy-content data-tippy-raw='{ tooltip }'>{ tooltip }</span>")
-                    html_parts.append("</div>")
                 else:
                     # 显示头像模式（默认）
-                    icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
-                    html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
-                    html_parts.append("<div class='author-group'>")
                     for author in authors:
                         tooltip = get_author_tooltip(author)
                         html_parts.append(
@@ -428,7 +427,7 @@ class DocumentDatesPlugin(BasePlugin):
                             f"<img class='avatar' src='{author.avatar}' onerror=\"this.style.display='none'\" />"
                             f"</div>"
                         )
-                    html_parts.append("</div>")
+                html_parts.append("</div>")
                 html_parts.append("</div>")
 
             html_parts.append("</div></div>")

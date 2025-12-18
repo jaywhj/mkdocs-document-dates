@@ -38,6 +38,9 @@
     font-size: 1rem;
     opacity: 0.85;
     margin-right: 0.3rem;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
 }
 .md-main .document-dates-plugin .material-icons {
     font-size: 0.9rem;
@@ -67,24 +70,29 @@
 .dd-left {
     display: flex;
     align-items: center;
+    margin-right: 1.5rem;
 }
 .dd-item {
     display: inline-flex;
     align-items: center;
     white-space: nowrap;
     flex-shrink: 0;
+    line-height: 1;
 }
 .dd-left > .dd-item + .dd-item {
     margin-left: 1.5rem;
 }
 
 .dd-right {
-    margin-left: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     flex: 1 1 auto;
-    min-width: 0;
+    min-width: 110px;
+}
+
+.dd-right.dd-right-start {
+    justify-content: flex-start;
 }
 
 /* ==========================================================================
@@ -93,8 +101,8 @@
 .author-group {
     display: flex;
     align-items: center;
-
     flex-wrap: nowrap;
+
     overflow-x: auto;
     overflow-y: hidden;
 
