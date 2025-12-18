@@ -406,7 +406,7 @@ class DocumentDatesPlugin(BasePlugin):
                 if show_dates:
                     html_parts.append("<div class='dd-right'>")
                 else:
-                    html_parts.append("<div class='dd-left'>")
+                    html_parts.append("<div class='dd-right dd-right-start'>")
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                 html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
                 html_parts.append("<div class='author-group'>")
