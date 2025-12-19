@@ -54,8 +54,8 @@ const iconKeyMap = {
     doc_author: 'author',
     doc_authors: 'authors'
 };
-// 处理文档日期和提示内容
-function processDocumentDates() {
+// 处理数据加载
+function processDataLoading() {
     document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
         // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > 站点HTML语言 > 默认英语
         const rawLocale =
@@ -74,7 +74,7 @@ function processDocumentDates() {
             });
         }
 
-        // 处理 tooltip 内容
+        // 动态处理 tooltip 内容
         const langData = TooltipLanguage.get(rawLocale);
         ddpEl.querySelectorAll('[data-tippy-content]').forEach(tippyEl => {
             const iconEl = tippyEl.querySelector('[data-icon]');
@@ -82,8 +82,6 @@ function processDocumentDates() {
             const iconKey = iconKeyMap[rawIconKey] || 'author';
             if (langData[iconKey]) {
                 const content = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
-                // 更新 data-tippy-content 属性
-                tippyEl.dataset.tippyContent = content;
                 // 如果 tippy 实例已存在，直接更新内容
                 if (tippyEl._tippy) {
                     tippyEl._tippy.setContent(content);
@@ -96,7 +94,7 @@ function processDocumentDates() {
 // 供外部使用：更新文档日期和 tippy 内容到指定语言（可持久化）
 function updateDocumentDates(locale) {
     ddUtils.saveLanguage(locale);
-    processDocumentDates();
+    processDataLoading();
 }
 window.ddPlugin = {
     updateLanguage: updateDocumentDates
@@ -154,21 +152,18 @@ function initAuthorGroupTippyGuard() {
         const controller = new AbortController();
         groupEl._ddTippyGuardAbortController = controller;
 
-        const getInstances = () => {
-            return Array.from(groupEl.querySelectorAll('[data-tippy-content]'))
-                .map(el => el._tippy)
-                .filter(Boolean);
-        };
-        const hideNow = () => {
-            const instances = getInstances();
-            instances.forEach(instance => {
-                instance.hide();
+        const tippyTargets = groupEl.querySelectorAll('[data-tippy-content]');
+        const hideAllTippies = () => {
+            tippyTargets.forEach(el => {
+                if (el._tippy) {
+                    el._tippy.hide();
+                }
             });
         };
 
         const opts = { passive: true, signal: controller.signal };
-        groupEl.addEventListener('scroll', hideNow, opts);
-        groupEl.addEventListener('touchmove', hideNow, opts);
+        groupEl.addEventListener('scroll', hideAllTippies, opts);
+        groupEl.addEventListener('touchmove', hideAllTippies, opts);
     });
 }
 
@@ -208,18 +203,59 @@ const tippyManager = (() => {
 
 
 
+// 为 author-group 启用横向滚轮滚动
+function enableHorizontalWheelScroll() {
+    // 移动端不接管滚轮
+    const isTouchDevice =
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0;
+    if (isTouchDevice) return;
+
+    const groups = document.querySelectorAll('.author-group');
+    groups.forEach(el => {
+        el.addEventListener('wheel',
+            function (event) {
+                // 只处理纵向滚轮（触控板横向滑动不干预）
+                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+                // 在 author-group 内，始终阻止页面纵向滚动
+                event.preventDefault();
+
+                const scrollWidth = el.scrollWidth;
+                const clientWidth = el.clientWidth;
+                // 元素不可横向滚动时返回
+                if (scrollWidth <= clientWidth) return;
+
+                const delta = event.deltaY;
+                const atLeft = el.scrollLeft <= 0;
+                const atRight = el.scrollLeft + clientWidth >= scrollWidth - 1;
+
+                if ((delta < 0 && !atLeft) || (delta > 0 && !atRight)) {
+                    el.scrollLeft += delta;
+                }
+                // 到边界：什么都不做（不冒泡、不滚页面）
+            },
+            { passive: false }
+        );
+    });
+}
+
+
+
 /*
     入口: 兼容 Material 主题的 'navigation.instant' 属性
 */
-if (typeof window.document$ !== 'undefined' && !window.document$.isStopped) {
-    window.document$.subscribe(() => {
-        processDocumentDates();
-        generateAvatar();
-        // 通过 tippyManager 创建 tippy 实例
-        tippyManager.initialize();
-    });
-} else {
-    processDocumentDates();
+function initPluginFeatures() {
+    tippyManager.initialize();
+    processDataLoading();
     generateAvatar();
-    document.addEventListener('DOMContentLoaded', tippyManager.initialize);
+    enableHorizontalWheelScroll();
+}
+
+if (window.document$ && !window.document$.isStopped) {
+    window.document$.subscribe(initPluginFeatures);
+} else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPluginFeatures);
+} else {
+    initPluginFeatures();
 }
