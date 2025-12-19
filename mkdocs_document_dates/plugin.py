@@ -168,7 +168,7 @@ class DocumentDatesPlugin(BasePlugin):
             return markdown
         
         # 生成日期和作者信息 HTML
-        info_html = self._generate_html_info(created, updated, authors)
+        info_html = self._generate_html_info(page.meta, created, updated, authors)
         
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
@@ -362,10 +362,14 @@ class DocumentDatesPlugin(BasePlugin):
             return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
         return date.strftime(self.config['date_format'])
 
-    def _generate_html_info(self, created: datetime, updated: datetime, authors=None):
+    def _generate_html_info(self, meta, created: datetime, updated: datetime, authors=None):
         try:
-            show_dates = self.config['show_created'] or self.config['show_updated']
-            show_plugin = show_dates or self.config['show_author']
+            show_created = self.config['show_created'] and meta.get('show_created') is not False
+            show_updated = self.config['show_updated'] and meta.get('show_updated') is not False
+            show_author  = self.config['show_author']  and meta.get('show_author')  is not False
+
+            show_dates = show_created or show_updated
+            show_plugin = show_dates or show_author
             if not show_plugin:
                 return ""
 
@@ -387,15 +391,15 @@ class DocumentDatesPlugin(BasePlugin):
             # 构建日期
             if show_dates:
                 html_parts.append("<div class='dd-left'>")
-            if self.config['show_created']:
+            if show_created:
                 html_parts.append(build_time_icon(created, 'doc_created'))
-            if self.config['show_updated']:
+            if show_updated:
                 html_parts.append(build_time_icon(updated, 'doc_updated'))
             if show_dates:
                 html_parts.append("</div>")
 
             # 构建作者
-            if self.config['show_author'] and authors:
+            if show_author and authors:
                 def get_author_tooltip(author):
                     if author.url:
                         return f'<a href="{author.url}" target="_blank">{author.name}</a>'
@@ -410,7 +414,8 @@ class DocumentDatesPlugin(BasePlugin):
                 icon = 'doc_author' if len(authors) == 1 else 'doc_authors'
                 html_parts.append(f"<span class='material-icons' data-icon='{icon}'></span>")
                 html_parts.append("<div class='author-group'>")
-                if self.config['show_author'] == 'text':
+                show_text = self.config['show_author'] == 'text' or meta.get('show_author') == 'text'
+                if show_text:
                     # 显示文本模式
                     for index, author in enumerate(authors):
                         if index > 0:
