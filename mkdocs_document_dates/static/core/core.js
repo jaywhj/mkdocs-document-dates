@@ -161,7 +161,7 @@ function initAuthorGroupTippyGuard() {
                 }
             });
         };
-        // true: 浏览器可以立刻执行默认行为。这个事件监听器只是‘看看’，绝不会阻止浏览器的默认行为
+        // true: 浏览器立刻执行默认行为。这个事件监听器只是‘看看’，绝不会阻止浏览器的默认行为
         const opts = { passive: true, signal: controller.signal };
         groupEl.addEventListener('scroll', hideAllTippies, opts);
         groupEl.addEventListener('touchmove', hideAllTippies, opts);
@@ -240,9 +240,8 @@ function enableHorizontalWheelScroll() {
             if ((delta < 0 && !atLeft) || (delta > 0 && !atRight)) {
                 el.scrollLeft += delta;
             }
-            // 到边界：什么都不做（不冒泡、不滚页面）
         }, {
-            // false: 先等 JS 跑完，再决定要不要滚。我可能会调用 event.preventDefault()，浏览器你先别急着执行默认行为
+            // false: 浏览器你先别急着执行默认行为，等 JS 跑完，再决定要不要动，因为可能会调用 event.preventDefault()
             passive: false,
             signal: controller.signal
         });
@@ -291,8 +290,7 @@ function initPluginFeatures() {
             handleDocumentDatesAutoWrap();
         });
     });
-    const containers = document.querySelectorAll('.document-dates-plugin');
-    containers.forEach(el => datesAutoWrapObserver.observe(el));
+    document.querySelectorAll('.document-dates-plugin').forEach(el => datesAutoWrapObserver.observe(el));
 }
 
 if (window.document$ && !window.document$.isStopped) {
