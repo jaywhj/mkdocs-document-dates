@@ -155,9 +155,9 @@ function initAuthorGroupTippyGuard() {
 
         const tippyTargets = groupEl.querySelectorAll('[data-tippy-content]');
         const hideAllTippies = () => {
-            tippyTargets.forEach(el => {
-                if (el._tippy) {
-                    el._tippy.hide();
+            tippyTargets.forEach(tippyEl => {
+                if (tippyEl._tippy) {
+                    tippyEl._tippy.hide();
                 }
             });
         };
@@ -207,38 +207,34 @@ const tippyManager = (() => {
 // 为 author-group 启用横向滚轮滚动
 function enableHorizontalWheelScroll() {
     // 移动端不接管滚轮
-    const isTouchDevice =
-        'ontouchstart' in window ||
-        navigator.maxTouchPoints > 0 ||
-        navigator.msMaxTouchPoints > 0;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
     if (isTouchDevice) return;
 
-    const groups = document.querySelectorAll('.author-group');
-    groups.forEach(el => {
+    document.querySelectorAll('.author-group').forEach(groupEl => {
         // 先取消旧监听器，避免重复绑定
-        if (el._ddWheelAbortController) {
-            el._ddWheelAbortController.abort();
+        if (groupEl._ddWheelAbortController) {
+            groupEl._ddWheelAbortController.abort();
         }
         const controller = new AbortController();
-        el._ddWheelAbortController = controller;
+        groupEl._ddWheelAbortController = controller;
 
-        el.addEventListener('wheel', function (event) {
+        groupEl.addEventListener('wheel', function (event) {
             // 只处理纵向滚轮（触控板横向滑动不干预）
             if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
             // 在 author-group 内，始终阻止页面纵向滚动
             event.preventDefault();
 
-            const scrollWidth = el.scrollWidth;
-            const clientWidth = el.clientWidth;
+            const scrollWidth = groupEl.scrollWidth;
+            const clientWidth = groupEl.clientWidth;
             // 元素不可横向滚动时返回
             if (scrollWidth <= clientWidth) return;
 
             const delta = event.deltaY;
-            const atLeft = el.scrollLeft <= 0;
-            const atRight = el.scrollLeft + clientWidth >= scrollWidth - 1;
+            const atLeft = groupEl.scrollLeft <= 0;
+            const atRight = groupEl.scrollLeft + clientWidth >= scrollWidth - 1;
 
             if ((delta < 0 && !atLeft) || (delta > 0 && !atRight)) {
-                el.scrollLeft += delta;
+                groupEl.scrollLeft += delta;
             }
         }, {
             // false: 浏览器你先别急着执行默认行为，等 JS 跑完，再决定要不要动，因为可能会调用 event.preventDefault()
@@ -251,30 +247,28 @@ function enableHorizontalWheelScroll() {
 
 // 动态处理窄屏换行
 function handleDocumentDatesAutoWrap() {
-    const containers = document.querySelectorAll('.document-dates-plugin');
     const AUTHOR_THRESHOLD = 140;   // 大概2个作者宽度
-
-    containers.forEach(container => {
-        const leftPart = container.querySelector('.dd-left');
-        const rightPart = container.querySelector('.dd-right');
+    document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
+        const leftPart = ddpEl.querySelector('.dd-left');
+        const rightPart = ddpEl.querySelector('.dd-right');
         if (!leftPart || !rightPart) return;
 
         // 使用 getBoundingClientRect 更加精确（包含小数）
-        const containerWidth = container.getBoundingClientRect().width;
+        const containerWidth = ddpEl.getBoundingClientRect().width;
         const leftWidth = leftPart.getBoundingClientRect().width;
         if (containerWidth <= leftWidth) return;
 
         // 如果: 容器总宽度 < 日期宽度 + 2个作者宽度，则换行
         const shouldWrap = containerWidth < (leftWidth + AUTHOR_THRESHOLD);
         // 只有在状态确实需要改变时才操作 DOM
-        if (container.classList.contains('is-wrapped') !== shouldWrap) {
-            container.classList.toggle('is-wrapped', shouldWrap);
+        if (ddpEl.classList.contains('is-wrapped') !== shouldWrap) {
+            ddpEl.classList.toggle('is-wrapped', shouldWrap);
         }
     });
 }
 
 /*
-    入口: 兼容 Material 主题的 'navigation.instant' 属性
+    入口
 */
 let datesAutoWrapObserver = null;
 function initPluginFeatures() {
@@ -283,6 +277,7 @@ function initPluginFeatures() {
     generateAvatar();
     enableHorizontalWheelScroll();
 
+    // 观察插件尺寸变化，resize 时动态处理是否换行
     if (datesAutoWrapObserver) datesAutoWrapObserver.disconnect();
     datesAutoWrapObserver = new ResizeObserver(() => {
         // 使用 RAF 确保在浏览器重绘前处理，减少视觉跳动
@@ -290,9 +285,10 @@ function initPluginFeatures() {
             handleDocumentDatesAutoWrap();
         });
     });
-    document.querySelectorAll('.document-dates-plugin').forEach(el => datesAutoWrapObserver.observe(el));
+    document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => datesAutoWrapObserver.observe(ddpEl));
 }
 
+// 兼容 Material 主题的 'navigation.instant' 属性
 if (window.document$ && !window.document$.isStopped) {
     window.document$.subscribe(initPluginFeatures);
 } else if (document.readyState === 'loading') {
