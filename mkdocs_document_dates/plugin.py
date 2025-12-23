@@ -132,6 +132,7 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 添加自定义 JS 文件
         config['extra_javascript'].extend([
+            'assets/document_dates/core/md5.min.js',
             'assets/document_dates/core/default.config.js',
             'assets/document_dates/user.config.js',
             'assets/document_dates/core/utils.js',
@@ -429,7 +430,7 @@ class DocumentDatesPlugin(BasePlugin):
                         html_parts.append(
                             f"<div class='avatar-wrapper' data-name='{author.name}' data-tippy-content data-tippy-raw='{tooltip}'>"
                             f"<span class='avatar-text'></span>"
-                            f"<img class='avatar' src='{author.avatar}' onerror=\"this.style.display='none'\" />"
+                            f"<img class='avatar' data-src='{author.avatar}' data-email='{author.email}' />"
                             f"</div>"
                         )
                 html_parts.append("</div>")

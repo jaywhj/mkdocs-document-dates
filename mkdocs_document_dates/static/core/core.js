@@ -1,5 +1,5 @@
 /*
-    1.生成头像
+    1.加载头像
 */
 function isLatin(name) {
     return /^[A-Za-z\s]+$/.test(name.trim());
@@ -22,7 +22,8 @@ function nameToHSL(name, s = 50, l = 55) {
     const hue = hash % 360;
     return `hsl(${hue}, ${s}%, ${l}%)`;
 }
-function generateAvatar() {
+
+function loadAvatars() {
     document.querySelectorAll('.avatar-wrapper').forEach(wrapper => {
         const name = wrapper.dataset.name || '';
         const initials = extractInitials(name);
@@ -34,11 +35,100 @@ function generateAvatar() {
 
         const imgEl = wrapper.querySelector('img.avatar');
         if (imgEl) {
-            const src = (imgEl.getAttribute('src') || '').trim();
-            if (!src) {
-                imgEl.style.display = 'none';
+            const urls = [];
+            const dataSrc = (imgEl.dataset.src || '').trim();
+            const email = (imgEl.dataset.email || '').trim();
+
+            if (dataSrc) {
+                urls.push(dataSrc);
             }
+            if (email && AvatarService.base) {
+                const hash = md5(email.trim().toLowerCase());
+                urls.push(AvatarService.build(hash));
+            }
+            if (urls.length === 0) {
+                imgEl.style.display = 'none';
+                return;
+            }
+
+            bindAvatar(imgEl, urls);
         }
+    });
+}
+function bindAvatar(imgEl, urls) {
+    let index = 0;
+    function next() {
+        if (index >= urls.length) {
+            imgEl.style.display = 'none';
+            return;
+        }
+        imgEl.src = urls[index++];
+    }
+    imgEl.onerror = next;
+    // 加载成功后清掉 onerror
+    imgEl.onload = () => imgEl.onerror = null;
+
+    next();
+}
+
+const AVATAR_CDNS = {
+    // gravatar: 全球通用头像服务商，国内访问不稳定
+    // weavatar: gravatar 国内镜像，实测发现国内外访问都正常，数据跟 gravatar 一致
+    // cravatar: 国内头像服务商，有国际 CDN，很多开源项目在用，实测发现只包含部分 gravatar 数据
+
+    gravatar: 'https://www.gravatar.com/avatar',
+    weavatar: 'https://weavatar.com/avatar'
+    // cravatar: 'https://cravatar.cn/avatar'
+};
+const PROBE_TARGETS = [
+    { name: 'gravatar', probe: 'https://www.gravatar.com/favicon.ico' },
+    { name: 'weavatar', probe: 'https://weavatar.com/favicon.ico' }
+];
+
+let avatarServiceInited = false;
+const AvatarService = {
+    base: null,
+    async init() {
+        if (avatarServiceInited) return;
+        avatarServiceInited = true;
+
+        const winner = await raceAvatarCDN(PROBE_TARGETS.map(t => t.probe));
+        if (!winner) return;
+
+        const hit = PROBE_TARGETS.find(t => t.probe === winner);
+        this.base = AVATAR_CDNS[hit.name];
+    },
+
+    // style: '404' 'wavatar' 'retro' 'identicon' 'mp' 'monsterid' 'robohash' 'blank'
+    // size: avatar size in pixels (1~2048)
+    build(emailHash, style = '404', size = 128) {
+        if (!this.base) return null;
+        return `${this.base}/${emailHash}?d=${style}&s=${size}`;
+    }
+};
+function raceAvatarCDN(urls, timeout = 500) {
+    return new Promise(resolve => {
+        let done = false;
+        urls.forEach(url => {
+            const img = new Image();
+            const timer = setTimeout(() => {
+                img.src = '';
+            }, timeout);
+            img.onload = () => {
+                if (done) return;
+                done = true;
+                clearTimeout(timer);
+                resolve(url);
+            };
+            img.onerror = () => {
+                clearTimeout(timer);
+            };
+            img.src = url;
+        });
+        // 兜底（全部失败 / 全部超时），不让 Promise 永远 pending
+        setTimeout(() => {
+            if (!done) resolve(null);
+        }, timeout);
     });
 }
 
@@ -82,7 +172,6 @@ function processDataLoading() {
             const iconKey = iconKeyMap[rawIconKey] || 'author';
             if (langData[iconKey]) {
                 const content = langData[iconKey] + ': ' + tippyEl.dataset.tippyRaw;
-                // 如果 tippy 实例已存在，直接更新内容
                 if (tippyEl._tippy) {
                     tippyEl._tippy.setContent(content);
                 }
@@ -203,11 +292,13 @@ const tippyManager = (() => {
 })();
 
 
-
 // 为 author-group 启用横向滚轮滚动
 function enableHorizontalWheelScroll() {
     // 移动端不接管滚轮
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+    const isTouchDevice =
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0;
     if (isTouchDevice) return;
 
     document.querySelectorAll('.author-group').forEach(groupEl => {
@@ -247,7 +338,8 @@ function enableHorizontalWheelScroll() {
 
 // 动态处理窄屏换行
 function handleDocumentDatesAutoWrap() {
-    const AUTHOR_THRESHOLD = 140;   // 大概2个作者宽度
+    // 设定作者区域最小的显示宽度，大概2个作者宽度
+    const AUTHOR_THRESHOLD = 140;
     document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
         const leftPart = ddpEl.querySelector('.dd-left');
         const rightPart = ddpEl.querySelector('.dd-right');
@@ -267,6 +359,7 @@ function handleDocumentDatesAutoWrap() {
     });
 }
 
+
 /*
     入口
 */
@@ -274,7 +367,9 @@ let datesAutoWrapObserver = null;
 function initPluginFeatures() {
     tippyManager.initialize();
     processDataLoading();
-    generateAvatar();
+    AvatarService.init().then(() => {
+        loadAvatars();
+    });
     enableHorizontalWheelScroll();
 
     // 观察插件尺寸变化，resize 时动态处理是否换行
