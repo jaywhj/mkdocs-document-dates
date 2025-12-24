@@ -53,9 +53,6 @@ plugins:
         - blog/*                   # Example: exclude all files in blog folder, including subfolders
       date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
       time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
-      show_created: true       # Show creation date: true false, default: true
-      show_updated: true       # Show last updated date: true false, default: true
-      show_author: true        # Show author: true(avatar) text(text) false(hidden), default: true
 ```
 
 ## Customization Settings
@@ -65,7 +62,7 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 - [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): Introduces the mechanism for obtaining document dates and methods for personalized customization, you can manually specify the creation date and last updated date for each document
 - [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): Introduces the mechanism for obtaining document authors and methods for personalized customization, you can manually specify the author information for each document, such as name, link, avatar, email, etc.
 - [Specify Avatar](https://jaywhj.netlify.app/document-dates-en#Specify-Avatar): You can manually specify the avatar for each author, support local file path and URL path
-- [Set Plugin Style](https://jaywhj.netlify.app/document-dates-en#Set-Plugin-Style): You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
+- [Configuration Structure and Style](https://jaywhj.netlify.app/document-dates-en#Structure-and-Style): You can freely configure the plugin's display structure in mkdocs.yml or Front Matter. You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
 - [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO; Can be used to re-customize plug-ins, etc.
 - [Add Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Add-Recently-Updated-Module): Enable list of recently updated documents (in descending order of update date), this is ideal for sites with a large number of documents, so that readers can quickly see what's new
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 

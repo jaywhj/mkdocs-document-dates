@@ -53,9 +53,6 @@ plugins:
         - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
       date_format: '%Y-%m-%d'  # 日期格式化字符串（例如: %Y年%m月%d日、%b %d, %Y）
       time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
-      show_created: true       # 显示创建日期: true false, 默认: true
-      show_updated: true       # 显示最后更新日期: true false, 默认: true
-      show_author: true        # 显示作者: true(头像) text(文本) false(隐藏), 默认: true
 ```
 
 ## 自定义设置
@@ -65,7 +62,7 @@ plugins:
 - [指定日期时间](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4)：介绍了文档日期的获取机制以及个性化自定义的方法，可手动指定每个文档的创建日期和最后更新日期
 - [指定作者](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E4%BD%9C%E8%80%85)：介绍了文档作者的获取机制以及个性化自定义的方法，可手动指定每个文档的作者信息，比如姓名、链接、头像、邮箱等
 - [指定头像](https://jaywhj.netlify.app/document-dates-zh#%E6%8C%87%E5%AE%9A%E5%A4%B4%E5%83%8F)：可手动指定每个作者的头像，支持本地文件路径、URL 路径
-- [设置插件样式](https://jaywhj.netlify.app/document-dates-zh#%E8%AE%BE%E7%BD%AE%E6%8F%92%E4%BB%B6%E6%A0%B7%E5%BC%8F)：可通过预置入口快速设置插件样式，比如图标、主题、颜色、字体、动画、分界线等
+- [配置结构与样式](https://jaywhj.netlify.app/document-dates-zh#%E7%BB%93%E6%9E%84%E4%B8%8E%E6%A0%B7%E5%BC%8F)：可在 mkdocs.yml 或 Front Matter 中自由配置插件的显示结构；可通过预置入口快速设置插件样式，比如图标、主题、颜色、字体、动画、分界线等
 - [使用模板变量](https://jaywhj.netlify.app/document-dates-zh#%E4%BD%BF%E7%94%A8%E6%A8%A1%E6%9D%BF%E5%8F%98%E9%87%8F)：可用于优化 sitemap.xml 以便优化站点 SEO；可用于重新定制插件等
 - [添加最近更新模块](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0%E6%A8%A1%E5%9D%97)：启用最近更新的文档列表（按更新日期降序排列），这特别适合拥有大量文档的站点，方便读者快速浏览新内容
 - [添加本地化语言](https://jaywhj.netlify.app/document-dates-zh#%E6%B7%BB%E5%8A%A0%E6%9C%AC%E5%9C%B0%E5%8C%96%E8%AF%AD%E8%A8%80)：为 `timeago` 和 `tooltip` 补充更多本地化语言
