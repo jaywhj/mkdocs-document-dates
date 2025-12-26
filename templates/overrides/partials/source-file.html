@@ -40,7 +40,7 @@
       {#- AVATAR mode #}
       <div class="avatar-wrapper" data-name="{{ author.name }}" data-tippy-content data-tippy-raw='{{ tooltip }}'>
         <span class="avatar-text"></span>
-        <img class="avatar" src="{{ author.avatar }}" onerror="this.style.display='none'" />
+        <img class="avatar" data-src="{{ author.avatar }}" data-email="{{ author.email }}" />
       </div>
 
       {#- TEXT mode #}
