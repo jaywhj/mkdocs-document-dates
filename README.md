@@ -71,6 +71,12 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
+<br />
+
+## Other Projects
+
+- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx), the next generation of mkdocs-material, is based on `mkdocs-material-9.7.0` and is named `X`. I'll be maintaining this branch continuously (since mkdocs-material will stop being maintained). 
+Updates have been released that refactor and add a lot of new features, see https://github.com/jaywhj/mkdocs-materialx/releases/
 
 <br />
 
