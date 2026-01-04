@@ -73,6 +73,13 @@ plugins:
 
 <br />
 
+## 其他项目
+
+- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx)，下一代 mkdocs-material，基于 `mkdocs-material-9.7.0` 衍生，取名为 `X`，我将继续维护此分支（因为 mkdocs-material 将停止维护）
+目前已发布的更新，重构和添加了很多新功能，详情见 https://github.com/jaywhj/mkdocs-materialx/releases/
+
+<br />
+
 ## 交流群
 
 **Discord**: https://discord.gg/cvTfge4AUy
