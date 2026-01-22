@@ -144,25 +144,37 @@ const iconKeyMap = {
     doc_author: 'author',
     doc_authors: 'authors'
 };
+
+function applyTimeagoToTimes(timeNodes, rawLocale) {
+    if (typeof timeago === 'undefined') {
+        return;
+    }
+    if (!timeNodes || !timeNodes.length) {
+        return;
+    }
+    const tLocale = ddUtils.resolveTimeagoLocale(rawLocale);
+    timeNodes.forEach(timeEl => {
+        const dt = timeEl.getAttribute('datetime');
+        if (dt) {
+            timeEl.textContent = timeago.format(dt, tLocale);
+        }
+    });
+}
+
 // 处理数据加载
 function processDataLoading() {
-    document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
-        // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > 站点HTML语言 > 默认英语
-        const rawLocale =
-            ddUtils.getSavedLanguage() ||
-            ddpEl.getAttribute('locale') ||
-            navigator.language ||
-            navigator.userLanguage ||
-            document.documentElement.lang ||
-            'en';
+    // 获取 locale，优先级：用户主动选择 > 服务端显式配置 > 用户浏览器语言 > 站点HTML语言 > 默认英语
+    const rawLocale =
+        ddUtils.getSavedLanguage() ||
+        // ddpEl.getAttribute('locale') ||
+        navigator.language ||
+        navigator.userLanguage ||
+        document.documentElement.lang ||
+        'en';
 
+    document.querySelectorAll('.document-dates-plugin').forEach(ddpEl => {
         // 处理 time 元素（使用 timeago 时）
-        if (typeof timeago !== 'undefined') {
-            const tLocale = ddUtils.resolveTimeagoLocale(rawLocale);
-            ddpEl.querySelectorAll('time').forEach(timeEl => {
-                timeEl.textContent = timeago.format(timeEl.getAttribute('datetime'), tLocale);
-            });
-        }
+        applyTimeagoToTimes(ddpEl.querySelectorAll('time'), rawLocale);
 
         // 动态处理 tooltip 内容
         const langData = TooltipLanguage.get(rawLocale);
@@ -178,6 +190,9 @@ function processDataLoading() {
             }
         });
     });
+
+    // 处理其他 timeago 时间
+    applyTimeagoToTimes(document.querySelectorAll('time.dd-timeago'), rawLocale);
 }
 
 // 供外部使用：更新文档日期和 tippy 内容到指定语言（可持久化）
