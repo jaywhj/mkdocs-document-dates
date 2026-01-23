@@ -249,7 +249,7 @@ INLINE_SKIP_RE = re.compile(
     ^\s*> |                 # quote
     ^\s*(?:!!!|\?\?\?) |    # admonition
     ^\s*=== |               # tab
-    ^\s*\[\^.+?\]:          # footnote definition
+    ^\s*\[.+?\]:            # reference link, including footnote
     """,
     re.X,
 )
