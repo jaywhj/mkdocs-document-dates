@@ -72,7 +72,7 @@
     <div style="padding: 20px 0;">
       <span class="md-nav__link" style="font-weight: 700;">最近更新</span>
       <div>
-        {%- for mtime, rel_path, title, url in config.extra.recently_updated_docs %}
+        {%- for mtime, rel_path, title, url, cover, summary in config.extra.recently_updated_docs %}
         <div class="md-nav__item">
             <a href="/{{ url }}" class="md-nav__link">{{ title }}</a>
         </div>
