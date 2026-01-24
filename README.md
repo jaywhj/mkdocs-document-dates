@@ -71,7 +71,7 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
-<br />
+![recently-updated](recently-updated-en.gif)
 
 ## Other Projects
 

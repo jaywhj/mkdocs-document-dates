@@ -71,7 +71,7 @@ plugins:
 
 具体内容参见文档：https://jaywhj.netlify.app/document-dates-zh
 
-<br />
+![recently-updated](recently-updated-zh.gif)
 
 ## 其他项目
 
