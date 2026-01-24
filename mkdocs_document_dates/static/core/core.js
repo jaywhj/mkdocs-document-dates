@@ -385,12 +385,12 @@ function initLayoutSwitcher() {
         // 应用初始布局
         grid.classList.toggle('is-list', savedLayout === 'list');
         grid.classList.toggle('is-detail', savedLayout === 'detail');
-        
+
         // 查找或创建切换器容器
         let switcher = grid.previousElementSibling;
         if (!switcher || !switcher.classList.contains('article-layout-switcher')) {
             // 如果模板中没写，可以动态注入，但建议写在模板里以保证 UI 一致性
-            return; 
+            return;
         }
 
         const listBtn = switcher.querySelector('.layout-list-btn');
