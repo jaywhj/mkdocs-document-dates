@@ -4,6 +4,7 @@ import json
 import heapq
 import logging
 import subprocess
+import re
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
@@ -132,7 +133,7 @@ def load_git_last_updated_date(docs_dir_path: Path):
 
     return doc_mtime_map
 
-def get_recently_updated_files(existing_map: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
+def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -148,14 +149,23 @@ def get_recently_updated_files(existing_map: dict, files: Files, exclude_list: l
                 continue
 
             # 优先从现有数据获取 mtime，如果不存在则 fallback 到文件系统 mtime
-            mtime = existing_map.get(rel_path, os.path.getmtime(file.abs_src_path))
+            mtime = existing_dates.get(rel_path, os.path.getmtime(file.abs_src_path))
 
             # 获取文档标题和 URL
             title = file.page.title if file.page and file.page.title else file.name
             url = file.page.url if file.page and file.page.url else file.url
 
+            cover = ''
+            summary = ''
+            # authors = []
+            if file.page:
+                cover = file.page.meta.get('cover', '')
+                # authors = file.page.meta.get('document_dates_authors', [])
+                if file.page.file:
+                    summary = extract_summary(file.page.file.content_string)
+
             # 存储信息
-            files_meta.append((mtime, rel_path, title, url))
+            files_meta.append((mtime, rel_path, title, url, cover, summary))
             # existing_map[rel_path] = mtime
 
         # 构建最近更新列表
@@ -208,3 +218,195 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
     except Exception as e:
         logger.warning(f"Failed to add JSONL cache file to git: {e}")
     return False
+
+
+# ===== Extract Summary =====
+# 
+# -------- block skip --------
+# Fence
+FENCE_RE = re.compile(r"^\s*([`~]{3,})")
+
+# HTML comment
+HTML_COMMENT_START = re.compile(r'<!--', re.I)
+HTML_COMMENT_END   = re.compile(r'-->', re.I)
+
+# HTML
+HTML_TAG_OPEN = re.compile(r'<\s*([a-zA-Z][\w\-]*)\b', re.I)
+HTML_TAG_CLOSE_TEMPLATE = r"</\s*{}\s*>"
+HTML_VOID_TAGS = {
+    "area", "base", "br", "col", "embed", "hr",
+    "img", "input", "link", "meta", "param",
+    "source", "track", "wbr"
+}
+HTML_VOID_CLOSE_RE = re.compile(r">", re.I)
+
+# -------- inline skip --------
+H1_TITLE = re.compile(r'^\s*# .+$', re.MULTILINE)
+SINGLE_LINE_HTML_NOISE = re.compile(r'^</?[a-z][\w-]*[^>]*>$', re.I)
+TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
+INLINE_SKIP_RE = re.compile(
+    r"""
+    ^\s*> |                 # quote
+    ^\s*(?:!!!|\?\?\?) |    # admonition
+    ^\s*=== |               # tab
+    ^\s*\[.+?\]:            # reference link, including footnote
+    """,
+    re.X,
+)
+
+# -------- inline replace --------
+IMAGE_RE = re.compile(r'!\[[^\]]*\]\([^)]+\)')
+LINK_RE = re.compile(r'\[([^\]]+)\]\([^)]+\)')
+BRACE_RE = re.compile(r"\{[^}]*\}")
+MD_SYNTAX_RE = re.compile(r'[`*_>#]+')
+
+def clean_markdown(md: str) -> list:
+
+    lines = md.splitlines()
+    result = []
+
+    state = "NORMAL"
+    fence = ""
+    html_close_re = None
+    frontmatter_parsed = False
+    h1_parsed = False
+    math_delim = ""
+
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+
+        # ==================================================
+        # 1. Frontmatter
+        # ==================================================
+        if not frontmatter_parsed:
+            if state == "FRONTMATTER":
+                if stripped in ("---", "+++"):
+                    state = "NORMAL"
+                    frontmatter_parsed = True
+                continue
+            
+            if state == "NORMAL" and stripped in ("---", "+++"):
+                state = "FRONTMATTER"
+                continue
+
+        # ==================================================
+        # 2. Fence Block
+        # ==================================================
+        if state == "FENCE":
+            if stripped.startswith(fence):
+                state = "NORMAL"
+            continue
+ 
+        if state == "NORMAL":
+            m = FENCE_RE.match(stripped)
+            if m:
+                fence = m.group(1)
+                state = "FENCE"
+                continue
+
+        # ==================================================
+        # 3. HTML Comment
+        # ==================================================
+        if state == "COMMENT":
+            if HTML_COMMENT_END.search(stripped):
+                state = "NORMAL"
+            continue
+
+        if state == "NORMAL" and HTML_COMMENT_START.search(stripped):
+            state = "COMMENT"
+            if HTML_COMMENT_END.search(stripped):
+                state = "NORMAL"
+            continue
+
+        # ==================================================
+        # 4. HTML Block
+        # ==================================================
+        if state == "HTML_BLOCK":
+            if html_close_re and html_close_re.search(stripped):
+                state = "NORMAL"
+                html_close_re = None
+            continue
+
+        if state == "NORMAL":
+            m = HTML_TAG_OPEN.match(stripped)
+            if m:
+                tag = m.group(1).lower()
+                is_void = tag in HTML_VOID_TAGS
+
+                # void tag：单行且以 > 结尾，视为直接结束，忽略该行
+                if stripped.endswith('>') and is_void:
+                    continue
+
+                # 非 void tag：进入 HTML_BLOCK
+                state = "HTML_BLOCK"
+                if is_void:
+                    html_close_re = HTML_VOID_CLOSE_RE
+                else:
+                    html_close_re = re.compile(HTML_TAG_CLOSE_TEMPLATE.format(re.escape(tag)), re.I)
+
+                # same-line close: <div>...</div>
+                if html_close_re.search(stripped):
+                    state = "NORMAL"
+                    html_close_re = None
+
+                continue
+
+        # ==================================================
+        # 5. Math Block
+        # ==================================================
+        if state == "MATH":
+            if stripped == math_delim:
+                state = "NORMAL"
+            continue
+
+        if state == "NORMAL" and stripped in ("$$", "\\["):
+            math_delim = "$$" if stripped == "$$" else "\\]"
+            state = "MATH"
+            continue
+
+        # ==================================================
+        # 6. Inline Skip
+        # ==================================================
+        if state == "NORMAL":
+            if TABLE_ROW_RE.match(stripped):
+                continue
+            if INLINE_SKIP_RE.match(stripped):
+                continue
+            # 单行 HTML 噪音兜底
+            if SINGLE_LINE_HTML_NOISE.match(stripped):
+                continue
+            if not h1_parsed:
+                if H1_TITLE.match(stripped):
+                    h1_parsed = True
+                    continue
+            if stripped.startswith(('---', '***')):
+                continue
+
+        # ==================================================
+        # 7. Inline Replace
+        # ==================================================
+        text = stripped
+        text = IMAGE_RE.sub("", text)
+        text = LINK_RE.sub(r"\1", text)
+        text = BRACE_RE.sub("", text)
+
+        text = text.strip()
+        if text:
+            result.append(text)
+
+            # 提前熔断
+            if len(result) >= 10:
+                break
+
+        # 锁定 Frontmatter 状态，防止后续 --- 干扰
+        frontmatter_parsed = True
+
+    return result
+    # return "\n".join(result)
+
+def extract_summary(markdown_text: str) -> str:
+    md_list = clean_markdown(markdown_text)
+    text = "  ".join(md_list)
+    return MD_SYNTAX_RE.sub('', text).strip()

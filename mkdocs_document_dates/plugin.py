@@ -46,7 +46,6 @@ class DocumentDatesPlugin(BasePlugin):
         self.dates_cache = {}
         self.last_updated_dates = {}
         self.authors_yml = {}
-        self.github_username = None
         self.recent_docs_html = None
         self.recent_enable = False
 
@@ -186,7 +185,6 @@ class DocumentDatesPlugin(BasePlugin):
         # 获取配置
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
-        template_path = recently_updated_config.get('template')
 
         # 获取最近更新的文档数据
         recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, exclude_list, limit, self.recent_enable)
@@ -198,8 +196,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 渲染HTML
         if self.recent_enable:
-            docs_dir = Path(config['docs_dir'])
-            self.recent_docs_html = self._render_recently_updated_html(docs_dir, template_path, recently_updated_docs)
+            self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs)
 
         return env
 
@@ -233,20 +230,10 @@ class DocumentDatesPlugin(BasePlugin):
             logger.info(f"Error parsing .authors.yml: {e}")
 
 
-    def _render_recently_updated_html(self, docs_dir, template_path, recently_updated_data):
-        # 获取自定义模板路径
-        if template_path:
-            user_full_path = docs_dir / template_path
-
-        # 选择模板路径
-        if template_path and user_full_path.is_file():
-            template_dir = user_full_path.parent
-            template_file = user_full_path.name
-        else:
-            # 默认模板路径
-            default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated.html'
-            template_dir = default_template_path.parent
-            template_file = default_template_path.name
+    def _render_recently_updated_html(self, recently_updated_data):
+        default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated_group.html'
+        template_dir = default_template_path.parent
+        template_file = default_template_path.name
 
         # 加载模板
         env = Environment(

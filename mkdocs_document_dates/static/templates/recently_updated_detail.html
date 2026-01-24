@@ -1,0 +1,99 @@
+<style>
+.article-card {
+    border: 1px solid rgba(142, 142, 142, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px auto;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 第一行：标题与时间 --- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+}
+.card-title {
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--md-typeset-color, #1c1c1c);
+    margin-right: 16px;
+}
+.card-date {
+    font-size: 0.84em;
+    color: rgba(100, 100, 100, 0.4);
+    white-space: nowrap;
+    margin-right: 10px;
+}
+.card-header:hover .card-title {
+    color: var(--md-accent-fg-color, blue);
+    text-decoration: underline;
+}
+
+/* --- 第二行：摘要与封面图 --- */
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+.card-summary {
+    flex: 1;
+    color: rgba(142, 142, 142, 1);
+    font-size: 0.7rem;
+    line-height: 1.6;
+    letter-spacing: 0.02rem;
+    word-break: break-all;
+    
+    /* 3 行文字截断，超出显示省略号 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+.card-cover {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-left: 10px;
+}
+.card-cover a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0 !important;
+}
+</style>
+
+<div>
+    {%- for mtime, rel_path, title, url, cover, summary in recent_docs %}
+    <div class="article-card">
+        <a class="card-header" href="{{ url }}" target="_blank">
+            <div class="card-title">{{ title }}</div>
+            <time class="dd-timeago card-date" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
+        </a>
+        <div class="card-body">
+            <div class="card-summary">{{ summary }}</div>
+            {%- if cover %}
+            <div class="card-cover">
+                <img src="{{ cover }}" alt="{{ title }}">
+            </div>
+            {%- endif %}
+        </div>
+    </div>
+    {%- endfor %}
+</div>

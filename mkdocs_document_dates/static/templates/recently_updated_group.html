@@ -1,0 +1,186 @@
+<style>
+.article-layout-switcher {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+.article-layout-switcher button + button {
+    margin-left: 8px;
+}
+.article-layout-switcher button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--md-typeset-color, #1c1c1c);
+    opacity: 0.4;
+    transition: all 0.2s;
+}
+.article-layout-switcher button:hover {
+    background: rgba(142, 142, 142, 0.1);
+    opacity: 0.8;
+}
+.article-layout-switcher button.is-active {
+    opacity: 1;
+    color: var(--md-accent-fg-color, blue);
+    background: rgba(142, 142, 142, 0.1);
+}
+.article-layout-switcher .material-icons {
+    font-size: 20px;
+}
+
+/* --- 网格模式 (默认) --- */
+.article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+    /* transition: all 0.2s ease; */
+}
+
+/* --- 详情模式 (is-detail) --- */
+.article-grid.is-detail {
+    grid-template-columns: 1fr;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- 列表模式 (is-list) --- */
+.article-grid.is-list {
+    margin-left: auto;
+    margin-right: auto;
+
+    border: 1px solid rgba(142, 142, 142, 0.2);
+    border-radius: 8px;
+    row-gap: 0;
+    padding: 11px;
+}
+.article-grid.is-list .card-body {
+    display: none;
+}
+.article-grid.is-list .article-card {
+    border: none;
+    border-radius: 0;
+    padding: 8px;
+}
+.article-grid.is-list .card-title {
+    font-weight: 400;
+    color: #0077cc;
+    /* color: var(--md-typeset-color, #1c1c1c); */
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+.article-grid.is-list .card-date {
+    margin-right: 0;
+}
+
+
+.article-card {
+    border: 1px solid rgba(142, 142, 142, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- 第一行：标题与时间 --- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+}
+.card-title {
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--md-typeset-color, #1c1c1c);
+    margin-right: 12px;
+}
+.card-date {
+    font-size: 0.84em;
+    color: rgba(100, 100, 100, 0.4);
+    white-space: nowrap;
+    margin-right: 10px;
+}
+.card-header:hover .card-title {
+    color: var(--md-accent-fg-color, blue);
+    text-decoration: underline;
+}
+
+/* --- 第二行：摘要与封面图 --- */
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+.card-summary {
+    flex: 1;
+    color: rgba(142, 142, 142, 1);
+    font-size: 0.7rem;
+    line-height: 1.6;
+    letter-spacing: 0.02rem;
+    word-break: break-all;
+    
+    /* 3 行文字截断，超出显示省略号 */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+.card-cover {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-left: 10px;
+}
+.card-cover a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    margin: 0 !important;
+}
+</style>
+
+<div class="article-layout-switcher">
+    <button class="layout-list-btn" title="List View"><span class="material-icons">view_list</span></button>
+    <button class="layout-detail-btn" title="Detail View"><span class="material-icons">view_day</span></button>
+    <button class="layout-grid-btn" title="Grid View"><span class="material-icons">view_module</span></button>
+</div>
+
+<div class="article-grid">
+    {%- for mtime, rel_path, title, url, cover, summary in recent_docs %}
+    <div class="article-card">
+        <a class="card-header" href="{{ url }}" target="_blank">
+            <div class="card-title">{{ title }}</div>
+            <time class="dd-timeago card-date" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
+        </a>
+        <div class="card-body">
+            <div class="card-summary">{{ summary }}</div>
+            {%- if cover %}
+            <div class="card-cover">
+                <img src="{{ cover }}" alt="{{ title }}">
+            </div>
+            {%- endif %}
+        </div>
+    </div>
+    {%- endfor %}
+</div>

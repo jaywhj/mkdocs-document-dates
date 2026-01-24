@@ -1,0 +1,50 @@
+<style>
+.recently-updated {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 11px;
+    border: 1px solid rgba(142, 142, 142, 0.2);
+    border-radius: 8px;
+    font-family: system-ui, sans-serif;
+}
+
+/* 屏幕宽度 675px 及以下时切换为 1 列 */
+@media screen and (max-width: 675px) {
+    .recently-updated {
+        grid-template-columns: 1fr;
+    }
+}
+.recently-updated-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 5px;
+}
+.recently-updated-item a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #0077cc;
+    text-decoration: none;
+    margin-left: 6px;
+}
+.recently-updated-item a:hover {
+    text-decoration: underline;
+}
+.recently-updated-item time {
+    font-size: 0.84em;
+    color: rgba(142, 142, 142, 0.4);
+    margin: 0 6px;
+    flex-shrink: 0;
+    text-align: right;
+}
+</style>
+
+<div class="recently-updated">
+    {%- for mtime, rel_path, title, url, cover, summary in recent_docs %}
+    <div class="recently-updated-item">
+        <a href="{{ url }}" target="_blank">{{ title }}</a>
+        <time class="dd-timeago" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
+    </div>
+    {%- endfor %}
+</div>
