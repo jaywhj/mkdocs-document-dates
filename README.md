@@ -41,7 +41,7 @@ plugins:
   - document-dates
 ```
 
-Or, full configuration:
+Or, common configuration:
 
 ```yaml
 plugins:
@@ -51,8 +51,6 @@ plugins:
       exclude:                 # List of excluded files
         - temp.md                  # Example: exclude the specified file
         - blog/*                   # Example: exclude all files in blog folder, including subfolders
-      date_format: '%Y-%m-%d'  # Date format strings (e.g., %Y-%m-%d, %b %d, %Y)
-      time_format: '%H:%M:%S'  # Time format strings (valid only if type=datetime)
 ```
 
 ## Customization Settings
