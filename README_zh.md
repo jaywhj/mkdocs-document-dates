@@ -41,7 +41,7 @@ plugins:
   - document-dates
 ```
 
-或者，完整配置：
+或者，常用配置：
 
 ```yaml
 plugins:
@@ -51,8 +51,6 @@ plugins:
       exclude:                 # 排除文件列表
         - temp.md                  # 示例：排除指定文件
         - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
-      date_format: '%Y-%m-%d'  # 日期格式化字符串（例如: %Y年%m月%d日、%b %d, %Y）
-      time_format: '%H:%M:%S'  # 时间格式化字符串（仅在 type=datetime 时有效）
 ```
 
 ## 自定义设置
