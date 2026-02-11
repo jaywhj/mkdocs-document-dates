@@ -4,6 +4,7 @@ import json
 import heapq
 import logging
 import subprocess
+import fnmatch
 import re
 from pathlib import Path
 from datetime import datetime
@@ -14,15 +15,22 @@ logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-def is_excluded(path, exclude_list):
+def compile_exclude_patterns(exclude_list):
     if not exclude_list:
+        return []
+    return [re.compile(fnmatch.translate(pattern)) for pattern in exclude_list]
+
+def is_excluded(path, patterns):
+    if not patterns:
         return False
-    for pattern in exclude_list:
-        if pattern.endswith('*'):
-            if path.startswith(pattern.partition('*')[0]):
+    first = patterns[0]
+    if isinstance(first, re.Pattern):
+        for regex in patterns:
+            if regex.match(path):
                 return True
-        else:
-            if path == pattern:
+    else:
+        for pattern in patterns:
+            if fnmatch.fnmatch(path, pattern):
                 return True
     return False
 
