@@ -43,6 +43,7 @@ class DocumentDatesPlugin(BasePlugin):
 
     def __init__(self):
         super().__init__()
+
         self.dates_cache = {}
         self.last_updated_dates = {}
         self.authors_yml = {}
