@@ -141,6 +141,7 @@ def load_git_last_updated_date(docs_dir_path: Path):
 
     return doc_mtime_map
 
+# 建议在 on_page_markdown 之后的全局事件中调用，因为需要读取 page.meta 中的信息
 def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
     recently_updated_results = []
     if recent_enable:

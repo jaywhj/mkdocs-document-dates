@@ -189,7 +189,7 @@ class DocumentDatesPlugin(BasePlugin):
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
 
-        # 获取最近更新的文档数据（建议放在 on_page_markdown 之后的全局事件中调用，因为需要读取 page.meta 中的信息）
+        # 获取最近更新的文档数据
         recent_exclude_patterns = compile_exclude_patterns(exclude_list)
         recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, recent_exclude_patterns, limit, self.recent_enable)
 
