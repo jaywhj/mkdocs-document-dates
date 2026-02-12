@@ -10,7 +10,7 @@ from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
-from .utils import get_file_creation_time, load_git_metadata, load_git_last_updated_date, read_jsonl_cache,is_excluded, get_recently_updated_files
+from .utils import get_file_creation_time, load_git_metadata, load_git_last_updated_date, read_jsonl_cache, compile_exclude_patterns, is_excluded, get_recently_updated_files
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -48,6 +48,7 @@ class DocumentDatesPlugin(BasePlugin):
         self.authors_yml = {}
         self.recent_docs_html = None
         self.recent_enable = False
+        self._exclude_patterns = []
 
     def on_config(self, config):
         docs_dir_path = Path(config['docs_dir'])
@@ -138,6 +139,8 @@ class DocumentDatesPlugin(BasePlugin):
             'assets/document_dates/core/core.js'
         ])
 
+        self._exclude_patterns = compile_exclude_patterns(self.config['exclude'])
+
         return config
 
     def on_page_markdown(self, markdown, page: Page, config, files):
@@ -164,7 +167,7 @@ class DocumentDatesPlugin(BasePlugin):
         page.meta['document_dates_authors'] = authors
         
         # 检查是否需要排除
-        if is_excluded(rel_path, self.config['exclude']):
+        if is_excluded(rel_path, self._exclude_patterns):
             return markdown
         
         # 生成日期和作者信息 HTML
@@ -187,7 +190,8 @@ class DocumentDatesPlugin(BasePlugin):
         limit = recently_updated_config.get('limit', 10)
 
         # 获取最近更新的文档数据
-        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, exclude_list, limit, self.recent_enable)
+        recent_exclude_patterns = compile_exclude_patterns(exclude_list)
+        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, recent_exclude_patterns, limit, self.recent_enable)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if 'extra' not in config:

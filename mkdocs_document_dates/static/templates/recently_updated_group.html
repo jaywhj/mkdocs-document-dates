@@ -2,7 +2,7 @@
 .article-layout-switcher {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 12px;
+    /* margin-bottom: 20px; */
 }
 .article-layout-switcher button + button {
     margin-left: 8px;
@@ -68,8 +68,7 @@
 }
 .article-grid.is-list .card-title {
     font-weight: 400;
-    color: #0077cc;
-    /* color: var(--md-typeset-color, #1c1c1c); */
+    color: var(--md-typeset-a-color, #0077cc);
 
     white-space: nowrap;
     overflow: hidden;
@@ -110,6 +109,9 @@
     white-space: nowrap;
     margin-right: 10px;
 }
+.card-header:hover {
+    text-decoration: none !important;
+}
 .card-header:hover .card-title {
     color: var(--md-accent-fg-color, blue);
     text-decoration: underline;
@@ -146,6 +148,16 @@
     justify-content: center;
     overflow: hidden;
     margin-left: 10px;
+    transition: filter 0.3s ease;
+
+    /* Safari 圆角闪烁修复 */
+    transform: translateZ(0);              /* 建立独立合成层 */
+    will-change: transform;                /* 提前告诉浏览器 */
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* 强制圆角裁剪走 mask 管线 */
+    isolation: isolate;
+}
+.card-cover:hover {
+    filter: brightness(0.8);
 }
 .card-cover a {
     display: block;
@@ -157,13 +169,23 @@
     height: 100%;
     object-fit: cover;
     margin: 0 !important;
+
+    /* 避免 layer 升降级 */
+    transform: scale(1.1) translateZ(0);
+    transition: transform 0.4s ease-out;
+    /* 防 Safari 重绘抖动 */
+    backface-visibility: hidden;
+    will-change: transform;
+}
+.card-cover:hover img {
+    transform: scale(1.1) translateX(4px) translateZ(0);
 }
 </style>
 
 <div class="article-layout-switcher">
-    <button class="layout-list-btn" title="List View"><span class="material-icons">view_list</span></button>
-    <button class="layout-detail-btn" title="Detail View"><span class="material-icons">view_day</span></button>
-    <button class="layout-grid-btn" title="Grid View"><span class="material-icons">view_module</span></button>
+    <button class="layout-list-btn"><span class="material-icons">view_list</span></button>
+    <button class="layout-detail-btn"><span class="material-icons">view_day</span></button>
+    <button class="layout-grid-btn"><span class="material-icons">view_module</span></button>
 </div>
 
 <div class="article-grid">
