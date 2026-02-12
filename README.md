@@ -48,9 +48,10 @@ plugins:
   - document-dates:
       position: top            # Display position: top(after title) bottom(end of document), default: top
       type: date               # Date type: date datetime timeago, default: date
-      exclude:                 # List of excluded files
+      exclude:                 # List of excluded files (support unix shell-style wildcards)
         - temp.md                  # Example: exclude the specified file
         - blog/*                   # Example: exclude all files in blog folder, including subfolders
+        - '*/index.md'             # Example: exclude all index.md files in any subfolders
 ```
 
 ## Customization Settings

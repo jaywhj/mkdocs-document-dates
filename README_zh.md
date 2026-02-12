@@ -48,9 +48,10 @@ plugins:
   - document-dates:
       position: top            # 显示位置: top(标题后) bottom(文档末尾), 默认: top
       type: date               # 日期类型: date datetime timeago, 默认: date
-      exclude:                 # 排除文件列表
+      exclude:                 # 排除文件列表（支持 unix shell 样式的通配符）
         - temp.md                  # 示例：排除指定文件
         - blog/*                   # 示例：排除 blog 目录下所有文件，包括子目录
+        - '*/index.md'             # 示例：排除所有子目录下的 index.md 文件
 ```
 
 ## 自定义设置
