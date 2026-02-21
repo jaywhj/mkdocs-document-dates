@@ -45,8 +45,6 @@ def legacy_setup():
 
 
 try:
-    import setuptools.config.pyprojecttoml
-
     setup()
 except Exception:
     legacy_setup()
