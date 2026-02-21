@@ -1,2 +1,9 @@
 global-exclude tests/*
 global-exclude tests/**/*
+
+global-exclude .DS_Store
+global-exclude __pycache__/*
+global-exclude *.py[cod]
+
+graft mkdocs_document_dates/hooks
+graft mkdocs_document_dates/static

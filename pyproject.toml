@@ -1,4 +1,48 @@
 [build-system]
-requires = ["setuptools>=42"]
-# 使用 legacy backend，继续执行 setup.py
-build-backend = "setuptools.build_meta:__legacy__"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mkdocs-document-dates"
+version = "3.7.0"
+description = "A new generation MkDocs plugin for displaying exact creation date, last updated date, authors, email of documents"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.7"
+license = "MIT"
+authors = [{ name = "Aaron Wang", email = "aaronwqt@gmail.com" }]
+dependencies = ["mkdocs>=1.1.0"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/jaywhj/mkdocs-document-dates"
+Repository = "https://github.com/jaywhj/mkdocs-document-dates"
+Documentation = "https://jaywhj.netlify.app/document-dates-en"
+
+[project.entry-points."mkdocs.plugins"]
+document-dates = "mkdocs_document_dates.plugin:DocumentDatesPlugin"
+
+[project.scripts]
+mkdocs-document-dates-hooks = "mkdocs_document_dates.hooks_installer:install"
+mdd-hooks = "mkdocs_document_dates.hooks_installer:install"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mkdocs_document_dates*"]
+
+[tool.setuptools.package-data]
+mkdocs_document_dates = [
+  "hooks/*",
+  "static/**/*",
+]
+
+[tool.setuptools.exclude-package-data]
+"*" = [
+  ".DS_Store",
+  "**/.DS_Store",
+]
