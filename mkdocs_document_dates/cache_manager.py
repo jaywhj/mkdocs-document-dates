@@ -1,16 +1,92 @@
 import logging
+import os
 import subprocess
 from pathlib import Path
+from logging.handlers import RotatingFileHandler
+from typing import Optional
 from .utils import read_jsonl_cache, write_jsonl_cache, get_file_creation_time, get_git_first_commit_time
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
-logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+_LOGGING_CONFIGURED = False
+
+
+def _default_log_file() -> Path:
+    try:
+        git_root = Path(subprocess.check_output(
+            ['git', 'rev-parse', '--show-toplevel'],
+            env=_clean_git_env(),
+            encoding='utf-8'
+        ).strip())
+        base_dir = git_root
+    except Exception:
+        base_dir = Path.cwd()
+    return base_dir / "mkdocs_document_dates.debug.log"
+
+def configure_file_logging(log_file: Optional[Path] = None, level: int = logging.DEBUG) -> Optional[Path]:
+    global _LOGGING_CONFIGURED
+    if _LOGGING_CONFIGURED:
+        return log_file
+
+    env_log_file = os.getenv("MKDOCS_DOCUMENT_DATES_LOG_FILE")
+    if log_file is None and env_log_file:
+        log_file = Path(env_log_file).expanduser()
+
+    if log_file is None:
+        return None
+
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    handler = RotatingFileHandler(
+        log_file,
+        maxBytes=5 * 1024 * 1024,
+        backupCount=3,
+        encoding="utf-8",
+    )
+    handler.setLevel(level)
+    handler.setFormatter(logging.Formatter(
+        fmt="%(asctime)s [%(filename)s:%(lineno)d] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    ))
+
+    logger.setLevel(level)
+    logger.addHandler(handler)
+    logger.propagate = False
+    _LOGGING_CONFIGURED = True
+    logger.debug(f"File logging enabled: {log_file}")
+    return log_file
+
+def _env_truthy(name: str) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return False
+    value = value.strip().lower()
+    return value not in ("", "0", "false", "no", "off")
+
+
+def _clean_git_env():
+    env = os.environ.copy()
+
+    for k in [
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_COMMON_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_PREFIX",
+        "GIT_SUPER_PREFIX",
+        "GIT_CEILING_DIRECTORIES",
+    ]:
+        env.pop(k, None)
+
+    env["GIT_OPTIONAL_LOCKS"] = "0"
+
+    return env
 
 def find_mkdocs_projects():
     projects = []
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
+            env=_clean_git_env(),
             encoding='utf-8'
         ).strip())
 
@@ -39,7 +115,7 @@ def setup_gitattributes(docs_dir: Path):
                 content += '\n'
             content += f"{union_merge_line}\n"
             gitattributes_path.write_text(content, encoding='utf-8')
-            subprocess.run(["git", "add", str(gitattributes_path)], check=True)
+            subprocess.run(["git", "add", str(gitattributes_path)], cwd=docs_dir, env=_clean_git_env(), check=True)
             logger.info(f"Updated .gitattributes file: {gitattributes_path}")
             return True
     except (IOError, OSError) as e:
@@ -49,8 +125,12 @@ def setup_gitattributes(docs_dir: Path):
     return False
 
 def update_cache():
-    global_updated = False
+    if os.getenv("MKDOCS_DOCUMENT_DATES_LOG_FILE"):
+        configure_file_logging()
+    elif _env_truthy("MKDOCS_DOCUMENT_DATES_DEBUG"):
+        configure_file_logging(_default_log_file())
 
+    global_updated = False
     for project_dir in find_mkdocs_projects():
         try:
             project_updated = False
@@ -65,7 +145,7 @@ def update_cache():
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
             cmd = ["git", "ls-files", "*.md"]
-            result = subprocess.run(cmd, cwd=docs_dir, capture_output=True, encoding='utf-8')
+            result = subprocess.run(cmd, cwd=docs_dir, env=_clean_git_env(), capture_output=True, encoding='utf-8')
             tracked_files = result.stdout.splitlines() if result.stdout else []
 
             if not tracked_files:

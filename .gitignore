@@ -43,6 +43,7 @@ desktop.ini
 
 # mkdocs 特定
 site/
+mkdocs_document_dates.debug.log
 
 # 测试
 tests/
