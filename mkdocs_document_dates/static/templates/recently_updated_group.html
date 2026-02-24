@@ -152,9 +152,9 @@
     transition: filter 0.3s ease;
 
     /* Safari 圆角闪烁修复 */
-    transform: translateZ(0);              /* 建立独立合成层 */
-    will-change: transform;                /* 提前告诉浏览器 */
-    -webkit-mask-image: -webkit-radial-gradient(white, black); /* 强制圆角裁剪走 mask 管线 */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
     isolation: isolate;
 }
 .card-cover:hover {

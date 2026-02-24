@@ -20,7 +20,7 @@ def _default_log_file() -> Path:
         base_dir = git_root
     except Exception:
         base_dir = Path.cwd()
-    return base_dir / "mkdocs_document_dates.debug.log"
+    return base_dir / "mkdocs_document_dates.log"
 
 def configure_file_logging(log_file: Optional[Path] = None, level: int = logging.DEBUG) -> Optional[Path]:
     global _LOGGING_CONFIGURED
