@@ -10,7 +10,7 @@ A new generation MkDocs plugin for displaying exact **creation date, last update
 
 ## Features
 
-- [x] Always displays **exact** meta information of the document and works in any environment (no-Git, Git environments, Docker, all CI/CD build systems, etc.)
+- [x] Works in any environment: no-Git, Git environments, Docker, all CI/CD build systems, etc.
 - [x] Support list display of recently updated documents (in descending order of update date)
 - [x] Support for manually specifying date and author in `Front Matter`
 - [x] Support for multiple date formats (date, datetime, timeago)
@@ -58,14 +58,13 @@ plugins:
 
 In addition to the above basic configuration, the plug-in also provides a wealth of customization options to meet a variety of individual needs:
 
-- [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): Introduces the mechanism for obtaining document dates and methods for personalized customization, you can manually specify the creation date and last updated date for each document
-- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): Introduces the mechanism for obtaining document authors and methods for personalized customization, you can manually specify the author information for each document, such as name, link, avatar, email, etc.
+- [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): Introduces the mechanism for obtaining document dates and methods for personalized customization, support for manually specifying the creation date and last updated date for each document
+- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): Introduces the mechanism for obtaining document authors and methods for personalized customization, support for manually specifying the author information for each document, such as name, link, avatar, email, etc.
 - [Specify Avatar](https://jaywhj.netlify.app/document-dates-en#Specify-Avatar): You can manually specify the avatar for each author, support local file path and URL path
 - [Configuration Structure and Style](https://jaywhj.netlify.app/document-dates-en#Structure-and-Style): You can freely configure the plugin's display structure in mkdocs.yml or Front Matter. You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
-- [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO; Can be used to re-customize plug-ins, etc.
+- [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO
 - [Add Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Add-Recently-Updated-Module): Enable list of recently updated documents (in descending order of update date), this is ideal for sites with a large number of documents, so that readers can quickly see what's new
 - [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
-- [Other Tips](https://jaywhj.netlify.app/document-dates-en#Other-Tips): Introducing the Do's of using plugin in Docker
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
@@ -74,7 +73,7 @@ See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
 ## Other Projects
 
-- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx), the next generation of mkdocs-material, is based on `mkdocs-material-9.7.0` and is named `X`. I'll be maintaining this branch continuously (since mkdocs-material will stop being maintained). 
+- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx), the next generation of mkdocs-material. Build beautiful sites the way you already know and love. Based on `mkdocs-material-9.7.1` and is named `X`, it provides ongoing maintenance and updates (since mkdocs-material will stop being maintained).
 Updates have been released that refactor and add a lot of new features, see https://github.com/jaywhj/mkdocs-materialx/releases/
 
 <br />
