@@ -168,12 +168,17 @@ class DocumentDatesPlugin(BasePlugin):
         
         # 获取作者信息
         authors = self._get_author_info(rel_path, page, config)
-        
-        # 在排除前暴露 meta 信息给前端使用
-        page.meta['document_dates_created'] = created.isoformat()
-        page.meta['document_dates_updated'] = updated.isoformat()
-        page.meta['document_dates_authors'] = authors
-        
+
+        # 按 MaterialX 的数据规范给 meta 填充数据
+        mx = page.meta.setdefault("_mx", {})
+        mx["document-dates"] = {
+            "dates": {
+                "created": created.isoformat(),
+                "updated": updated.isoformat(),
+            },
+            "authors": authors
+        }
+
         # 检查是否需要排除
         if is_excluded(rel_path, self._exclude_patterns):
             return markdown

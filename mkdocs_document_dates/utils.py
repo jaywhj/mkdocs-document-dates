@@ -169,7 +169,7 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             # authors = []
             if file.page:
                 cover = file.page.meta.get('cover', '')
-                # authors = file.page.meta.get('document_dates_authors', [])
+                # authors = file.page.meta._mx.get('document-dates', {}).get('authors', [])
                 if file.page.file:
                     summary = extract_summary(file.page.file.content_string)
 
