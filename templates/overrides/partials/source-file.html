@@ -1,34 +1,35 @@
-{%- set data = page.meta._mx.get("document-dates", {}) %}
-{%- if data -%}
+{%- set dates = page.meta._mx.document_dates.dates %}
+{%- set authors = page.meta._mx.document_dates.authors %}
+{%- if dates or authors -%}
 <div class="document-dates-plugin">
-  {%- if data.dates %}
+  {%- if dates %}
   <div class="dd-left">
 
     {#- Render date of creation -#}
-    {%- if data.dates.created %}
-    <span class="dd-item" data-tippy-content data-tippy-raw="{{ data.dates.created[:10] }}">
+    {%- if dates.created %}
+    <span class="dd-item" data-tippy-content data-tippy-raw="{{ dates.created[:10] }}">
       <span class="material-icons" data-icon="doc_created"></span>
-      <time datetime="{{ data.dates.created }}"></time>
+      <time datetime="{{ dates.created }}"></time>
     </span>
     {%- endif %}
 
     {#- Render date of last update -#}
-    {%- if data.dates.updated %}
-    <span class="dd-item" data-tippy-content data-tippy-raw="{{ data.dates.updated[:10] }}">
+    {%- if dates.updated %}
+    <span class="dd-item" data-tippy-content data-tippy-raw="{{ dates.updated[:10] }}">
       <span class="material-icons" data-icon="doc_updated"></span>
-      <time datetime="{{ data.dates.updated }}"></time>
+      <time datetime="{{ dates.updated }}"></time>
     </span>
     {%- endif %}
   </div>
   {%- endif %}
   
   {#- Render authors -#}
-  {%- if data.authors %}
+  {%- if authors %}
   <div class="dd-right">
     {%- set icon = 'doc_author' if authors|length == 1 else 'doc_authors' %}
     <span class="material-icons" data-icon="{{ icon }}"></span>
     <div class="author-group">
-    {%- for author in data.authors %}
+    {%- for author in authors %}
       {%- set tooltip -%}
         {%- if author.url -%}
           <a href="{{ author.url }}" target="_blank">{{ author.name }}</a>

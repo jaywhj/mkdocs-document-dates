@@ -73,7 +73,7 @@ plugins:
 
 ## 其他项目
 
-- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx)，下一代 mkdocs-material，让你继续用熟悉的方式构建漂亮站点。基于 `mkdocs-material-9.7.1` 衍生，取名为 `X`，提供持续的维护与更新（因为 mkdocs-material 将停止维护）
+- [**MaterialX**](https://github.com/jaywhj/mkdocs-materialx)，下一代 mkdocs-material，让你继续用熟悉的方式构建漂亮站点。基于 `mkdocs-material-9.7.1` 衍生，取名为 `X`，提供持续的维护与更新（因为 mkdocs-material 将停止维护）  
 目前已发布的更新，重构和添加了很多新功能，详情见 https://github.com/jaywhj/mkdocs-materialx/releases/
 
 <br />

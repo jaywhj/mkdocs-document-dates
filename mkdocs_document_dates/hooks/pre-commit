@@ -4,7 +4,7 @@ try:
     from mkdocs_document_dates.cache_manager import update_cache
 except Exception:
     import sys
-    # 正常退出（0 状态码），不影响 git 的后续动作
+    # Normal exit (0 status code), don't affect subsequent git actions
     sys.exit(0)
 
 if __name__ == "__main__":

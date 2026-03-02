@@ -171,7 +171,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 按 MaterialX 的数据规范给 meta 填充数据
         mx = page.meta.setdefault("_mx", {})
-        mx["document-dates"] = {
+        mx["document_dates"] = {
             "dates": {
                 "created": created.isoformat(),
                 "updated": updated.isoformat(),
