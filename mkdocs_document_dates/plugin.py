@@ -215,6 +215,16 @@ class DocumentDatesPlugin(BasePlugin):
         if self.recent_enable:
             self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs)
 
+        # # 便捷访问日期数据函数
+        # def mdd_access(page, domain):
+        #     return (
+        #         page.meta.get("_mx", {})
+        #         .get("document_dates", {})
+        #         .get(domain, {})
+        #     )
+
+        # env.globals["mdd"] = mdd_access
+
         return env
 
     def on_post_page(self, output, page, config):
