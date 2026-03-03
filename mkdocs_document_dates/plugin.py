@@ -215,7 +215,7 @@ class DocumentDatesPlugin(BasePlugin):
         if self.recent_enable:
             self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs)
 
-        # # 便捷访问日期数据函数
+        # # 访问日期数据的便捷函数
         # def mdd_access(page, domain):
         #     return (
         #         page.meta.get("_mx", {})
