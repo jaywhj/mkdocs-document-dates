@@ -58,13 +58,13 @@ plugins:
 
 In addition to the above basic configuration, the plug-in also provides a wealth of customization options to meet a variety of individual needs:
 
-- [Specify Datetime](https://jaywhj.netlify.app/document-dates-en#Specify-Datetime): Introduces the mechanism for obtaining document dates and methods for personalized customization, support for manually specifying the creation date and last updated date for each document
-- [Specify Author](https://jaywhj.netlify.app/document-dates-en#Specify-Author): Introduces the mechanism for obtaining document authors and methods for personalized customization, support for manually specifying the author information for each document, such as name, link, avatar, email, etc.
-- [Specify Avatar](https://jaywhj.netlify.app/document-dates-en#Specify-Avatar): You can manually specify the avatar for each author, support local file path and URL path
-- [Configuration Structure and Style](https://jaywhj.netlify.app/document-dates-en#Structure-and-Style): You can freely configure the plugin's display structure in mkdocs.yml or Front Matter. You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
-- [Use Template Variables](https://jaywhj.netlify.app/document-dates-en#Use-Template-Variables): Can be used to optimize `sitemap.xml` for site SEO
-- [Add Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Add-Recently-Updated-Module): Enable list of recently updated documents (in descending order of update date), this is ideal for sites with a large number of documents, so that readers can quickly see what's new
-- [Add Localization Language](https://jaywhj.netlify.app/document-dates-en#Add-Localization-Language): More localization languages for `timeago` and `tooltip` 
+- [Date & Time](https://jaywhj.netlify.app/document-dates-en#Date--Time): Introduces the mechanism for obtaining document dates and methods for personalized customization, support for manually specifying the creation date and last updated date for each document
+- [Author](https://jaywhj.netlify.app/document-dates-en#Author): Introduces the mechanism for obtaining document authors and methods for personalized customization, support for manually specifying the author information for each document, such as name, link, avatar, email, etc.
+- [Avatar](https://jaywhj.netlify.app/document-dates-en#Avatar): You can manually specify the avatar for each author, support local file path and URL path
+- [Structure and Style](https://jaywhj.netlify.app/document-dates-en#Structure-and-Style): You can freely configure the plugin's display structure in mkdocs.yml or Front Matter. You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
+- [Template Variables](https://jaywhj.netlify.app/document-dates-en#Template-Variables): Can be used to optimize `sitemap.xml` for site SEO
+- [Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Recently-Updated-Module): Enable list of recently updated documents (in descending order of update date), this is ideal for sites with a large number of documents, so that readers can quickly see what's new
+- [Localization Language](https://jaywhj.netlify.app/document-dates-en#Localization-Language): More localization languages for `timeago` and `tooltip` 
 - [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en

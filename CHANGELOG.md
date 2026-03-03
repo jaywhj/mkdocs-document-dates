@@ -4,16 +4,21 @@
 
 ### en
 
-- Starting from `v3.7.0`, the automatic installation of Git hooks has been removed and replaced with optional manual installation by users.
-  Meanwhile, the Git hooks installation path has been changed from global to local repository. For details, see [Cache Creation Date](https://jaywhj.netlify.app/document-dates-en.html#Cache-creation-date).
-- Fixed compatibility issues with the date cache hook, allowing it to work perfectly on any client that supports Git hooks.
-- Updated the template variable names for date access. For details, see [Using Template Variables](https://jaywhj.netlify.app/document-dates-en.html#Use-Template-Variables).
+- Starting from version `3.7.0`:
+  - Removed automatic installation of Git hooks and changed to optional manual installation by users
+  - Changed the Git hooks installation path from global to the local repository. For details, see [Cache Creation Date](https://jaywhj.netlify.app/document-dates-en#Cache-creation-date)
+  - Provided wheel distribution packages
+- Fixed compatibility issues with the date cache hook, allowing it to work perfectly on any client that supports Git hooks
+- Updated the template variable names for date access. For details, see [Template Variables](https://jaywhj.netlify.app/document-dates-en#Template-Variables)
 
 ### zh
 
-- 从 3.7.0 版本起，移除了 Git hooks 的自动安装方式，调整为用户手动选配安装，同时，Git hooks 安装路径由全局调整为局部仓库，相关说明见 [缓存创建日期](https://jaywhj.netlify.app/document-dates-zh.html#缓存创建日期)
+- 从 3.7.0 版本起：
+  - 移除了 Git hooks 的自动安装方式，调整为用户手动选配安装
+  - Git hooks 安装路径由全局调整为局部仓库，相关说明见 [缓存创建日期](https://jaywhj.netlify.app/document-dates-zh#%E7%BC%93%E5%AD%98%E5%88%9B%E5%BB%BA%E6%97%A5%E6%9C%9F)
+  - 提供了 wheel 格式安装包
 - 修复了日期缓存钩子的兼容性，可在任意支持 Git hooks 的客户端中完美使用
-- 更新了日期访问的模板变量名，具体见 [使用模板变量](https://jaywhj.netlify.app/document-dates-zh.html#使用模板变量)
+- 更新了日期访问的模板变量名，具体见 [使用模板变量](https://jaywhj.netlify.app/document-dates-zh#%E6%A8%A1%E6%9D%BF%E5%8F%98%E9%87%8F)
 
 
 
