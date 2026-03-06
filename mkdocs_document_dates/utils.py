@@ -34,7 +34,7 @@ def is_excluded(path, patterns):
                 return True
     return False
 
-def get_file_creation_time(file_path):
+def load_file_creation_date(file_path):
     try:
         stat = os.stat(file_path)
         system = platform.system().lower()
@@ -48,10 +48,10 @@ def get_file_creation_time(file_path):
         else:  # Linux, 没有创建时间，使用修改时间
             return datetime.fromtimestamp(stat.st_mtime)
     except (OSError, ValueError) as e:
-        logger.error(f"Failed to get file creation time for {file_path}: {e}")
+        logger.error(f"Failed to load file creation date for {file_path}: {e}")
         return datetime.now()
 
-def get_git_first_commit_time(file_path):
+def load_git_first_commit_date(file_path):
     try:
         # git log --reverse --format="%aI" -- {file_path} | head -n 1
         cmd_list = ['git', 'log', '--reverse', '--format=%aI', '--', file_path]
@@ -60,7 +60,7 @@ def get_git_first_commit_time(file_path):
             first_line = process.stdout.partition('\n')[0].strip()
             return datetime.fromisoformat(first_line)
     except Exception as e:
-        logger.info(f"Error getting git first commit time for {file_path}: {e}")
+        logger.info(f"Error load git first commit date for {file_path}: {e}")
     return None
 
 def load_git_metadata(docs_dir_path: Path):
@@ -107,7 +107,7 @@ def load_git_metadata(docs_dir_path: Path):
         logger.info(f"Error getting git info in {docs_dir_path}: {e}")
     return dates_cache
 
-def load_git_last_updated_date(docs_dir_path: Path):
+def load_git_last_updated_dates(docs_dir_path: Path):
     doc_mtime_map = {}
     try:
         git_root = Path(subprocess.check_output(

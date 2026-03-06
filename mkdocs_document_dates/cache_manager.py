@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from typing import Optional
-from .utils import read_jsonl_cache, write_jsonl_cache, get_file_creation_time, get_git_first_commit_time
+from .utils import read_jsonl_cache, write_jsonl_cache, load_file_creation_date, load_git_first_commit_date
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 _LOGGING_CONFIGURED = False
@@ -165,9 +165,9 @@ def update_cache():
 
                     full_path = docs_dir / rel_path
                     if full_path.exists():
-                        created_time = get_file_creation_time(full_path).astimezone()
+                        created_time = load_file_creation_date(full_path).astimezone()
                         if not jsonl_cache_file.exists():
-                            git_time = get_git_first_commit_time(full_path)
+                            git_time = load_git_first_commit_date(full_path)
                             if git_time:
                                 created_time = min(created_time, git_time)
                         jsonl_dates_cache[rel_path] = {
