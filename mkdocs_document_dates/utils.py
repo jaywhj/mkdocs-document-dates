@@ -160,9 +160,10 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             # 优先从现有数据获取 mtime，如果不存在则 fallback 到文件系统 mtime
             mtime = existing_dates.get(rel_path, os.path.getmtime(file.abs_src_path))
 
-            # 获取文档标题和 URL
+            # 获取文档其它信息
             title = file.page.title if file.page and file.page.title else file.name
             url = file.page.url if file.page and file.page.url else file.url
+            tags = file.page.meta.get("tags") or []
 
             cover = ''
             summary = ''
@@ -173,8 +174,8 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
                 if file.page.file:
                     summary = extract_summary(file.page.file.content_string)
 
-            # 存储信息
-            files_meta.append((mtime, rel_path, title, url, cover, summary))
+            # 存储信息（更新时间、路径、标题、URL、封面、摘要、标签）
+            files_meta.append((mtime, rel_path, title, url, cover, summary, tags))
             # existing_map[rel_path] = mtime
 
         # 构建最近更新列表
@@ -236,11 +237,11 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
 FENCE_RE = re.compile(r"^\s*([`~]{3,})")
 
 # HTML comment
-HTML_COMMENT_START = re.compile(r'<!--', re.I)
-HTML_COMMENT_END   = re.compile(r'-->', re.I)
+HTML_COMMENT_START = re.compile(r"<!--", re.I)
+HTML_COMMENT_END   = re.compile(r"-->", re.I)
 
 # HTML
-HTML_TAG_OPEN = re.compile(r'<\s*([a-zA-Z][\w\-]*)\b', re.I)
+HTML_TAG_OPEN = re.compile(r"<\s*([a-zA-Z][\w\-]*)\b", re.I)
 HTML_TAG_CLOSE_TEMPLATE = r"</\s*{}\s*>"
 HTML_VOID_TAGS = {
     "area", "base", "br", "col", "embed", "hr",
@@ -250,8 +251,8 @@ HTML_VOID_TAGS = {
 HTML_VOID_CLOSE_RE = re.compile(r">", re.I)
 
 # -------- inline skip --------
-H1_TITLE = re.compile(r'^\s*# .+$', re.MULTILINE)
-SINGLE_LINE_HTML_NOISE = re.compile(r'^</?[a-z][\w-]*[^>]*>$', re.I)
+H1_TITLE = re.compile(r"^\s*# .+$", re.MULTILINE)
+SINGLE_LINE_HTML_NOISE = re.compile(r"^</?[a-z][\w-]*[^>]*>$", re.I)
 TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
 INLINE_SKIP_RE = re.compile(
     r"""
@@ -264,10 +265,10 @@ INLINE_SKIP_RE = re.compile(
 )
 
 # -------- inline replace --------
-IMAGE_RE = re.compile(r'!\[[^\]]*\]\([^)]+\)')
-LINK_RE = re.compile(r'\[([^\]]+)\]\([^)]+\)')
+IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
+LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 BRACE_RE = re.compile(r"\{[^}]*\}")
-MD_SYNTAX_RE = re.compile(r'[`*_>#]+')
+MD_SYNTAX_RE = re.compile(r"[`*_>#]+")
 
 def clean_markdown(md: str) -> list:
 
@@ -345,7 +346,7 @@ def clean_markdown(md: str) -> list:
                 is_void = tag in HTML_VOID_TAGS
 
                 # void tag：单行且以 > 结尾，视为直接结束，忽略该行
-                if stripped.endswith('>') and is_void:
+                if stripped.endswith(">") and is_void:
                     continue
 
                 # 非 void tag：进入 HTML_BLOCK
@@ -390,7 +391,7 @@ def clean_markdown(md: str) -> list:
                 if H1_TITLE.match(stripped):
                     h1_parsed = True
                     continue
-            if stripped.startswith(('---', '***')):
+            if stripped.startswith(("---", "***")):
                 continue
 
         # ==================================================
@@ -418,4 +419,4 @@ def clean_markdown(md: str) -> list:
 def extract_summary(markdown_text: str) -> str:
     md_list = clean_markdown(markdown_text)
     text = "  ".join(md_list)
-    return MD_SYNTAX_RE.sub('', text).strip()
+    return MD_SYNTAX_RE.sub("", text).strip()

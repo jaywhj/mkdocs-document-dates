@@ -61,6 +61,9 @@
 .article-grid.is-list .card-body {
     display: none;
 }
+.article-grid.is-list .md-tags {
+    display: none;
+}
 .article-grid.is-list .article-card {
     border: none;
     border-radius: 0;
@@ -183,6 +186,14 @@
 .card-cover:hover img {
     transform: scale(1.1) translateX(4px) translateZ(0);
 }
+
+/* --- 第三行：标签 & 阅读时长 --- */
+.md-typeset .md-tags:not([hidden]) {
+    margin: 14px 0 -4px;
+}
+.md-typeset .md-tag {
+    font-weight: 400;
+}
 </style>
 
 <div class="article-layout-switcher">
@@ -192,7 +203,7 @@
 </div>
 
 <div class="article-grid">
-    {%- for mtime, rel_path, title, url, cover, summary in recent_docs %}
+    {%- for mtime, rel_path, title, url, cover, summary, tags in recent_docs %}
     <div class="article-card">
         <a class="card-header" href="{{ url }}" target="_blank">
             <div class="card-title">{{ title }}</div>
@@ -206,6 +217,14 @@
             </div>
             {%- endif %}
         </div>
+
+        {%- if tags %}
+        <nav class="md-tags">
+            {%- for tag in tags %}
+            <span class="md-tag md-tag-icon">{{- tag -}}</span>
+            {%- endfor %}
+        </nav>
+        {%- endif %}
     </div>
     {%- endfor %}
 </div>
