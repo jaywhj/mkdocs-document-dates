@@ -1,4 +1,5 @@
 import logging
+import yaml
 import os
 import subprocess
 from pathlib import Path
@@ -136,8 +137,25 @@ def update_cache():
             project_updated = False
 
             docs_dir = project_dir / 'docs'
+
+            # 从 mkdocs.yml 中读取 docs_dir 配置覆盖默认值
+            try:
+                mkdocs_yml = project_dir / "mkdocs.yml"
+                if not mkdocs_yml.exists():
+                    mkdocs_yml = project_dir / "mkdocs.yaml"
+
+                mkdocs_config = yaml.load(
+                    mkdocs_yml.read_text(encoding="utf-8"),
+                    Loader=yaml.BaseLoader,
+                ) or {}
+
+                docs_dir_name = mkdocs_config.get("docs_dir") or "docs"
+                docs_dir = (project_dir / docs_dir_name).resolve(strict=False)
+            except (IOError, OSError, yaml.YAMLError) as e:
+                logger.warning(f"Failed to read docs_dir: {e}")
+
             if not docs_dir.exists():
-                logger.warning(f"Document directory does not exist: {docs_dir}")
+                logger.info(f"Document directory does not exist: {docs_dir}")
                 continue
 
             # 设置.gitattributes文件
