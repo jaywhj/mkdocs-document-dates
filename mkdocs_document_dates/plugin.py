@@ -5,7 +5,7 @@ import logging
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime
 from pathlib import Path
-from mkdocs.plugins import BasePlugin
+from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
@@ -151,6 +151,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         return config
 
+    @event_priority(50)
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
         rel_path = getattr(page.file, 'src_uri', page.file.src_path)
@@ -191,6 +192,7 @@ class DocumentDatesPlugin(BasePlugin):
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
 
+    @event_priority(50)
     def on_env(self, env, config, files):
         recently_updated_config = self.config.get('recently-updated')
         if recently_updated_config:
@@ -228,6 +230,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         return env
 
+    @event_priority(50)
     def on_post_page(self, output, page, config):
         if self.recent_enable and '\n<!-- RECENTLY_UPDATED_DOCS -->' in output:
             output = output.replace('\n<!-- RECENTLY_UPDATED_DOCS -->', self.recent_docs_html or '')
