@@ -200,11 +200,13 @@
 .card-footer .footer-left {
     display: flex;
     flex-wrap: wrap;
+    margin-right: 8px;
 }
 .card-footer .footer-right {
     margin-left: auto;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 .card-footer .read-time-icon {
     font-size: 0.8rem;
@@ -221,9 +223,14 @@
 
 .md-typeset .md-tags:not([hidden]) {
     margin: 0;
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow: hidden;
 }
 .md-typeset .md-tag {
     font-weight: 400;
+    flex-shrink: 0;
 }
 </style>
 
