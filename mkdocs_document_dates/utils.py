@@ -6,6 +6,7 @@ import logging
 import subprocess
 import fnmatch
 import re
+import math
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
@@ -167,15 +168,19 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
 
             cover = ''
             summary = ''
+            readtime = 0
             # authors = []
             if file.page:
                 cover = file.page.meta.get('cover', '')
                 # authors = file.page.meta._mx.document_dates.authors
                 if file.page.file:
-                    summary = extract_summary(file.page.file.content_string)
+                    summary, readtime = analyze_markdown(file.page.file.content_string)
 
-            # 存储信息（更新时间、路径、标题、URL、封面、摘要、标签）
-            files_meta.append((mtime, rel_path, title, url, cover, summary, tags))
+            meta_readtime = int(file.page.meta.get('readtime') or 0)
+            readtime = meta_readtime if meta_readtime > 0 else readtime
+
+            # 存储信息（更新时间、路径、标题、URL、封面、摘要、阅读时间、标签）
+            files_meta.append((mtime, rel_path, title, url, cover, summary, readtime, tags))
             # existing_map[rel_path] = mtime
 
         # 构建最近更新列表
@@ -230,15 +235,38 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
     return False
 
 
+# ==================================================
+# High-performance Readtime & Summary parser design:
+# 
+# - O(n) single-pass parser (scan once)
+# - No AST construction
+# - Finite state machine
+# - Block detection: frontmatter / fence / HTML / math / comment
+# - Inline and block parsing separated
+# - Summary and read-time computed in the same pass
+# ==================================================
+
+# ===== Extract Readtime =====
+DEFAULT_WPM = 240
+
+# Match Unicode "words" for space-delimited languages (English, Spanish, French, German, Russian, etc.)
+# CJK characters also match \w in Python, so they are removed before applying this regex to avoid double counting
+WORD_RE = re.compile(r"\w+", re.UNICODE)
+# WORD_RE = re.compile(r"[A-Za-z0-9_']+")
+
+# Match common CJK characters (Chinese, Japanese, Korean).
+# These languages do not use spaces between words, so characters are counted separately and weighted differently in Readtime
+# Ranges:
+#   \u4E00–\u9FFF  : Chinese (both Simplified and Traditional)
+#   \u3040–\u30FF  : Japanese Hiragana and Katakana
+#   \uAC00–\uD7AF  : Korean Hangul syllables
+CJK_RE = re.compile(r"[\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]")
+
+
 # ===== Extract Summary =====
 # 
 # -------- block skip --------
-# Fence
 FENCE_RE = re.compile(r"^\s*([`~]{3,})")
-
-# HTML comment
-HTML_COMMENT_START = re.compile(r"<!--", re.I)
-HTML_COMMENT_END   = re.compile(r"-->", re.I)
 
 # HTML
 HTML_TAG_OPEN = re.compile(r"<\s*([a-zA-Z][\w\-]*)\b", re.I)
@@ -251,18 +279,19 @@ HTML_VOID_TAGS = {
 HTML_VOID_CLOSE_RE = re.compile(r">", re.I)
 
 # -------- inline skip --------
+# TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
+REF_LINK_RE = re.compile(r"^\s*\[.+?\]:")
 H1_TITLE = re.compile(r"^\s*# .+$", re.MULTILINE)
 SINGLE_LINE_HTML_NOISE = re.compile(r"^</?[a-z][\w-]*[^>]*>$", re.I)
-TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
-INLINE_SKIP_RE = re.compile(
-    r"""
-    ^\s*> |                 # quote
-    ^\s*(?:!!!|\?\?\?) |    # admonition
-    ^\s*=== |               # tab
-    ^\s*\[.+?\]:            # reference link, including footnote
-    """,
-    re.X,
-)
+def inline_skip(line: str):
+    s = line.lstrip()
+    if s.startswith(">"):
+        return True
+    if s.startswith("!!!") or s.startswith("???"):
+        return True
+    if s.startswith("==="):
+        return True
+    return False
 
 # -------- inline replace --------
 IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
@@ -270,10 +299,18 @@ LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 BRACE_RE = re.compile(r"\{[^}]*\}")
 MD_SYNTAX_RE = re.compile(r"[`*_>#]+")
 
-def clean_markdown(md: str) -> list:
 
-    lines = md.splitlines()
-    result = []
+def analyze_markdown(md: str) -> list:
+    # ---------- for Readtime ----------
+    words = 0
+    cjk = 0
+    images = 0
+    table_rows = 0
+    code_rows = 0
+    math_blocks = 0
+
+    # ---------- for Summary ----------
+    summary_lines = []
 
     state = "NORMAL"
     fence = ""
@@ -282,7 +319,7 @@ def clean_markdown(md: str) -> list:
     h1_parsed = False
     math_delim = ""
 
-    for line in lines:
+    for line in md.splitlines():
         stripped = line.strip()
         if not stripped:
             continue
@@ -296,10 +333,12 @@ def clean_markdown(md: str) -> list:
                     state = "NORMAL"
                     frontmatter_parsed = True
                 continue
-            
+
             if state == "NORMAL" and stripped in ("---", "+++"):
                 state = "FRONTMATTER"
                 continue
+            else:
+                frontmatter_parsed = True
 
         # ==================================================
         # 2. Fence Block
@@ -307,6 +346,8 @@ def clean_markdown(md: str) -> list:
         if state == "FENCE":
             if stripped.startswith(fence):
                 state = "NORMAL"
+            else:
+                code_rows += 1
             continue
  
         if state == "NORMAL":
@@ -320,19 +361,24 @@ def clean_markdown(md: str) -> list:
         # 3. HTML Comment
         # ==================================================
         if state == "COMMENT":
-            if HTML_COMMENT_END.search(stripped):
+            if stripped.endswith("-->"):
                 state = "NORMAL"
             continue
 
-        if state == "NORMAL" and HTML_COMMENT_START.search(stripped):
+        if state == "NORMAL" and stripped.startswith("<!--"):
             state = "COMMENT"
-            if HTML_COMMENT_END.search(stripped):
+            if stripped.endswith("-->"):
                 state = "NORMAL"
             continue
 
         # ==================================================
         # 4. HTML Block
         # ==================================================
+        # Counting img tags in html
+        lower = stripped.lower()
+        if "<img " in lower:
+            images += lower.count("<img ")
+
         if state == "HTML_BLOCK":
             if html_close_re and html_close_re.search(stripped):
                 state = "NORMAL"
@@ -340,28 +386,29 @@ def clean_markdown(md: str) -> list:
             continue
 
         if state == "NORMAL":
-            m = HTML_TAG_OPEN.match(stripped)
-            if m:
-                tag = m.group(1).lower()
-                is_void = tag in HTML_VOID_TAGS
+            if stripped.startswith("<"):
+                m = HTML_TAG_OPEN.match(stripped)
+                if m:
+                    tag = m.group(1).lower()
+                    is_void = tag in HTML_VOID_TAGS
 
-                # void tag：单行且以 > 结尾，视为直接结束，忽略该行
-                if stripped.endswith(">") and is_void:
+                    # void tag：单行且以 > 结尾，视为直接结束，忽略该行
+                    if stripped.endswith(">") and is_void:
+                        continue
+
+                    # 非 void tag：进入 HTML_BLOCK
+                    state = "HTML_BLOCK"
+                    if is_void:
+                        html_close_re = HTML_VOID_CLOSE_RE
+                    else:
+                        html_close_re = re.compile(HTML_TAG_CLOSE_TEMPLATE.format(re.escape(tag)), re.I)
+
+                    # same-line close: <div>...</div>
+                    if html_close_re.search(stripped):
+                        state = "NORMAL"
+                        html_close_re = None
+
                     continue
-
-                # 非 void tag：进入 HTML_BLOCK
-                state = "HTML_BLOCK"
-                if is_void:
-                    html_close_re = HTML_VOID_CLOSE_RE
-                else:
-                    html_close_re = re.compile(HTML_TAG_CLOSE_TEMPLATE.format(re.escape(tag)), re.I)
-
-                # same-line close: <div>...</div>
-                if html_close_re.search(stripped):
-                    state = "NORMAL"
-                    html_close_re = None
-
-                continue
 
         # ==================================================
         # 5. Math Block
@@ -374,29 +421,37 @@ def clean_markdown(md: str) -> list:
         if state == "NORMAL" and stripped in ("$$", "\\["):
             math_delim = "$$" if stripped == "$$" else "\\]"
             state = "MATH"
+            math_blocks += 1
             continue
 
         # ==================================================
         # 6. Inline Skip
         # ==================================================
         if state == "NORMAL":
-            if TABLE_ROW_RE.match(stripped):
+            if stripped.startswith("|") and stripped.endswith("|"):
+            # if TABLE_ROW_RE.match(stripped):
+                table_rows += 1
                 continue
-            if INLINE_SKIP_RE.match(stripped):
+            if inline_skip(stripped):
                 continue
-            # 单行 HTML 噪音兜底
-            if SINGLE_LINE_HTML_NOISE.match(stripped):
+            if REF_LINK_RE.match(stripped):
                 continue
             if not h1_parsed:
                 if H1_TITLE.match(stripped):
                     h1_parsed = True
                     continue
-            if stripped.startswith(("---", "***")):
+            if stripped.startswith(("---", "***", "___")):
+                continue
+            # 单行 HTML 噪音兜底
+            if SINGLE_LINE_HTML_NOISE.match(stripped):
                 continue
 
         # ==================================================
         # 7. Inline Replace
         # ==================================================
+        if "![" in stripped:
+            images += len(IMAGE_RE.findall(stripped))
+
         text = stripped
         text = IMAGE_RE.sub("", text)
         text = LINK_RE.sub(r"\1", text)
@@ -404,19 +459,31 @@ def clean_markdown(md: str) -> list:
 
         text = text.strip()
         if text:
-            result.append(text)
+            cjk_count = len(CJK_RE.findall(text))
+            cjk += cjk_count
+            # 中日韩字符也匹配 \w，因此在应用 \w 之前先将它们删除，以避免重复计算
+            text_no_cjk = CJK_RE.sub(" ", text)
+            words += len(WORD_RE.findall(text_no_cjk))
 
-            # 提前熔断
-            if len(result) >= 10:
-                break
+            # words += len(WORD_RE.findall(text))
+            # cjk += len(CJK_RE.findall(text))
 
-        # 锁定 Frontmatter 状态，防止后续 --- 干扰
-        frontmatter_parsed = True
+            # summary 提前熔断
+            if len(summary_lines) < 10:
+                summary_lines.append(text)
 
-    return result
-    # return "\n".join(result)
+    # ===============================
+    # compute read time
+    # ===============================
+    units = words + cjk / 2
+    seconds = math.ceil(units / DEFAULT_WPM * 60)
 
-def extract_summary(markdown_text: str) -> str:
-    md_list = clean_markdown(markdown_text)
-    text = "  ".join(md_list)
-    return MD_SYNTAX_RE.sub("", text).strip()
+    seconds += table_rows
+    seconds += code_rows
+    seconds += math_blocks * 4
+    seconds += images * 2
+
+    summary = MD_SYNTAX_RE.sub("", "  ".join(summary_lines)).strip()
+    minutes = max(1, math.ceil(seconds / 60))
+
+    return summary, minutes
