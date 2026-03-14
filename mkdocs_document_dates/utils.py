@@ -244,6 +244,12 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
 # - Block detection: frontmatter / fence / HTML / math / comment
 # - Inline and block parsing separated
 # - Summary and read-time computed in the same pass
+#
+# Language support:
+# 
+# - CJK languages: Chinese, Japanese, Korean
+# - Space-delimited languages: English, Spanish, French, German, Portuguese, Russian ...
+# - Supports mixed-language content (e.g. English + CJK)
 # ==================================================
 
 # ===== Extract Readtime =====

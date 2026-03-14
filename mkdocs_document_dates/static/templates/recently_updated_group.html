@@ -61,7 +61,7 @@
 .article-grid.is-list .card-body {
     display: none;
 }
-.article-grid.is-list .md-tags {
+.article-grid.is-list .card-footer {
     display: none;
 }
 .article-grid.is-list .article-card {
@@ -107,8 +107,8 @@
     margin-right: 12px;
 }
 .card-date {
-    font-size: 0.84em;
-    color: rgba(100, 100, 100, 0.4);
+    font-size: 0.8em;
+    color: rgba(100, 100, 100, 0.6);
     white-space: nowrap;
     margin-right: 10px;
     /* 补偿 baseline 布局时字体度量的误差 */
@@ -132,7 +132,7 @@
 }
 .card-summary {
     flex: 1;
-    color: rgba(142, 142, 142, 1);
+    color: var(--md-default-fg-color--light, rgb(121, 121, 121));
     font-size: 0.7rem;
     line-height: 1.6;
     letter-spacing: 0.02rem;
@@ -188,8 +188,38 @@
 }
 
 /* --- 第三行：标签 & 阅读时长 --- */
+.card-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: -4px;
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+.card-footer .footer-left {
+    display: flex;
+    flex-wrap: wrap;
+}
+.card-footer .footer-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+.card-footer .read-time-icon {
+    font-size: 0.8rem;
+    opacity: .7;
+}
+.card-footer .read-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    color: rgba(100, 100, 100, 0.6);
+    white-space: nowrap;
+}
+
 .md-typeset .md-tags:not([hidden]) {
-    margin: 14px 0 -4px;
+    margin: 0;
 }
 .md-typeset .md-tag {
     font-weight: 400;
@@ -203,7 +233,7 @@
 </div>
 
 <div class="article-grid">
-    {%- for mtime, rel_path, title, url, cover, summary, tags in recent_docs %}
+    {%- for mtime, rel_path, title, url, cover, summary, readtime, tags in recent_docs %}
     <div class="article-card">
         <a class="card-header" href="{{ url }}" target="_blank">
             <div class="card-title">{{ title }}</div>
@@ -218,12 +248,23 @@
             {%- endif %}
         </div>
 
-        {%- if tags %}
-        <nav class="md-tags">
-            {%- for tag in tags %}
-            <span class="md-tag md-tag-icon">{{- tag -}}</span>
-            {%- endfor %}
-        </nav>
+        {%- if tags or readtime > 0 %}
+        <div class="card-footer">
+            <div class="footer-left">
+                {%- if readtime > 0 %}
+                <span class="read-time"><span class="read-time-icon material-icons">hourglass_top</span>阅读时长 {{ readtime }} 分钟</span>
+                {%- endif %}
+            </div>
+            <div class="footer-right">
+                {%- if tags %}
+                <div class="md-tags">
+                    {%- for tag in tags %}
+                    <span class="md-tag md-tag-icon">{{- tag -}}</span>
+                    {%- endfor %}
+                </div>
+                {%- endif %}
+            </div>
+        </div>
         {%- endif %}
     </div>
     {%- endfor %}
