@@ -1,4 +1,5 @@
 <style>
+/* --- 视图选择器 --- */
 .article-layout-switcher {
     display: flex;
     justify-content: flex-end;
@@ -32,7 +33,7 @@
     font-size: 20px;
 }
 
-/* --- 网格模式 (默认) --- */
+/* --- 三种视图 --- */
 .article-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -40,15 +41,14 @@
     margin: 20px 0;
     /* transition: all 0.2s ease; */
 }
-
-/* --- 详情模式 (is-detail) --- */
 .article-grid.is-detail {
     grid-template-columns: 1fr;
     margin-left: auto;
     margin-right: auto;
 }
-
-/* --- 列表模式 (is-list) --- */
+.article-grid.is-detail .card-summary {
+    --summary-lines: var(--summary-lines-detail);
+}
 .article-grid.is-list {
     margin-left: auto;
     margin-right: auto;
@@ -82,7 +82,7 @@
     margin-right: 0;
 }
 
-
+/* --- Card --- */
 .article-card {
     border: 1px solid rgba(142, 142, 142, 0.2);
     border-radius: 8px;
@@ -91,9 +91,10 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    height:100%;
 }
 
-/* --- 第一行：标题与时间 --- */
+/* --- Header --- */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -123,7 +124,7 @@
     text-decoration: underline;
 }
 
-/* --- 第二行：摘要与封面图 --- */
+/* --- Body --- */
 .card-body {
     display: flex;
     justify-content: space-between;
@@ -137,11 +138,11 @@
     line-height: 1.6;
     letter-spacing: 0.02rem;
     word-break: break-all;
-    
-    /* 3 行文字截断，超出显示省略号 */
+
+    --summary-lines: var(--summary-lines-grid);
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: var(--summary-lines);
     overflow: hidden;
 }
 .card-cover {
@@ -187,7 +188,7 @@
     transform: scale(1.1) translateX(4px) translateZ(0);
 }
 
-/* --- 第三行：标签 & 阅读时长 --- */
+/* --- Footer --- */
 .card-footer {
     display: flex;
     align-items: center;
@@ -197,21 +198,6 @@
     font-size: 0.75rem;
     line-height: 1.6;
 }
-.card-footer .footer-left {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: 8px;
-}
-.card-footer .footer-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    min-width: 0;
-}
-.card-footer .read-time-icon {
-    font-size: 0.8rem;
-    opacity: .7;
-}
 .card-footer .read-time {
     display: inline-flex;
     align-items: center;
@@ -219,11 +205,18 @@
     font-size: 0.65rem;
     color: rgba(100, 100, 100, 0.6);
     white-space: nowrap;
+    margin-right: 8px;
+}
+.card-footer .read-time-icon {
+    font-size: 0.8rem;
+    opacity: .7;
 }
 
 .md-typeset .md-tags:not([hidden]) {
-    margin: 0;
+    margin: 0 0 0 auto;
     display: flex;
+    align-items: center;
+    min-width: 0;
     gap: 4px;
     flex-wrap: nowrap;
     overflow: hidden;
@@ -241,7 +234,11 @@
     <button class="layout-grid-btn"><span class="material-icons">view_module</span></button>
 </div>
 
-<div class="article-grid">
+<div class="article-grid"
+     style="
+        --summary-lines-grid: {{ summary_lines.grid }};
+        --summary-lines-detail: {{ summary_lines.detail }};
+     ">
     {%- for mtime, rel_path, title, url, cover, summary, readtime, tags in recent_docs %}
     <div class="article-card">
         <a class="card-header" href="{{ url }}" target="_blank">
@@ -259,20 +256,16 @@
 
         {%- if tags or readtime > 0 %}
         <div class="card-footer">
-            <div class="footer-left">
-                {%- if readtime > 0 %}
-                <span class="read-time"><span class="read-time-icon material-icons">hourglass_top</span>阅读时长 {{ readtime }} 分钟</span>
-                {%- endif %}
+            {%- if readtime > 0 %}
+            <span class="read-time"><span class="read-time-icon material-icons">hourglass_top</span>阅读时长 {{ readtime }} 分钟</span>
+            {%- endif %}
+            {%- if tags %}
+            <div class="md-tags">
+                {%- for tag in tags %}
+                <span class="md-tag md-tag-icon">{{- tag -}}</span>
+                {%- endfor %}
             </div>
-            <div class="footer-right">
-                {%- if tags %}
-                <div class="md-tags">
-                    {%- for tag in tags %}
-                    <span class="md-tag md-tag-icon">{{- tag -}}</span>
-                    {%- endfor %}
-                </div>
-                {%- endif %}
-            </div>
+            {%- endif %}
         </div>
         {%- endif %}
     </div>

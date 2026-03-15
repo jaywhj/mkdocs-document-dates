@@ -216,7 +216,14 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 渲染HTML
         if self.recent_enable:
-            self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs)
+            # 摘要行数的动态配置
+            summary = recently_updated_config.get("summary_lines", {})
+            summary_lines = {
+                "grid": summary.get("grid", 3),
+                "detail": summary.get("detail", 4),
+            }
+
+            self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs, summary_lines)
 
         # # 访问日期数据的便捷函数
         # def mdd_access(page, domain):
@@ -261,7 +268,7 @@ class DocumentDatesPlugin(BasePlugin):
             logger.info(f"Error parsing .authors.yml: {e}")
 
 
-    def _render_recently_updated_html(self, recently_updated_data):
+    def _render_recently_updated_html(self, recently_updated_data, summary_lines):
         default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated_group.html'
         template_dir = default_template_path.parent
         template_file = default_template_path.name
@@ -274,7 +281,7 @@ class DocumentDatesPlugin(BasePlugin):
         template = env.get_template(template_file)
 
         # 渲染模板
-        return template.render(recent_docs=recently_updated_data)
+        return template.render(recent_docs=recently_updated_data, summary_lines=summary_lines)
 
 
     def _load_meta_date(self, meta, field_names):
