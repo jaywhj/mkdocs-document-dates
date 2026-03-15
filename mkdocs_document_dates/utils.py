@@ -484,7 +484,7 @@ def analyze_markdown(md: str) -> list:
     units = words + cjk / 2
     seconds = math.ceil(units / DEFAULT_WPM * 60)
 
-    seconds += table_rows
+    seconds += table_rows * 2
     seconds += code_rows
     seconds += math_blocks * 4
     seconds += images * 2
