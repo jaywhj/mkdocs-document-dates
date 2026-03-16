@@ -217,7 +217,7 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    gap: 4px;
+    gap: 6px;
     flex-wrap: nowrap;
     overflow: hidden;
 }
@@ -257,7 +257,14 @@
         {%- if tags or readtime > 0 %}
         <div class="card-footer">
             {%- if readtime > 0 %}
-            <span class="read-time"><span class="read-time-icon material-icons">hourglass_top</span>阅读时长 {{ readtime }} 分钟</span>
+            <span class="read-time"><span class="read-time-icon material-icons">hourglass_top</span>
+                {%- if HAS_LANGUAGE_TEMPLATE -%}
+                    {%- import "partials/language.html" as lang with context -%}
+                    {{ lang.t("readtime.other") | replace("#", readtime) }}
+                {%- else -%}
+                    {{ readtime }} min read
+                {%- endif -%}
+            </span>
             {%- endif %}
             {%- if tags %}
             <div class="md-tags">

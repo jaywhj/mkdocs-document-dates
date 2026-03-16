@@ -2,7 +2,7 @@ import os
 import yaml
 import shutil
 import logging
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import ChoiceLoader, FileSystemLoader
 from datetime import datetime
 from pathlib import Path
 from mkdocs.plugins import BasePlugin, event_priority
@@ -223,7 +223,7 @@ class DocumentDatesPlugin(BasePlugin):
                 "detail": summary.get("detail", 4),
             }
 
-            self.recent_docs_html = self._render_recently_updated_html(recently_updated_docs, summary_lines)
+            self.recent_docs_html = self._render_recently_updated_html(env, config, recently_updated_docs, summary_lines)
 
         # # 访问日期数据的便捷函数
         # def mdd_access(page, domain):
@@ -268,20 +268,28 @@ class DocumentDatesPlugin(BasePlugin):
             logger.info(f"Error parsing .authors.yml: {e}")
 
 
-    def _render_recently_updated_html(self, recently_updated_data, summary_lines):
-        default_template_path = Path(__file__).parent / 'static' / 'templates' / 'recently_updated_group.html'
-        template_dir = default_template_path.parent
-        template_file = default_template_path.name
+    def _render_recently_updated_html(self, env, config, recently_updated_data, summary_lines):
+        # 设置模板加载器
+        template_path = Path(__file__).parent / 'static' / 'templates'
+        env.loader = ChoiceLoader([
+            FileSystemLoader(str(template_path)),
+            env.loader
+        ])
 
-        # 加载模板
-        env = Environment(
-            loader = FileSystemLoader(str(template_dir)),
-            autoescape = select_autoescape(["html", "xml"])
+        # 用于模板的安全阀
+        try:
+            env.get_template("partials/language.html")
+            env.globals["HAS_LANGUAGE_TEMPLATE"] = True
+        except Exception:
+            env.globals["HAS_LANGUAGE_TEMPLATE"] = False
+
+        # 获取模板并渲染
+        template = env.get_template("recently_updated_group.html")
+        return template.render(
+            recent_docs=recently_updated_data,
+            summary_lines=summary_lines,
+            config=config
         )
-        template = env.get_template(template_file)
-
-        # 渲染模板
-        return template.render(recent_docs=recently_updated_data, summary_lines=summary_lines)
 
 
     def _load_meta_date(self, meta, field_names):
