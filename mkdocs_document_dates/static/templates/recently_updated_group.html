@@ -42,7 +42,7 @@
     /* transition: all 0.2s ease; */
 }
 .article-grid.is-detail {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     margin-left: auto;
     margin-right: auto;
 }
@@ -201,7 +201,6 @@
 .card-footer .read-time {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
     font-size: 0.65rem;
     color: rgba(100, 100, 100, 0.6);
     white-space: nowrap;
@@ -210,6 +209,7 @@
 .card-footer .read-time-icon {
     font-size: 0.8rem;
     opacity: .7;
+    margin-right: 4px;
 }
 
 .md-typeset .md-tags:not([hidden]) {
@@ -217,14 +217,19 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    gap: 6px;
+    gap: 0;
     flex-wrap: nowrap;
     overflow: hidden;
 }
 .md-typeset .md-tag {
     font-weight: 400;
     flex-shrink: 0;
+    gap: 0;
     color: var(--md-default-fg-color--light);
+    margin-right: 6px;
+}
+.md-typeset .md-tag-icon::before {
+    margin-right: 4px;
 }
 </style>
 
