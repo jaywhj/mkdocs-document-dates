@@ -83,7 +83,8 @@ def _clean_git_env():
     return env
 
 def find_mkdocs_projects():
-    projects = []
+    projects = set()
+
     try:
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
@@ -91,19 +92,20 @@ def find_mkdocs_projects():
             encoding='utf-8'
         ).strip())
 
-        # 遍历 git_root 及子目录, 寻找 mkdocs.yml 文件
-        for config_file in git_root.rglob('mkdocs.y*ml'):
-            if config_file.name.lower() in ('mkdocs.yml', 'mkdocs.yaml'):
-                projects.append(config_file.parent)
+        target_names = {'mkdocs.yml', 'properdocs.yml'}
+        for config_file in git_root.rglob('*.yml'):
+            if config_file.name.lower() in target_names:
+                projects.add(config_file.parent)
 
         if not projects:
-            logger.warning("No MkDocs projects found in the repository")
+            logger.warning("No MkDocs/ProperDocs projects found in the repository")
+
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to find the Git repository root: {e}")
     except Exception as e:
-        logger.error(f"Unexpected error while searching for MkDocs projects: {e}")
-    
-    return projects
+        logger.error(f"Unexpected error while searching for projects: {e}")
+
+    return list(projects)
 
 def setup_gitattributes(docs_dir: Path):
     try:
@@ -140,9 +142,9 @@ def update_cache():
 
             # 从 mkdocs.yml 中读取 docs_dir 配置覆盖默认值
             try:
-                mkdocs_yml = project_dir / "mkdocs.yml"
+                mkdocs_yml = project_dir / "properdocs.yml"
                 if not mkdocs_yml.exists():
-                    mkdocs_yml = project_dir / "mkdocs.yaml"
+                    mkdocs_yml = project_dir / "mkdocs.yml"
 
                 mkdocs_config = yaml.load(
                     mkdocs_yml.read_text(encoding="utf-8"),
