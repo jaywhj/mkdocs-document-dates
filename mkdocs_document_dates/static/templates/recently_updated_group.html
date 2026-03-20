@@ -49,6 +49,10 @@
 .article-grid.is-detail .card-summary {
     --summary-lines: var(--summary-lines-detail);
 }
+.article-grid.is-detail .card-cover {
+    width: 135px;
+    height: 90px;
+}
 .article-grid.is-list {
     margin-left: auto;
     margin-right: auto;
@@ -126,35 +130,43 @@
 
 /* --- Body --- */
 .card-body {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-top: 12px;
 }
 .card-summary {
-    flex: 1;
+    --summary-lines: var(--summary-lines-grid, 4);
+    --lh: 1.8em;
+
+    line-height: var(--lh);
+    max-height: calc(var(--summary-lines) * var(--lh));
+
+    position: relative;
+    overflow: visible;
+    pointer-events: none;
+
     color: var(--md-default-fg-color--light, rgb(121, 121, 121));
     font-size: 0.7rem;
-    line-height: 1.6;
     letter-spacing: 0.02rem;
     word-break: break-all;
 
-    --summary-lines: var(--summary-lines-grid);
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: var(--summary-lines);
-    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        black calc(100% - var(--lh)*1.2),
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        black calc(100% - var(--lh)*1.2),
+        transparent 100%
+    );
 }
 .card-cover {
-    width: 120px;
-    height: 80px;
+    float: right;
+    width: 105px;
+    height: 70px;
+    margin: 2px 0 0 10px;
     border-radius: 8px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
-    margin-left: 10px;
+
     transition: filter 0.3s ease;
 
     /* Safari 圆角闪烁修复 */
@@ -186,6 +198,11 @@
 }
 .card-cover:hover img {
     transform: scale(1.1) translateX(4px) translateZ(0);
+}
+.card-body::after {
+    content: "";
+    display: block;
+    clear: both;
 }
 
 /* --- Footer --- */
@@ -251,12 +268,12 @@
             <time class="dd-timeago card-date" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
         </a>
         <div class="card-body">
-            <div class="card-summary">{{ summary }}</div>
             {%- if cover %}
             <div class="card-cover">
                 <img src="{{ cover }}" alt="{{ title }}">
             </div>
             {%- endif %}
+            <div class="card-summary">{{ summary }}</div>
         </div>
 
         {%- if tags or readtime > 0 %}
