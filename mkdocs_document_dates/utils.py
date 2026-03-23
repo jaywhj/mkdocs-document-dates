@@ -416,28 +416,20 @@ def analyze_markdown(md: str) -> list:
                 m = HTML_TAG_OPEN.match(stripped)
                 if m:
                     tag = m.group(1).lower()
-                    # Standard HTML tags
-                    if tag in HTML_VALID_TAGS:
-                        # Self-Ending Tags
-                        if tag in HTML_VOID_TAGS:
-                            html_close_re = ">"
-                            if stripped.endswith(html_close_re):
-                                continue
-                            # Enter HTML_BLOCK, multiline state
-                            state = "HTML_BLOCK"
-                        else:
-                            html_close_re = f"</{tag}>"
-                            if html_close_re in lower:
-                                continue
-                            # Enter HTML_BLOCK, multiline state
-                            state = "HTML_BLOCK"
+
+                    # Normal tags: required </tag>
+                    if tag in HTML_VALID_TAGS and tag not in HTML_VOID_TAGS:
+                        html_close_re = f"</{tag}>"
+                        if html_close_re in lower:
+                            continue
                     else:
+                        # VOID or Non-standard tags: as long as they end in >
                         html_close_re = ">"
                         if stripped.endswith(html_close_re):
                             continue
-                        # Enter HTML_BLOCK, multiline state
-                        state = "HTML_BLOCK"
 
+                    # Going here means that the multiline HTML block
+                    state = "HTML_BLOCK"
                     continue
 
         # ==================================================
@@ -472,7 +464,6 @@ def analyze_markdown(md: str) -> list:
                     continue
             if stripped.startswith(("---", "***", "___")):
                 continue
-            # Single line HTML noise
             if SINGLE_LINE_HTML_NOISE.match(stripped):
                 continue
 
@@ -489,14 +480,10 @@ def analyze_markdown(md: str) -> list:
 
         text = text.strip()
         if text:
-            cjk_count = len(CJK_RE.findall(text))
-            cjk += cjk_count
+            cjk += len(CJK_RE.findall(text))
             # CJK characters also match \w, so remove them before applying \w to avoid double counting!
             text_no_cjk = CJK_RE.sub(" ", text)
             words += len(WORD_RE.findall(text_no_cjk))
-
-            # words += len(WORD_RE.findall(text))
-            # cjk += len(CJK_RE.findall(text))
 
             # Make the summary break early
             if len(summary_lines) < 10:
