@@ -67,7 +67,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载文档 git 元数据(日期 & 作者)
         self.data_cached = load_git_metadata(docs_dir_path)
-        # 覆盖 jsonl 文件缓存
+        # 加载 jsonl 缓存数据
         jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
         if jsonl_cache_file.exists():
             jsonl_cache = read_jsonl_cache(jsonl_cache_file)
@@ -172,9 +172,8 @@ class DocumentDatesPlugin(BasePlugin):
         if not authors:
             authors = self._load_author_cached(rel_path, page, config)
 
-        # 按 MaterialX 的数据规范给 meta 填充数据
-        mx = page.meta.setdefault("_mx", {})
-        mx["document_dates"] = {
+        # 注入数据
+        page.meta["document_dates"] = {
             "dates": {
                 "created": created.isoformat(),
                 "updated": updated.isoformat(),
@@ -224,16 +223,6 @@ class DocumentDatesPlugin(BasePlugin):
             }
 
             self.recent_docs_html = self._render_recently_updated_html(env, config, recently_updated_docs, summary_lines)
-
-        # # 访问日期数据的便捷函数
-        # def mdd_access(page, domain):
-        #     return (
-        #         page.meta.get("_mx", {})
-        #         .get("document_dates", {})
-        #         .get(domain, {})
-        #     )
-
-        # env.globals["mdd"] = mdd_access
 
         return env
 
