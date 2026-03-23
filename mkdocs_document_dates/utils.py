@@ -172,7 +172,7 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             # authors = []
             if file.page:
                 cover = file.page.meta.get('cover', '')
-                # authors = file.page.meta._mx.document_dates.authors
+                # authors = file.page.meta.document_dates.authors
                 if file.page.file:
                     summary, readtime = analyze_markdown(file.page.file.content_string)
 
@@ -276,13 +276,33 @@ FENCE_RE = re.compile(r"^\s*([`~]{3,})")
 
 # HTML
 HTML_TAG_OPEN = re.compile(r"<\s*([a-zA-Z][\w\-]*)\b", re.I)
-HTML_TAG_CLOSE_TEMPLATE = r"</\s*{}\s*>"
+HTML_VALID_TAGS = {
+    "html","head","title","base","link","meta","style",
+    "body","article","section","nav","aside","header","footer","main",
+    "h1","h2","h3","h4","h5","h6",
+    "p","hr","pre","blockquote","ol","ul","li","dl","dt","dd",
+    "figure","figcaption","div",
+    "a","em","strong","small","s","cite","q","dfn","abbr","data","time",
+    "code","var","samp","kbd","sub","sup","i","b","u","mark",
+    "ruby","rt","rp","bdi","bdo","span","br","wbr",
+    "ins","del",
+    "picture","source","img","iframe","embed","object","param",
+    "video","audio","track","map","area",
+    "svg","math",
+    "table","caption","colgroup","col","tbody","thead","tfoot",
+    "tr","td","th",
+    "form","label","input","button","select","datalist","optgroup",
+    "option","textarea","output","progress","meter",
+    "fieldset","legend",
+    "details","summary","dialog",
+    "script","noscript","template","slot","canvas",
+    "font","center","big","tt","strike","basefont","dir","applet"
+}
 HTML_VOID_TAGS = {
     "area", "base", "br", "col", "embed", "hr",
     "img", "input", "link", "meta", "param",
     "source", "track", "wbr"
 }
-HTML_VOID_CLOSE_RE = re.compile(r">", re.I)
 
 # -------- inline skip --------
 # TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
@@ -386,7 +406,7 @@ def analyze_markdown(md: str) -> list:
             images += lower.count("<img ")
 
         if state == "HTML_BLOCK":
-            if html_close_re and html_close_re.search(stripped):
+            if html_close_re and html_close_re in lower:
                 state = "NORMAL"
                 html_close_re = None
             continue
@@ -396,23 +416,27 @@ def analyze_markdown(md: str) -> list:
                 m = HTML_TAG_OPEN.match(stripped)
                 if m:
                     tag = m.group(1).lower()
-                    is_void = tag in HTML_VOID_TAGS
-
-                    # void tag：单行且以 > 结尾，视为直接结束，忽略该行
-                    if stripped.endswith(">") and is_void:
-                        continue
-
-                    # 非 void tag：进入 HTML_BLOCK
-                    state = "HTML_BLOCK"
-                    if is_void:
-                        html_close_re = HTML_VOID_CLOSE_RE
+                    # Standard HTML tags
+                    if tag in HTML_VALID_TAGS:
+                        # Self-Ending Tags
+                        if tag in HTML_VOID_TAGS:
+                            html_close_re = ">"
+                            if stripped.endswith(html_close_re):
+                                continue
+                            # Enter HTML_BLOCK, multiline state
+                            state = "HTML_BLOCK"
+                        else:
+                            html_close_re = f"</{tag}>"
+                            if html_close_re in lower:
+                                continue
+                            # Enter HTML_BLOCK, multiline state
+                            state = "HTML_BLOCK"
                     else:
-                        html_close_re = re.compile(HTML_TAG_CLOSE_TEMPLATE.format(re.escape(tag)), re.I)
-
-                    # same-line close: <div>...</div>
-                    if html_close_re.search(stripped):
-                        state = "NORMAL"
-                        html_close_re = None
+                        html_close_re = ">"
+                        if stripped.endswith(html_close_re):
+                            continue
+                        # Enter HTML_BLOCK, multiline state
+                        state = "HTML_BLOCK"
 
                     continue
 
@@ -448,7 +472,7 @@ def analyze_markdown(md: str) -> list:
                     continue
             if stripped.startswith(("---", "***", "___")):
                 continue
-            # 单行 HTML 噪音兜底
+            # Single line HTML noise
             if SINGLE_LINE_HTML_NOISE.match(stripped):
                 continue
 
@@ -467,14 +491,14 @@ def analyze_markdown(md: str) -> list:
         if text:
             cjk_count = len(CJK_RE.findall(text))
             cjk += cjk_count
-            # 中日韩字符也匹配 \w，因此在应用 \w 之前先将它们删除，以避免重复计算
+            # CJK characters also match \w, so remove them before applying \w to avoid double counting!
             text_no_cjk = CJK_RE.sub(" ", text)
             words += len(WORD_RE.findall(text_no_cjk))
 
             # words += len(WORD_RE.findall(text))
             # cjk += len(CJK_RE.findall(text))
 
-            # summary 提前熔断
+            # Make the summary break early
             if len(summary_lines) < 10:
                 summary_lines.append(text)
 
