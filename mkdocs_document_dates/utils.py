@@ -308,7 +308,7 @@ HTML_VOID_TAGS = {
 # TABLE_ROW_RE = re.compile(r"^\s*\|.*\|\s*$")
 REF_LINK_RE = re.compile(r"^\s*\[.+?\]:")
 H1_TITLE = re.compile(r"^\s*# .+$", re.MULTILINE)
-SINGLE_LINE_HTML_NOISE = re.compile(r"^</?[a-z][\w-]*[^>]*>$", re.I)
+SINGLE_LINE_HTML_NOISE = re.compile(r"^</?[a-z][\w-]*[^>]*>", re.I)
 def inline_skip(line: str):
     s = line.lstrip()
     if s.startswith(">"):
