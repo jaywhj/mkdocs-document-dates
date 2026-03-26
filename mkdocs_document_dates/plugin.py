@@ -58,7 +58,7 @@ class DocumentDatesPlugin(BasePlugin):
         authors_file = docs_dir_path / 'authors.yml'
         if not authors_file.exists():
             try:
-                blog_config = config['plugins']['material/blog'].config
+                blog_config = config.plugins.get(f"{config.theme.name}/blog").config
                 authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
                 authors_file = docs_dir_path / authors_file_resolved
             except Exception:
