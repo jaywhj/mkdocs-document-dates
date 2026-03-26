@@ -10,7 +10,10 @@ readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.7"
 license = "MIT"
 authors = [{ name = "Aaron Wang", email = "aaronwqt@gmail.com" }]
-dependencies = ["mkdocs>=1.1.0"]
+dependencies = [
+  "mkdocs>=1.6,<=1.6.1"
+  # "properdocs>=1.6.5"
+]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
