@@ -8,7 +8,7 @@
 
 - Added support for ProperDocs
 - Added high-performance readtime & summary parsers
-- Added `readtime` and `tag` rendering for the recently updated list, see [Reading-Time-Estimation](https://jaywhj.netlify.app/document-dates-en#Reading-Time-Estimation)
+- Added `readtime` and `tag` rendering for the recently updated list, for readtime calculation method see [Reading-Time-Estimation](https://jaywhj.netlify.app/document-dates-en#Reading-Time-Estimation)
 - Added line count configuration for `summary` in the recently updated list, see [Summary-Line-Configuration](https://jaywhj.netlify.app/document-dates-en#Summary-Line-Configuration)
 - Improved the layout style for mixed text and images in the recently updated list
 - Increased plugin execution priority to improve compatibility and systematically provide data support for other plugins or projects

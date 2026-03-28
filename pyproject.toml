@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mkdocs-document-dates"
-version = "3.7.1"
+version = "3.7.2"
 description = "A new generation MkDocs plugin for displaying exact creation date, last updated date, authors, email of documents"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.7"
