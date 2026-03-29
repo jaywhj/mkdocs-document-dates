@@ -2,6 +2,18 @@
 
 
 
+## v3.7.2 (2026-03-30)
+
+### en
+
+- Fixed a layout bug with summary
+
+### zh
+
+- 修复了 summary 的一个布局 bug
+
+
+
 ## v3.7.1 (2026-03-29)
 
 ### en
