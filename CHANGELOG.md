@@ -6,11 +6,11 @@
 
 ### en
 
-- Fixed a layout bug with summary
+- Fixed a layout bug in summary rendering
 
 ### zh
 
-- 修复了 summary 的一个布局 bug
+- 修复了摘要渲染中的布局 bug
 
 
 
