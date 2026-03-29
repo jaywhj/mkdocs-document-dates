@@ -17,7 +17,7 @@
 ### zh
 
 - 添加了对 ProperDocs 的支持
-- 新增了高性能的 readtime 和 summary 解析器
+- 为最近更新列表新增了高性能的 readtime 和 summary 解析器
 - 为最近更新列表新增了 readtime 和 tag 的渲染，readtime 计算方式见 [阅读时长预估](https://jaywhj.netlify.app/document-dates-zh#%E9%98%85%E8%AF%BB%E6%97%B6%E9%95%BF%E9%A2%84%E4%BC%B0)
 - 为最近更新列表的 summary 添加了行数配置，详情见 [配置摘要行数](https://jaywhj.netlify.app/document-dates-zh#%E9%85%8D%E7%BD%AE%E6%91%98%E8%A6%81%E8%A1%8C%E6%95%B0)
 - 优化了最近更新列表里的图文混排的样式
