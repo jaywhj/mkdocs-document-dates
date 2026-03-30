@@ -323,7 +323,7 @@ def inline_skip(line: str):
 IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)]+\)")
 LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]+\)")
 BRACE_RE = re.compile(r"\{[^}]*\}")
-MD_SYNTAX_RE = re.compile(r"[`*_>#]+")
+MD_SYNTAX_RE = re.compile(r"[`*_#]+")
 
 
 def analyze_markdown(md: str) -> list:
