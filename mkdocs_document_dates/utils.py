@@ -8,6 +8,7 @@ import fnmatch
 import re
 import math
 from pathlib import Path
+from operator import itemgetter
 from datetime import datetime
 from collections import defaultdict
 from mkdocs.structure.files import Files
@@ -164,7 +165,7 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             # 获取文档其它信息
             title = file.page.title if file.page and file.page.title else file.name
             url = prefix + (file.page.url if file.page and file.page.url else file.url)
-            tags = file.page.meta.get("tags") or []
+            tags = (file.page.meta.get("tags") or []) if file.page else []
 
             cover = ''
             summary = ''
@@ -178,21 +179,37 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
                 if file.page.file:
                     summary, readtime = analyze_markdown(file.page.file.content_string)
 
-            meta_readtime = int(file.page.meta.get('readtime') or 0)
+            meta_readtime = int((file.page.meta.get('readtime') or 0) if file.page else 0)
             readtime = meta_readtime if meta_readtime > 0 else readtime
 
             # 存储信息（更新时间、路径、标题、URL、封面、摘要、阅读时间、标签）
-            files_meta.append((mtime, rel_path, title, url, cover, summary, readtime, tags))
+            files_meta.append({
+                "updated_ts": mtime,
+                "rel_path": rel_path,
+                "title": title,
+                "url": url,
+                "cover": cover,
+                "summary": summary,
+                "readtime": readtime,
+                "tags": tags,
+            })
             # existing_map[rel_path] = mtime
 
         # 构建最近更新列表
         if files_meta:
+            fmt_full = "%Y-%m-%d %H:%M:%S"
+            fmt_date = "%Y-%m-%d"
             # heapq 取 top limit
-            top_results = heapq.nlargest(limit, files_meta, key=lambda x: x[0])
-            recently_updated_results = [
-                (datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"), *rest)
-                for mtime, *rest in top_results
-            ]
+            top_results = heapq.nlargest(limit, files_meta, key=itemgetter("updated_ts"))
+
+            for doc in top_results:
+                dt = datetime.fromtimestamp(doc["updated_ts"])
+
+                recently_updated_results.append({
+                    **doc,
+                    "updated_dt": dt.strftime(fmt_full),
+                    "updated": dt.strftime(fmt_date),
+                })
 
     return recently_updated_results
 
