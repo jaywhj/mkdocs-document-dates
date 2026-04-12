@@ -74,7 +74,7 @@
       <div>
         {%- for mtime, rel_path, title, url, cover, summary in config.extra.recently_updated_docs %}
         <div class="md-nav__item">
-            <a href="/{{ url }}" class="md-nav__link">{{ title }}</a>
+            <a href="{{ url }}" class="md-nav__link">{{ title }}</a>
         </div>
         {%- endfor %}
       </div>

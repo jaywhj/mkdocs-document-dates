@@ -143,7 +143,7 @@ def load_git_last_updated_dates(docs_dir_path: Path):
     return doc_mtime_map
 
 # 建议在 on_page_markdown 之后的全局事件中调用，因为需要读取 page.meta 中的信息
-def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False):
+def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False, prefix: str = ""):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -163,7 +163,7 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
 
             # 获取文档其它信息
             title = file.page.title if file.page and file.page.title else file.name
-            url = file.page.url if file.page and file.page.url else file.url
+            url = prefix + (file.page.url if file.page and file.page.url else file.url)
             tags = file.page.meta.get("tags") or []
 
             cover = ''
@@ -172,6 +172,8 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             # authors = []
             if file.page:
                 cover = file.page.meta.get('cover', '')
+                if cover and not cover.startswith(('http', 'ftp')):
+                    cover = prefix + cover.lstrip('/')
                 # authors = file.page.meta.document_dates.authors
                 if file.page.file:
                     summary, readtime = analyze_markdown(file.page.file.content_string)
