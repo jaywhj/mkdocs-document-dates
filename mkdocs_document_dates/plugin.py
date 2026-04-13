@@ -205,9 +205,14 @@ class DocumentDatesPlugin(BasePlugin):
         exclude_list = recently_updated_config.get('exclude', [])
         limit = recently_updated_config.get('limit', 10)
 
+        # 获取站点 URL 路径前缀
+        site_url = config.get("site_url", "")
+        base_path = urlparse(site_url).path.rstrip("/")
+        prefix = f"{base_path}/" if base_path else "/"
+
         # 获取最近更新的文档数据
         recent_exclude_patterns = compile_exclude_patterns(exclude_list)
-        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, recent_exclude_patterns, limit, self.recent_enable)
+        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, recent_exclude_patterns, limit, self.recent_enable, prefix)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if not config.get('extra', {}).get("recently_updated_docs", {}):

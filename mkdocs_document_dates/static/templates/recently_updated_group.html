@@ -260,11 +260,19 @@
         --summary-lines-grid: {{ summary_lines.grid }};
         --summary-lines-detail: {{ summary_lines.detail }};
      ">
-    {%- for mtime, rel_path, title, url, cover, summary, readtime, tags in recent_docs %}
+    {%- for doc in recent_docs %}
+    {%- set title = doc.title | default('') %}
+    {%- set url = doc.url | default('') %}
+    {%- set updated_dt = doc.updated_dt | default('') %}
+    {%- set updated = doc.updated | default(updated_dt[:10]) %}
+    {%- set cover = doc.cover | default('') %}
+    {%- set summary = doc.summary | default('') %}
+    {%- set readtime = doc.readtime | default(0) %}
+    {%- set tags = doc.tags | default([]) %}
     <div class="article-card">
         <a class="card-header" href="{{ url }}" target="_blank">
             <div class="card-title">{{ title }}</div>
-            <time class="dd-timeago card-date" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
+            <time class="dd-timeago card-date" datetime="{{ updated_dt }}">{{ updated }}</time>
         </a>
         <div class="card-body">
             {%- if cover %}
