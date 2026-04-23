@@ -2,6 +2,50 @@
 
 
 
+## v3.8.0 (2026-04-24)
+
+### en
+
+- Refactored data API interface
+- Updated sitemap template
+- Fixed issues related to CJK paths
+
+### zh
+
+- 重构了数据API接口
+- 更新了 sitemap 模板
+- 修复了中日韩路径导致的相关问题
+
+
+
+## v3.7.4 (2026-04-17)
+
+### en
+
+- Add support for ProperDocs
+- Fixed URL path compatibility issue for the Recently Updated List
+- Adjusted the way template variables are accessed for recently updated module
+
+### zh
+
+- 添加对 ProperDocs 的支持
+- 修复了最近更新列表的 URL 路径兼容性问题
+- 调整了最近更新模块的模板变量访问方式
+
+
+
+## v3.7.3 (2026-03-31)
+
+### en
+
+- Fixed a bug in summary parsing
+
+### zh
+
+- 修复了摘要解析时的一个bug
+
+
+
 ## v3.7.2 (2026-03-30)
 
 ### en
