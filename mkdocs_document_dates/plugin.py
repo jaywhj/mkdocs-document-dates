@@ -1,16 +1,15 @@
-import os
 import yaml
 import shutil
 import logging
 from jinja2 import ChoiceLoader, FileSystemLoader
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from mkdocs.plugins import BasePlugin, event_priority
 from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
-from .utils import load_file_creation_date, load_git_metadata, load_git_last_updated_dates, read_jsonl_cache, compile_exclude_patterns, is_excluded, get_recently_updated_files
+from .utils import compile_exclude_patterns, is_excluded, get_recently_updated_files, load_dates_and_authors
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -45,14 +44,13 @@ class DocumentDatesPlugin(BasePlugin):
         super().__init__()
 
         self.data_cached = {}
-        self.last_updated_dates = {}
         self.authors_yml = {}
         self.recent_docs_html = None
         self.recent_enable = False
         self._exclude_patterns = []
 
     def on_config(self, config):
-        docs_dir_path = Path(config['docs_dir'])
+        docs_dir_path = Path(config.docs_dir)
 
         # 加载 author 配置
         authors_file = docs_dir_path / 'authors.yml'
@@ -64,20 +62,6 @@ class DocumentDatesPlugin(BasePlugin):
             except Exception:
                 pass
         self._load_authors_from_yaml(authors_file)
-
-        # 加载文档 git 元数据(日期 & 作者)
-        self.data_cached = load_git_metadata(docs_dir_path)
-        # 加载 jsonl 缓存数据
-        jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
-        if jsonl_cache_file.exists():
-            jsonl_cache = read_jsonl_cache(jsonl_cache_file)
-            for filename, new_info in jsonl_cache.items():
-                if filename in self.data_cached:
-                    self.data_cached[filename].update(new_info)
-
-        # 加载文档最近更新时间(日期)
-        self.last_updated_dates = load_git_last_updated_dates(docs_dir_path)
-
 
         # 复制配置文件到用户目录（如果不存在）
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
@@ -152,31 +136,40 @@ class DocumentDatesPlugin(BasePlugin):
         return config
 
     @event_priority(50)
+    def on_files(self, files, config):
+        self.data_cached = load_dates_and_authors(Path(config.docs_dir), files)
+        return files
+
+    @event_priority(50)
     def on_page_markdown(self, markdown, page: Page, config, files):
         # 获取相对路径，src_uri 总是以"/"分隔
-        rel_path = getattr(page.file, 'src_uri', page.file.src_path)
-        if os.sep != '/':
-            rel_path = rel_path.replace(os.sep, '/')
-        file_path = page.file.abs_src_path
-        
+        rel_path = getattr(page.file, 'src_uri')
+
         # 优先获取 page.meta 中的数据
         created = self._load_meta_date(page.meta, self.config['created_field_names'])
         updated = self._load_meta_date(page.meta, self.config['updated_field_names'])
         authors = self._load_meta_author(page.meta, page.url)
 
-        # 再获取缓存的数据
-        if not created:
-            created = self._load_created_cached(file_path, rel_path)
-        if not updated:
-            updated = self._load_updated_cached(file_path, rel_path)
+        # 如果 meta 数据存在，则存储
+        cache = self.data_cached.setdefault(rel_path, {})
+        if created:
+            cache['created'] = created
+        else:
+            created = cache.get('created')
+
+        if updated:
+            cache['updated'] = updated
+        else:
+            updated = cache.get('updated')
+
         if not authors:
             authors = self._load_author_cached(rel_path, page, config)
 
-        # 注入数据
+        # 注入数据到模板 (utc datetime -> local datetime)
         page.meta["document_dates"] = {
             "dates": {
-                "created": created.isoformat(),
-                "updated": updated.isoformat(),
+                "created": created.astimezone().isoformat() if created else None,
+                "updated": updated.astimezone().isoformat() if updated else None,
             },
             "authors": authors
         }
@@ -212,7 +205,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 获取最近更新的文档数据
         recent_exclude_patterns = compile_exclude_patterns(exclude_list)
-        recently_updated_docs = get_recently_updated_files(self.last_updated_dates, files, recent_exclude_patterns, limit, self.recent_enable, prefix)
+        recently_updated_docs = get_recently_updated_files(self.data_cached, files, recent_exclude_patterns, limit, self.recent_enable, prefix)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if not config.get('extra', {}).get("recently_updated_docs", {}):
@@ -290,42 +283,31 @@ class DocumentDatesPlugin(BasePlugin):
         for field in field_names:
             if field in meta:
                 try:
-                    # 移除首尾可能存在的单双引号和时区信息
+                    # 移除首尾可能存在的单双引号
                     date_str = str(meta[field]).strip("'\"")
-                    return datetime.fromisoformat(date_str).replace(tzinfo=None)
+                    dt = datetime.fromisoformat(date_str)
+                    # 如果没时区，则当成本地时间，再转 UTC
+                    if dt.tzinfo is None:
+                        local_tz = datetime.now().astimezone().tzinfo
+                        dt = dt.replace(tzinfo=local_tz)
+                    return dt.astimezone(timezone.utc)
+                    # return datetime.fromisoformat(date_str).astimezone()
                 except Exception:
                     continue
         return None
 
-    def _load_created_cached(self, file_path, rel_path):
-        # 优先从缓存中读取
-        if rel_path in self.data_cached:
-            return datetime.fromisoformat(self.data_cached[rel_path]['created'])
-        # 从文件系统获取
-        return load_file_creation_date(file_path).astimezone()
-
-    def _load_updated_cached(self, file_path, rel_path):
-        # 优先从缓存中读取
-        if rel_path in self.last_updated_dates:
-            return datetime.fromtimestamp(self.last_updated_dates[rel_path]).astimezone()
-        # 从文件系统获取最后修改时间
-        stat = os.stat(file_path)
-        return datetime.fromtimestamp(stat.st_mtime).astimezone()
-
-
     def _load_author_cached(self, rel_path, page, config):
         # 1. git author
-        if rel_path in self.data_cached:
-            authors_list = self.data_cached[rel_path].get('authors')
-            if authors_list:
-                authors = []
-                for data in authors_list:
-                    full_author = self.authors_yml.get(data['name'])
-                    if full_author:
-                        authors.append(self._repair_author(full_author, page.url))
-                    else:
-                        authors.append(Author(**data))
-                return authors
+        authors_list = self.data_cached.get(rel_path, {}).get('authors', None)
+        if authors_list:
+            authors = []
+            for data in authors_list:
+                full_author = self.authors_yml.get(data['name'])
+                if full_author:
+                    authors.append(self._repair_author(full_author, page.url))
+                else:
+                    authors.append(Author(**data))
+            return authors
 
         # 2. site_author 或 PC username
         name = config.get('site_author') or Path.home().name
@@ -407,7 +389,7 @@ class DocumentDatesPlugin(BasePlugin):
                 return (
                     f"<span class='dd-item' data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
-                    f"<time datetime='{time_obj.isoformat()}'>{self._formatting_date(time_obj)}</time>"
+                    f"<time datetime='{time_obj.astimezone().isoformat()}'>{self._formatting_date(time_obj)}</time>"
                     f"</span>"
                 )
 

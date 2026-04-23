@@ -164,7 +164,7 @@ def update_cache():
             global_updated = setup_gitattributes(docs_dir)
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
-            cmd = ["git", "ls-files", "*.md"]
+            cmd = ['git', '-c', 'core.quotepath=false', 'ls-files', '*.md']
             result = subprocess.run(cmd, cwd=docs_dir, env=_clean_git_env(), capture_output=True, encoding='utf-8')
             tracked_files = result.stdout.splitlines() if result.stdout else []
 
@@ -185,13 +185,13 @@ def update_cache():
 
                     full_path = docs_dir / rel_path
                     if full_path.exists():
-                        created_time = load_file_creation_date(full_path).astimezone()
+                        created_time = load_file_creation_date(full_path)
                         if not jsonl_cache_file.exists():
                             git_time = load_git_first_commit_date(full_path)
                             if git_time:
                                 created_time = min(created_time, git_time)
                         jsonl_dates_cache[rel_path] = {
-                            "created": created_time.isoformat()
+                            "created": int(created_time.timestamp())
                         }
                         project_updated = True
                 except Exception as e:

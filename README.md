@@ -64,8 +64,8 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 - [Structure and Style](https://jaywhj.netlify.app/document-dates-en#Structure-and-Style): You can freely configure the plugin's display structure in mkdocs.yml or Front Matter. You can quickly set the plugin styles through preset entrances, such as icons, themes, colors, fonts, animations, dividing line and so on
 - [Template Variables](https://jaywhj.netlify.app/document-dates-en#Template-Variables): Can be used to optimize `sitemap.xml` for site SEO
 - [Recently Updated Module](https://jaywhj.netlify.app/document-dates-en#Recently-Updated-Module): Enable list of recently updated documents (in descending order of update date), this is ideal for sites with a large number of documents, so that readers can quickly see what's new
-- [Localization Language](https://jaywhj.netlify.app/document-dates-en#Localization-Language): More localization languages for `timeago` and `tooltip` 
-- [Development Stories](https://jaywhj.netlify.app/document-dates-en#Development-Stories): Describes the origin of the plug-in, the difficulties and solutions encountered in development, and the principles and directions of product design
+- [Localization Language](https://jaywhj.netlify.app/document-dates-en#Localization-Language): More localization languages for `timeago` and `tooltip`
+- [Developer API](https://jaywhj.netlify.app/document-dates-en#Developer-API): Provides a date data API for developers, making it easy to retrieve exact dates in other plugins or hooks
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
