@@ -8,13 +8,13 @@
 
 - Refactored data API interface
 - Updated sitemap template
-- Fixed issues related to CJK paths
+- Fixed issue with file paths containing CJKs
 
 ### zh
 
 - 重构了数据 API 接口
 - 更新了 sitemap 模板
-- 修复了中日韩路径导致的相关问题
+- 修复了包含中日韩文字的文件路径问题
 
 
 
