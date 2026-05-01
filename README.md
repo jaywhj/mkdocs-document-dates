@@ -26,6 +26,8 @@ A new generation MkDocs plugin for displaying exact **creation date, last update
 | git-revision-date-localized<br />git-authors |  ＞ 3 s   |  ＞ 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)    |
 
+> It's 20-500 times faster than `git-revision-date-localized` and `git-authors`
+
 ## Installation
 
 ```bash

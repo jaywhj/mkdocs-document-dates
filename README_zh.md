@@ -26,6 +26,8 @@
 | git-revision-date-localized<br />git-authors |  ＞ 3 s   |  ＞ 30 s   |    O(n)    |
 | document-dates              | < 0.1 s  | < 0.15 s  |    O(1)     |
 
+> 它比 `git-revision-date-localized` 和 `git-authors` 快 20~500 倍
+
 ## 安装
 
 ```bash
