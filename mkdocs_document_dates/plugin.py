@@ -200,6 +200,8 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 获取站点 URL 路径前缀
         site_url = config.get("site_url", "")
+        if site_url is None:
+            site_url = ""
         base_path = urlparse(site_url).path.rstrip("/")
         prefix = f"{base_path}/" if base_path else "/"
 
