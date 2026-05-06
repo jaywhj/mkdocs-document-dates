@@ -199,9 +199,7 @@ class DocumentDatesPlugin(BasePlugin):
         limit = recently_updated_config.get('limit', 10)
 
         # 获取站点 URL 路径前缀
-        site_url = config.get("site_url", "")
-        if site_url is None:
-            site_url = ""
+        site_url = config.get("site_url") or ""
         base_path = urlparse(site_url).path.rstrip("/")
         prefix = f"{base_path}/" if base_path else "/"
 
