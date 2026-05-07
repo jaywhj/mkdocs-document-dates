@@ -255,12 +255,15 @@ def read_jsonl_cache(jsonl_file: Path):
                         if entry and isinstance(entry, dict) and len(entry) == 1:
                             file_path, file_info = next(iter(entry.items()))
                             if isinstance(file_info, dict):
-                                if file_info.get('created'):
-                                    file_info['created'] = int(datetime.fromisoformat(file_info['created']).timestamp())
-                            dates_cache[file_path] = file_info
-                    except (json.JSONDecodeError, StopIteration, ValueError) as e:
+                                created = file_info.get('created')
+                                if isinstance(created, str):
+                                    file_info['created'] = int(datetime.fromisoformat(created).timestamp())
+                                elif isinstance(created, (int, float)):
+                                    file_info['created'] = int(created)
+                                dates_cache[file_path] = file_info
+                    except (json.JSONDecodeError, StopIteration, ValueError, TypeError,) as e:
                         logger.warning(f"Skipping invalid JSONL line: {e}")
-        except IOError as e:
+        except OSError as e:
             logger.warning(f"Error reading from '.dates_cache.jsonl': {str(e)}")
     return dates_cache
 
@@ -274,7 +277,7 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
                     file_info = dates_cache[file_path].copy()
                     if file_info.get('created') is not None:
                         file_info['created'] = datetime.fromtimestamp(file_info['created'], tz=timezone.utc).isoformat()
-                    entry = {file_path: dates_cache[file_path]}
+                    entry = {file_path: file_info}
                     f.write(json.dumps(entry, ensure_ascii=False) + '\n')
         
         # 替换原文件
@@ -284,7 +287,7 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
         subprocess.run(["git", "add", str(jsonl_file)], check=True)
         logger.info(f"Successfully updated JSONL cache file: {jsonl_file}")
         return True
-    except IOError as e:
+    except OSError as e:
         logger.warning(f"Failed to write JSONL cache file {jsonl_file}: {e}")
     except Exception as e:
         logger.warning(f"Failed to add JSONL cache file to git: {e}")

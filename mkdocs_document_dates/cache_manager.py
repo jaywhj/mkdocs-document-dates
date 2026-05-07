@@ -10,13 +10,19 @@ from .utils import read_jsonl_cache, write_jsonl_cache, load_file_creation_date,
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 _LOGGING_CONFIGURED = False
 
+CONFIG_PRIORITY = {
+    "mkdocs.yml": 0,
+    "properdocs.yml": 1,
+    "mkdocs.yaml": 2,
+    "properdocs.yaml": 3,
+}
 
 def _default_log_file() -> Path:
     try:
         git_root = Path(subprocess.check_output(
-            ['git', 'rev-parse', '--show-toplevel'],
+            ["git", "rev-parse", "--show-toplevel"],
             env=_clean_git_env(),
-            encoding='utf-8'
+            encoding="utf-8"
         ).strip())
         base_dir = git_root
     except Exception:
@@ -82,20 +88,29 @@ def _clean_git_env():
 
     return env
 
-def find_mkdocs_projects():
-    projects = set()
+def find_mkdocs_projects() -> dict[Path, Path]:
+    projects = {}
 
     try:
         git_root = Path(subprocess.check_output(
-            ['git', 'rev-parse', '--show-toplevel'],
+            ["git", "rev-parse", "--show-toplevel"],
             env=_clean_git_env(),
-            encoding='utf-8'
+            encoding="utf-8"
         ).strip())
 
-        target_names = {'mkdocs.yml', 'properdocs.yml'}
-        for config_file in git_root.rglob('*.yml'):
-            if config_file.name.lower() in target_names:
-                projects.add(config_file.parent)
+        for pattern in ("*.yml", "*.yaml"):
+            for config_file in git_root.rglob(pattern):
+                name = config_file.name.lower()
+                if name not in CONFIG_PRIORITY:
+                    continue
+
+                project_dir = config_file.parent
+                existing = projects.get(project_dir)
+                if existing is None:
+                    projects[project_dir] = config_file
+                    continue
+                if CONFIG_PRIORITY[name] < CONFIG_PRIORITY[existing.name.lower()]:
+                    projects[project_dir] = config_file
 
         if not projects:
             logger.warning("No MkDocs/ProperDocs projects found in the repository")
@@ -105,19 +120,19 @@ def find_mkdocs_projects():
     except Exception as e:
         logger.error(f"Unexpected error while searching for projects: {e}")
 
-    return list(projects)
+    return projects
 
 def setup_gitattributes(docs_dir: Path):
     try:
-        gitattributes_path = docs_dir / '.gitattributes'
+        gitattributes_path = docs_dir / ".gitattributes"
         union_merge_line = ".dates_cache.jsonl merge=union"
         # custom_merge_line = ".dates_cache.json merge=custom_json_merge"
-        content = gitattributes_path.read_text(encoding='utf-8') if gitattributes_path.exists() else ""
+        content = gitattributes_path.read_text(encoding="utf-8") if gitattributes_path.exists() else ""
         if union_merge_line not in content:
-            if content and not content.endswith('\n'):
-                content += '\n'
+            if content and not content.endswith("\n"):
+                content += "\n"
             content += f"{union_merge_line}\n"
-            gitattributes_path.write_text(content, encoding='utf-8')
+            gitattributes_path.write_text(content, encoding="utf-8")
             subprocess.run(["git", "add", str(gitattributes_path)], cwd=docs_dir, env=_clean_git_env(), check=True)
             logger.info(f"Updated .gitattributes file: {gitattributes_path}")
             return True
@@ -134,18 +149,14 @@ def update_cache():
         configure_file_logging(_default_log_file())
 
     global_updated = False
-    for project_dir in find_mkdocs_projects():
+    for project_dir, mkdocs_yml in find_mkdocs_projects().items():
         try:
             project_updated = False
 
-            docs_dir = project_dir / 'docs'
+            docs_dir = project_dir / "docs"
 
             # 从 mkdocs.yml 中读取 docs_dir 配置覆盖默认值
             try:
-                mkdocs_yml = project_dir / "properdocs.yml"
-                if not mkdocs_yml.exists():
-                    mkdocs_yml = project_dir / "mkdocs.yml"
-
                 mkdocs_config = yaml.load(
                     mkdocs_yml.read_text(encoding="utf-8"),
                     Loader=yaml.BaseLoader,
@@ -156,16 +167,16 @@ def update_cache():
             except (IOError, OSError, yaml.YAMLError) as e:
                 logger.warning(f"Failed to read docs_dir: {e}")
 
-            if not docs_dir.exists():
+            if not docs_dir.is_dir():
                 logger.info(f"Document directory does not exist: {docs_dir}")
                 continue
 
             # 设置.gitattributes文件
-            global_updated = setup_gitattributes(docs_dir)
+            global_updated |= setup_gitattributes(docs_dir)
 
             # 获取docs目录下已跟踪(tracked)的markdown文件
-            cmd = ['git', '-c', 'core.quotepath=false', 'ls-files', '*.md']
-            result = subprocess.run(cmd, cwd=docs_dir, env=_clean_git_env(), capture_output=True, encoding='utf-8')
+            cmd = ["git", "-c", "core.quotepath=false", "ls-files", "*.md"]
+            result = subprocess.run(cmd, cwd=docs_dir, env=_clean_git_env(), capture_output=True, encoding="utf-8")
             tracked_files = result.stdout.splitlines() if result.stdout else []
 
             if not tracked_files:
@@ -173,7 +184,7 @@ def update_cache():
                 continue
 
             # 读取 JSONL 缓存
-            jsonl_cache_file = docs_dir / '.dates_cache.jsonl'
+            jsonl_cache_file = docs_dir / ".dates_cache.jsonl"
             jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
 
             # 根据 git已跟踪的文件来更新
@@ -204,7 +215,7 @@ def update_cache():
 
             # 如果有更新，写入 JSONL 缓存文件
             if project_updated or not jsonl_cache_file.exists():
-                global_updated = write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files)
+                global_updated |= write_jsonl_cache(jsonl_cache_file, jsonl_dates_cache, tracked_files)
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to execute git command: {e}")
             continue

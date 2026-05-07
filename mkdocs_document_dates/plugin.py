@@ -53,8 +53,14 @@ class DocumentDatesPlugin(BasePlugin):
         docs_dir_path = Path(config.docs_dir)
 
         # 加载 author 配置
-        authors_file = docs_dir_path / 'authors.yml'
-        if not authors_file.exists():
+        authors_file = None
+        for name in ("authors.yml", "authors.yaml"):
+            candidate = docs_dir_path / name
+            if candidate.exists():
+                authors_file = candidate
+                break
+
+        if authors_file is None:
             try:
                 blog_config = config.plugins.get(f"{config.theme.name}/blog").config
                 authors_file_resolved = blog_config.authors_file.format(blog=blog_config.blog_dir)
