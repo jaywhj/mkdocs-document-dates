@@ -275,8 +275,9 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
             for file_path in tracked_files:
                 if file_path in dates_cache:
                     file_info = dates_cache[file_path].copy()
-                    if file_info.get('created') is not None:
-                        file_info['created'] = datetime.fromtimestamp(file_info['created'], tz=timezone.utc).isoformat()
+                    created = file_info.get('created')
+                    if created is not None:
+                        file_info['created'] = datetime.fromtimestamp(created, tz=timezone.utc).isoformat()
                     entry = {file_path: file_info}
                     f.write(json.dumps(entry, ensure_ascii=False) + '\n')
         
