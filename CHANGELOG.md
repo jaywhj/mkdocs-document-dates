@@ -2,6 +2,22 @@
 
 
 
+## v3.8.1 (2026-05-09)
+
+### en
+
+- Added compatibility with `mkdocs properdocs` related
+- Fixed format inconsistency when reading and writing to cache
+- Fixed build issue when site_url is not set
+
+### zh
+
+- 增加了与 `mkdocs properdocs` 相关的兼容性
+- 修复了读写缓存时的格式不一致问题
+- 修复了未设置 site_url 时的构建问题
+
+
+
 ## v3.8.0 (2026-04-24)
 
 ### en
