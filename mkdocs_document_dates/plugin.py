@@ -67,7 +67,9 @@ class DocumentDatesPlugin(BasePlugin):
                 authors_file = docs_dir_path / authors_file_resolved
             except Exception:
                 pass
-        self._load_authors_from_yaml(authors_file)
+
+        if authors_file:
+            self._load_authors_from_yaml(authors_file)
 
         # 复制配置文件到用户目录（如果不存在）
         dest_dir = docs_dir_path / 'assets' / 'document_dates'
@@ -250,8 +252,6 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _load_authors_from_yaml(self, file_path: Path):
-        if not file_path.exists():
-            return
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
