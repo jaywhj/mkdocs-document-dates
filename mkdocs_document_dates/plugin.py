@@ -54,7 +54,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 加载 author 配置
         authors_file = None
-        for name in ("authors.yml", "authors.yaml"):
+        for name in ('authors.yml', 'authors.yaml'):
             candidate = docs_dir_path / name
             if candidate.exists():
                 authors_file = candidate
@@ -71,17 +71,7 @@ class DocumentDatesPlugin(BasePlugin):
         if authors_file:
             self._load_authors_from_yaml(authors_file)
 
-        # 复制配置文件到用户目录（如果不存在）
-        dest_dir = docs_dir_path / 'assets' / 'document_dates'
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        config_files = ['user.config.css', 'user.config.js']
-        for config_file in config_files:
-            source_config = Path(__file__).parent / 'static' / 'config' / config_file
-            target_config = dest_dir / config_file
-            if not target_config.exists():
-                shutil.copy2(source_config, target_config)
-
-        # 添加离线 Google Fonts Icons: https://fonts.google.com/icons
+        # 添加离线 Google Fonts Icons, https://fonts.google.com/icons
         # material_icons_url = 'https://fonts.googleapis.com/icon?family=Material+Icons'
         material_icons_url = 'assets/document_dates/fonts/material-icons.css'
         config['extra_css'].append(material_icons_url)
@@ -118,23 +108,36 @@ class DocumentDatesPlugin(BasePlugin):
         tippy_css_dir = Path(__file__).parent / 'static' / 'tippy'
         for css_file in tippy_css_dir.glob('*.css'):
             config['extra_css'].append(f'assets/document_dates/tippy/{css_file.name}')
-        
-        # 添加自定义 CSS 文件
-        config['extra_css'].extend([
-            'assets/document_dates/core/core.css',
-            'assets/document_dates/user.config.css'
-        ])
-        
+
+        # User override config
+        override_dir = docs_dir_path / 'assets' / 'document_dates'
+        override_css = override_dir / 'config.css'
+        override_js = override_dir / 'config.js'
+
+        # Plugin CSS
+        config['extra_css'].append('assets/document_dates/core/core.css')
+
+        # 用户 override CSS（可选）
+        if override_css.exists():
+            config['extra_css'].append('assets/document_dates/config.css')
+
         # 按顺序添加 Tippy JS 文件
         js_core_files = ['popper.min.js', 'tippy.umd.min.js']
         for js_file in js_core_files:
             config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
-        
-        # 添加自定义 JS 文件
+
+        # Plugin JS
         config['extra_javascript'].extend([
             'assets/document_dates/core/md5.min.js',
             'assets/document_dates/core/default.config.js',
-            'assets/document_dates/user.config.js',
+        ])
+
+        # 用户 override JS（可选）
+        if override_js.exists():
+            config['extra_javascript'].append('assets/document_dates/config.js')
+
+        # core runtime
+        config['extra_javascript'].extend([
             'assets/document_dates/core/utils.js',
             'assets/document_dates/core/core.js'
         ])

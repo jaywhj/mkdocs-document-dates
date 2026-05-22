@@ -14,7 +14,7 @@ Part 1:
 /*
 TooltipConfig.setConfig({
     theme: {
-        // configurable: light material, or custom theme in user.config.css, for example: sorrel sublime tomato
+        // configurable: light material, or custom theme in config.css, for example: sorrel sublime tomato
         light: 'light',
         dark: 'material'
     },

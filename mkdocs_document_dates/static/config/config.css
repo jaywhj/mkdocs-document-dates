@@ -69,7 +69,7 @@
     font-size: 12px;
 } */
 
-/* Demo of the custom theme 'sorrel' and 'sublime', you can configure it in user.config.js (optional) */
+/* Demo of the custom theme 'sorrel' and 'sublime', you can configure it in config.js (optional) */
 /* 
 .tippy-box[data-theme~='sorrel'] {
     background-color: #F7E6E2;
