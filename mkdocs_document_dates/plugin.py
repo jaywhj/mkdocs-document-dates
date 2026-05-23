@@ -9,6 +9,7 @@ from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
+from babel.dates import format_datetime
 from .utils import compile_exclude_patterns, is_excluded, get_recently_updated_files, load_dates_and_authors
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
@@ -370,11 +371,38 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _formatting_date(self, date: datetime):
-        if self.config['type'] == 'timeago':
-            return ""
-        elif self.config['type'] == 'datetime':
-            return date.strftime(f"{self.config['date_format']} {self.config['time_format']}")
-        return date.strftime(self.config['date_format'])
+        locale = self.config.get('locale', 'en')
+
+        # 兼容旧 strftime 配置，转换为 Babel/ICU 格式
+        date_format = (
+            self.config['date_format']
+            .replace('%Y', 'yyyy')
+            .replace('%y', 'yy')
+            .replace('%m', 'MM')
+            .replace('%d', 'dd')
+            .replace('%B', 'MMMM')
+            .replace('%b', 'MMM')
+        )
+
+        time_format = (
+            self.config['time_format']
+            .replace('%H', 'HH')
+            .replace('%I', 'hh')
+            .replace('%M', 'mm')
+            .replace('%S', 'ss')
+            .replace('%p', 'a')
+        )
+
+        if self.config['type'] == 'datetime':
+            fmt = f"{date_format} {time_format}"
+        else:
+            fmt = date_format
+
+        return format_datetime(
+            date,
+            format=fmt,
+            locale=locale
+        )
 
     def _generate_html_info(self, meta, created: datetime, updated: datetime, authors=None):
         try:
@@ -394,11 +422,11 @@ class DocumentDatesPlugin(BasePlugin):
             html_parts.append(f"<div class='document-dates-plugin' locale='{self.config['locale']}'>")
 
             def build_time_icon(time_obj: datetime, icon: str):
-                formatted = time_obj.strftime(self.config['date_format'])
+                formatted = self._formatting_date(time_obj)
                 return (
                     f"<span class='dd-item' data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
-                    f"<time datetime='{time_obj.astimezone().isoformat()}'>{self._formatting_date(time_obj)}</time>"
+                    f"<time datetime='{time_obj.astimezone().isoformat()}'>{formatted}</time>"
                     f"</span>"
                 )
 

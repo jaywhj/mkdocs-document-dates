@@ -2,6 +2,20 @@
 
 
 
+## v3.8.5 (2026-06-01)
+
+### en
+
+- Adjusted the way to configure user override styles to not actively copy the configuration template file to the docs directory
+- Formatting dates with babel
+
+### zh
+
+- 调整了用户覆盖样式的配置方式，不再主动复制配置模板文件到 docs 目录
+- 使用 babel 格式化日期
+
+
+
 ## v3.8.2 (2026-05-09)
 
 ### en

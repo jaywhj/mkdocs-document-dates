@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 def legacy_setup():
     setup(
         name="mkdocs-document-dates",
-        version="3.8.3",
+        version="3.8.5",
         author="Aaron Wang",
         author_email="aaronwqt@gmail.com",
         license="MIT",
@@ -15,7 +15,9 @@ def legacy_setup():
         packages=find_packages(),
         include_package_data=True,
         install_requires=[
-            "mkdocs>=1.1.0",
+            "mkdocs>=1.6,<=1.6.1",
+            "properdocs>=1.6.5",
+            "babel>=2.16"
         ],
         classifiers=[
             "Programming Language :: Python :: 3",
