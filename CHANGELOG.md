@@ -8,11 +8,13 @@
 
 - Adjusted the way to configure user override styles to not actively copy the configuration template file to the docs directory
 - Formatting dates with babel
+- Git authors add `co-author` support
 
 ### zh
 
 - 调整了用户覆盖样式的配置方式，不再主动复制配置模板文件到 docs 目录
 - 使用 babel 格式化日期
+- Git authors 添加对 `co-author` 的支持
 
 
 

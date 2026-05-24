@@ -103,6 +103,24 @@ def load_git_first_commit_date(file_path) -> datetime:
         logger.info(f"Error load git first commit date for {file_path}: {e}")
     return datetime.now(timezone.utc)
 
+COAUTHOR_RE = re.compile(
+    r'^Co-authored-by:\s*(.+?) <([^<>]+)>$',
+    re.MULTILINE | re.IGNORECASE
+)
+def parse_commit_authors(name, email, body):
+    authors = [(name, email)]
+    seen = {(name, email)}
+
+    for co_name, co_email in COAUTHOR_RE.findall(body):
+        author = (co_name, co_email)
+        if author in seen:
+            continue
+
+        seen.add(author)
+        authors.append(author)
+
+    return authors
+
 def load_git_metadata(docs_dir_path: Path):
     dates_cache = {}
     try:
@@ -112,26 +130,46 @@ def load_git_metadata(docs_dir_path: Path):
         ).strip())
         rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
 
-        cmd = ['git', '-c', 'core.quotepath=false', 'log', '--reverse', '--no-merges', '--use-mailmap', '--name-only', '--format=%aN|%aE|%at', f'--relative={rel_docs_path}', '--', '*.md']
+        cmd = [
+            'git',
+            '-c', 'core.quotepath=false',
+            'log',
+            '--reverse',
+            '--no-merges',
+            '--use-mailmap',
+            '--name-only',
+            '-z',
+            '--format=%aN%x1f%aE%x1f%at%x1f%B%x00',
+            f'--relative={rel_docs_path}',
+            '--',
+            '*.md'
+        ]
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
-            for line in process.stdout.splitlines():
-                line = line.strip()
-                if not line:
+
+            records = process.stdout.split('\x00')
+            for item in records:
+                item = item.strip()
+                if not item:
                     continue
-                if '|' in line:
-                    # 使用元组，更轻量
-                    current_commit = tuple(line.split('|', 2))
-                elif line.endswith('.md') and current_commit:
-                    name, email, created = current_commit
+
+                parts = item.split('\x1f', 3)
+                if len(parts) == 4:
+                    name, email, created, body = parts
+                    authors = parse_commit_authors(name, email, body)
+                    current_commit = (authors, int(created))
+                elif item.endswith('.md') and current_commit:
+                    authors, created = current_commit
                     # 使用 defaultdict(dict)结构，处理有序与去重
                         # a.巧用 Python 字典的 setdefault 特性来去重（setdefault 为不存在的键提供初始值，不会覆盖已有值）
                         # b.巧用 Python 字典的插入顺序特性来保留内容插入顺序（Python 3.7+ 字典会保持插入顺序）
-                    authors_dict[line].setdefault((name, email), None)
-                    first_commit.setdefault(line, int(created))
+                    for author in authors:
+                        authors_dict[item].setdefault(author, None)
+
+                    first_commit.setdefault(item, created)
 
             # 构建最终的缓存数据
             for file_path in first_commit:
