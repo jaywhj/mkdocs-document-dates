@@ -189,10 +189,14 @@ class DocumentDatesPlugin(BasePlugin):
         # 检查是否需要排除
         if is_excluded(rel_path, self._exclude_patterns):
             return markdown
-        
+
+        # 增强鲁棒性，碰到异常数据提前返回
+        if not created or not updated:
+            return markdown
+
         # 生成日期和作者信息 HTML
         info_html = self._generate_html_info(page.meta, created, updated, authors)
-        
+
         # 将信息写入 markdown
         return self._insert_date_info(markdown, info_html)
 
