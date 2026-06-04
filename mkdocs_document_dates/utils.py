@@ -128,8 +128,13 @@ def load_git_metadata(docs_dir_path: Path):
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
         ).strip())
-        rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
+        rel_docs_path = docs_dir_path.relative_to(git_root)
 
+        relative_arg = (
+            '--relative'
+            if rel_docs_path == Path('.')
+            else f'--relative={rel_docs_path.as_posix()}'
+        )
         cmd = [
             'git',
             '-c', 'core.quotepath=false',
@@ -140,7 +145,7 @@ def load_git_metadata(docs_dir_path: Path):
             '--name-only',
             '-z',
             '--format=%aN%x1f%aE%x1f%at%x1f%B%x00',
-            f'--relative={rel_docs_path}',
+            relative_arg,
             '--',
             '*.md'
         ]
@@ -192,9 +197,14 @@ def load_git_last_updated_dates(docs_dir_path: Path):
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
         ).strip())
-        rel_docs_path = docs_dir_path.relative_to(git_root).as_posix()
+        rel_docs_path = docs_dir_path.relative_to(git_root)
 
-        cmd = ['git', '-c', 'core.quotepath=false', 'log', '--no-merges', '--use-mailmap', '--format=%aN|%aE|%at', '--name-only', f'--relative={rel_docs_path}', '--', '*.md']
+        relative_arg = (
+            '--relative'
+            if rel_docs_path == Path('.')
+            else f'--relative={rel_docs_path.as_posix()}'
+        )
+        cmd = ['git', '-c', 'core.quotepath=false', 'log', '--no-merges', '--use-mailmap', '--format=%aN|%aE|%at', '--name-only', relative_arg, '--', '*.md']
         process = subprocess.run(cmd, cwd=docs_dir_path, capture_output=True, encoding='utf-8')
         if process.returncode == 0:
             result = subprocess.run(
