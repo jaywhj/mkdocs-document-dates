@@ -2,6 +2,18 @@
 
 
 
+## v3.8.6 (2026-06-05)
+
+### en
+
+- Fixed the bug for the edge case of Git's `--relative` argument
+
+### zh
+
+- 修复了 git '--relative' 参数的特例情况的 bug
+
+
+
 ## v3.8.5 (2026-05-24)
 
 ### en
