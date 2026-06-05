@@ -83,7 +83,3 @@ plugins:
 ## 交流群
 
 **Discord**: https://discord.gg/cvTfge4AUy
-
-**Wechat**: 
-
-<img src="wechat-group.jpg" width="140" />

@@ -83,7 +83,3 @@ Updates have been released that refactor and add a lot of new features, see http
 ## Chat Group
 
 **Discord**: https://discord.gg/cvTfge4AUy
-
-**Wechat**: 
-
-<img src="wechat-group.jpg" width="140" />
