@@ -2,6 +2,28 @@
 
 
 
+## v3.8.7 (2026-07-01)
+
+### en
+
+- Exposed the estimated reading time API for documents in any language. see [Reading-Time-Estimation](https://jaywhj.netlify.app/document-dates-en#Reading-Time-Estimation)
+  - Supports all mainstream languages and mixed-language, including CJK languages
+  - Supports calculation for various Markdown blocks, including tables, fenced blocks, math blocks, images and more
+  - Allows custom reading speed configuration
+    - Space-delimited languages: 240 words per minute by default (English, Spanish, French, German, Portuguese, Russian, etc.)
+    - CJK languages (no word spaces): 480 characters per minute by default (Chinese, Japanese, Korean, etc.)
+
+### zh
+
+- 开放了预估阅读时长 API，可用于计算任意语种的文档的阅读时间，具体见[阅读时长预估](https://jaywhj.netlify.app/document-dates-zh#%E9%98%85%E8%AF%BB%E6%97%B6%E9%95%BF%E9%A2%84%E4%BC%B0)
+  - 支持所有主流语言和混合语言，包括中日韩等无空格型语言
+  - 支持各种 Markdown 内容块的计算，如表格、围栏块、数学公式块、图片等
+  - 支持自定义阅读速率
+    - 空格分隔型语言：默认 240 词 / 分钟，如 English, Spanish, French, German, Portuguese, Russian ...
+    - 无空格型语言：默认 480 字 / 分钟，如 Chinese, Japanese, Korean ...
+
+
+
 ## v3.8.6 (2026-06-05)
 
 ### en

@@ -10,7 +10,7 @@ from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
 from babel.dates import format_datetime
-from .utils import compile_exclude_patterns, is_excluded, get_recently_updated_files, load_dates_and_authors
+from .utils import compile_exclude_patterns, is_excluded, get_recently_updated_files, load_dates_and_authors, DEFAULT_WPM, DEFAULT_WPM_CJK
 
 logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -38,6 +38,8 @@ class DocumentDatesPlugin(BasePlugin):
         ('show_created', config_options.Type(bool, default=True)),
         ('show_updated', config_options.Type(bool, default=True)),
         ('show_author', config_options.Choice((True, False, 'text'), default=True)),
+        ('readtime_wpm', config_options.Type(int, default=DEFAULT_WPM)),
+        ('readtime_wpm_cjk', config_options.Type(int, default=DEFAULT_WPM_CJK)),
         ('recently-updated', config_options.Type((dict, bool), default={}))
     )
 
@@ -219,9 +221,13 @@ class DocumentDatesPlugin(BasePlugin):
         base_path = urlparse(site_url).path.rstrip("/")
         prefix = f"{base_path}/" if base_path else "/"
 
+        # 获取阅读速度 WPM 配置
+        wpm = self.config.get('readtime_wpm', DEFAULT_WPM)
+        wpm_cjk = self.config.get('readtime_wpm_cjk', DEFAULT_WPM_CJK)
+
         # 获取最近更新的文档数据
         recent_exclude_patterns = compile_exclude_patterns(exclude_list)
-        recently_updated_docs = get_recently_updated_files(self.data_cached, files, recent_exclude_patterns, limit, self.recent_enable, prefix)
+        recently_updated_docs = get_recently_updated_files(self.data_cached, files, recent_exclude_patterns, limit, self.recent_enable, prefix, wpm, wpm_cjk)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if not config.get('extra', {}).get("recently_updated_docs", {}):

@@ -17,6 +17,9 @@ logger = logging.getLogger("mkdocs.plugins.document_dates")
 logger.setLevel(logging.WARNING)  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
+DEFAULT_WPM = 240
+DEFAULT_WPM_CJK = 480
+
 def load_dates_and_authors(docs_dir_path: Path, files: Files):
 
     # git 创建日期
@@ -230,7 +233,7 @@ def load_git_last_updated_dates(docs_dir_path: Path):
     return doc_mtime_map
 
 # 建议在 on_page_markdown 之后的全局事件中调用，因为需要读取 page.meta 中的信息
-def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False, prefix: str = ""):
+def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False, prefix: str = "", wpm: int = DEFAULT_WPM, wpm_cjk: int = DEFAULT_WPM_CJK):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -262,7 +265,7 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
                     cover = prefix + cover.lstrip('/')
                 # authors = file.page.meta.document_dates.authors
                 if file.page.file:
-                    summary, readtime = analyze_markdown(file.page.file.content_string)
+                    readtime, summary = analyze_markdown(file.page.file.content_string, wpm, wpm_cjk)
 
             meta_readtime = int((file.page.meta.get('readtime') or 0) if file.page else 0)
             readtime = meta_readtime if meta_readtime > 0 else readtime
@@ -360,9 +363,6 @@ def write_jsonl_cache(jsonl_file: Path, dates_cache, tracked_files):
 # - Supports mixed-language content (e.g. English + CJK)
 # ==================================================
 
-# ===== Extract Readtime =====
-DEFAULT_WPM = 240
-
 # Match Unicode "words" for space-delimited languages (English, Spanish, French, German, Russian, etc.)
 # CJK characters also match \w in Python, so they are removed before applying this regex to avoid double counting
 WORD_RE = re.compile(r"\w+", re.UNICODE)
@@ -434,7 +434,7 @@ BRACE_RE = re.compile(r"\{[^}]*\}")
 MD_SYNTAX_RE = re.compile(r"[`*_#]+")
 
 
-def analyze_markdown(md: str) -> list:
+def analyze_markdown(md: str, readtime_wpm: int = DEFAULT_WPM, readtime_wpm_cjk: int = DEFAULT_WPM_CJK) -> tuple[int, str]:
     # ---------- for Readtime ----------
     words = 0
     cjk = 0
@@ -600,15 +600,13 @@ def analyze_markdown(md: str) -> list:
     # ===============================
     # compute read time
     # ===============================
-    units = words + cjk / 2
-    seconds = math.ceil(units / DEFAULT_WPM * 60)
-
+    seconds = math.ceil((words / readtime_wpm + cjk / readtime_wpm_cjk) * 60)
     seconds += table_rows * 2
     seconds += code_rows
     seconds += math_blocks * 4
     seconds += images * 2
 
-    summary = MD_SYNTAX_RE.sub("", "  ".join(summary_lines)).strip()
     minutes = max(1, math.ceil(seconds / 60))
+    summary = MD_SYNTAX_RE.sub("", "  ".join(summary_lines)).strip()
 
-    return summary, minutes
+    return minutes, summary
