@@ -32,211 +32,214 @@
     }
   },
 
-  "oneOf": [
-    {
-      "const": "document-dates"
-    },
-    {
-      "title": "Document Dates & Authors",
-      "type": "object",
-      "required": [
-        "document-dates"
-      ],
-      "additionalProperties": false,
+  "type": "array",
+  "items": {
+    "oneOf": [
+      {
+        "const": "document-dates"
+      },
+      {
+        "title": "Document Dates & Authors",
+        "type": "object",
+        "required": [
+          "document-dates"
+        ],
+        "additionalProperties": false,
 
-      "properties": {
-        "document-dates": {
-          "title": "Plugin configuration",
-          "type": "object",
-          "default": {},
-          "additionalProperties": false,
-          "markdownDescription": "Configuration for the **document-dates** plugin.",
+        "properties": {
+          "document-dates": {
+            "title": "Plugin configuration",
+            "type": "object",
+            "default": {},
+            "additionalProperties": false,
+            "markdownDescription": "Configuration for the **document-dates** plugin.",
 
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": [
-                "date",
-                "datetime",
-                "timeago"
-              ],
-              "default": "date",
-              "markdownEnumDescriptions": [
-                "Display only the date.",
-                "Display date and time.",
-                "Display relative time such as `3 days ago`."
-              ]
-            },
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "date",
+                  "datetime",
+                  "timeago"
+                ],
+                "default": "date",
+                "markdownEnumDescriptions": [
+                  "Display only the date.",
+                  "Display date and time.",
+                  "Display relative time such as `3 days ago`."
+                ]
+              },
 
-            "locale": {
-              "type": "string",
-              "markdownDescription": "Locale used when formatting dates and relative time.",
-              "examples": [
-                "en",
-                "zh"
-              ]
-            },
+              "locale": {
+                "type": "string",
+                "markdownDescription": "Locale used when formatting dates and relative time.",
+                "examples": [
+                  "en",
+                  "zh"
+                ]
+              },
 
-            "date_format": {
-              "type": "string",
-              "default": "%Y-%m-%d",
-              "markdownDescription": "strftime format string used for date output.",
-              "examples": [
-                "%Y-%m-%d",
-                "%b %d, %Y"
-              ]
-            },
+              "date_format": {
+                "type": "string",
+                "default": "%Y-%m-%d",
+                "markdownDescription": "strftime format string used for date output.",
+                "examples": [
+                  "%Y-%m-%d",
+                  "%b %d, %Y"
+                ]
+              },
 
-            "time_format": {
-              "type": "string",
-              "default": "%H:%M:%S",
-              "markdownDescription": "strftime format string used for time output.",
-              "examples": [
-                "%H:%M:%S",
-                "%H:%M"
-              ]
-            },
+              "time_format": {
+                "type": "string",
+                "default": "%H:%M:%S",
+                "markdownDescription": "strftime format string used for time output.",
+                "examples": [
+                  "%H:%M:%S",
+                  "%H:%M"
+                ]
+              },
 
-            "position": {
-              "type": "string",
-              "enum": [
-                "top",
-                "bottom"
-              ],
-              "default": "top",
-              "markdownEnumDescriptions": [
-                "Render below the page title.",
-                "Render at the end of the document."
-              ]
-            },
+              "position": {
+                "type": "string",
+                "enum": [
+                  "top",
+                  "bottom"
+                ],
+                "default": "top",
+                "markdownEnumDescriptions": [
+                  "Render below the page title.",
+                  "Render at the end of the document."
+                ]
+              },
 
-            "exclude": {
-              "$ref": "#/$defs/glob-list",
-              "default": [],
-              "markdownDescription": "Glob patterns of Markdown files excluded from this plugin."
-            },
+              "exclude": {
+                "$ref": "#/$defs/glob-list",
+                "default": [],
+                "markdownDescription": "Glob patterns of Markdown files excluded from this plugin."
+              },
 
-            "created_field_names": {
-              "$ref": "#/$defs/string-list",
-              "default": [
-                "created",
-                "date"
-              ],
-              "markdownDescription": "Front matter field names used to detect the document creation date."
-            },
+              "created_field_names": {
+                "$ref": "#/$defs/string-list",
+                "default": [
+                  "created",
+                  "date"
+                ],
+                "markdownDescription": "Front matter field names used to detect the document creation date."
+              },
 
-            "updated_field_names": {
-              "$ref": "#/$defs/string-list",
-              "default": [
-                "updated",
-                "modified"
-              ],
-              "markdownDescription": "Front matter field names used to detect the document last updated date."
-            },
+              "updated_field_names": {
+                "$ref": "#/$defs/string-list",
+                "default": [
+                  "updated",
+                  "modified"
+                ],
+                "markdownDescription": "Front matter field names used to detect the document last updated date."
+              },
 
-            "show_created": {
-              "type": "boolean",
-              "default": true,
-              "markdownDescription": "Whether to display the document creation date."
-            },
+              "show_created": {
+                "type": "boolean",
+                "default": true,
+                "markdownDescription": "Whether to display the document creation date."
+              },
 
-            "show_updated": {
-              "type": "boolean",
-              "default": true,
-              "markdownDescription": "Whether to display the document last updated date."
-            },
+              "show_updated": {
+                "type": "boolean",
+                "default": true,
+                "markdownDescription": "Whether to display the document last updated date."
+              },
 
-            "show_author": {
-              "default": true,
-              "enum": [
-                true,
-                false,
-                "text"
-              ],
-              "markdownEnumDescriptions": [
-                "Display avatar and author name.",
-                "Hide author information.",
-                "Display author name without avatar."
-              ]
-            },
+              "show_author": {
+                "default": true,
+                "enum": [
+                  true,
+                  false,
+                  "text"
+                ],
+                "markdownEnumDescriptions": [
+                  "Display avatar and author name.",
+                  "Hide author information.",
+                  "Display author name without avatar."
+                ]
+              },
 
-            "readtime_wpm": {
-              "$ref": "#/$defs/positive-integer",
-              "default": 240,
-              "markdownDescription": "Words per minute used when estimating reading time."
-            },
+              "readtime_wpm": {
+                "$ref": "#/$defs/positive-integer",
+                "default": 240,
+                "markdownDescription": "Words per minute used when estimating reading time."
+              },
 
-            "readtime_wpm_cjk": {
-              "$ref": "#/$defs/positive-integer",
-              "default": 480,
-              "markdownDescription": "Characters per minute used when estimating reading time for CJK languages."
-            },
+              "readtime_wpm_cjk": {
+                "$ref": "#/$defs/positive-integer",
+                "default": 480,
+                "markdownDescription": "Characters per minute used when estimating reading time for CJK languages."
+              },
 
-            "recently-updated": {
-              "default": {},
-              "oneOf": [
-                {
-                  "title": "Enable or disable",
-                  "type": "boolean"
-                },
-                {
-                  "title": "Configuration",
-                  "type": "object",
-                  "default": {},
-                  "additionalProperties": false,
+              "recently-updated": {
+                "default": {},
+                "oneOf": [
+                  {
+                    "title": "Enable or disable",
+                    "type": "boolean"
+                  },
+                  {
+                    "title": "Configuration",
+                    "type": "object",
+                    "default": {},
+                    "additionalProperties": false,
 
-                  "properties": {
-                    "limit": {
-                      "$ref": "#/$defs/positive-integer",
-                      "default": 10,
-                      "markdownDescription": "Maximum number of recently updated documents to display."
-                    },
+                    "properties": {
+                      "limit": {
+                        "$ref": "#/$defs/positive-integer",
+                        "default": 10,
+                        "markdownDescription": "Maximum number of recently updated documents to display."
+                      },
 
-                    "exclude": {
-                      "$ref": "#/$defs/glob-list",
-                      "default": [],
-                      "markdownDescription": "Glob patterns excluded from the recently updated list."
-                    },
+                      "exclude": {
+                        "$ref": "#/$defs/glob-list",
+                        "default": [],
+                        "markdownDescription": "Glob patterns excluded from the recently updated list."
+                      },
 
-                    "summary_lines": {
-                      "type": "object",
-                      "default": {},
-                      "additionalProperties": false,
-                      "markdownDescription": "Maximum number of summary lines displayed in each layout.",
+                      "summary_lines": {
+                        "type": "object",
+                        "default": {},
+                        "additionalProperties": false,
+                        "markdownDescription": "Maximum number of summary lines displayed in each layout.",
 
-                      "properties": {
-                        "grid": {
-                          "$ref": "#/$defs/positive-integer",
-                          "default": 4,
-                          "markdownDescription": "Maximum summary lines displayed in grid layout."
-                        },
+                        "properties": {
+                          "grid": {
+                            "$ref": "#/$defs/positive-integer",
+                            "default": 4,
+                            "markdownDescription": "Maximum summary lines displayed in grid layout."
+                          },
 
-                        "detail": {
-                          "$ref": "#/$defs/positive-integer",
-                          "default": 6,
-                          "markdownDescription": "Maximum summary lines displayed in detail layout."
+                          "detail": {
+                            "$ref": "#/$defs/positive-integer",
+                            "default": 6,
+                            "markdownDescription": "Maximum summary lines displayed in detail layout."
+                          }
                         }
                       }
                     }
                   }
-                }
-              ],
-              "markdownDescription": "Enable or configure the Recently Updated component.",
-              "examples": [
-                true,
-                {
-                  "limit": 10,
-                  "exclude": ["index.md", "tags.md", "*/index.md", "blog/*"],
-                  "summary_lines": {
-                    "grid": 4,
-                    "detail": 6
+                ],
+                "markdownDescription": "Enable or configure the Recently Updated component.",
+                "examples": [
+                  true,
+                  {
+                    "limit": 10,
+                    "exclude": ["index.md", "tags.md", "*/index.md", "blog/*"],
+                    "summary_lines": {
+                      "grid": 4,
+                      "detail": 6
+                    }
                   }
-                }
-              ]
+                ]
+              }
             }
           }
         }
       }
-    }
-  ]
+    ]
+  }
 }
