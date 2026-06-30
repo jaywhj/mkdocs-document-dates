@@ -1,5 +1,5 @@
 {
-  "$id": "https://raw.githubusercontent.com/jaywhj/mkdocs-document-dates/main/schema.json",
+  "$id": "https://raw.githubusercontent.com/jaywhj/mkdocs-document-dates/main/docs/schema.json",
   "$schema": "https://json-schema.org/draft-07/schema",
   "title": "Document Dates & Authors",
   "markdownDescription": "Configuration for the **mkdocs-document-dates** plugin.",
