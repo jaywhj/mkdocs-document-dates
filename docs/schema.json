@@ -2,8 +2,7 @@
   "$id": "https://raw.githubusercontent.com/jaywhj/mkdocs-document-dates/main/docs/schema.json",
   "$schema": "https://json-schema.org/draft-07/schema",
   "title": "Document Dates & Authors",
-  "markdownDescription": "Configuration for the **mkdocs-document-dates** plugin.",
-  "type": "object",
+  "markdownDescription": "Configuration for the **document-dates** plugin.",
 
   "$defs": {
     "glob-list": {
@@ -33,15 +32,25 @@
     }
   },
 
-  "properties": {
-    "document-dates": {
-      "oneOf": [
-        {
-          "const": "document-dates"
-        },
-        {
+  "oneOf": [
+    {
+      "const": "document-dates"
+    },
+    {
+      "title": "Document Dates & Authors",
+      "type": "object",
+      "required": [
+        "document-dates"
+      ],
+      "additionalProperties": false,
+
+      "properties": {
+        "document-dates": {
+          "title": "Plugin configuration",
           "type": "object",
+          "default": {},
           "additionalProperties": false,
+          "markdownDescription": "Configuration for the **document-dates** plugin.",
 
           "properties": {
             "type": {
@@ -167,10 +176,13 @@
               "default": {},
               "oneOf": [
                 {
+                  "title": "Enable or disable",
                   "type": "boolean"
                 },
                 {
+                  "title": "Configuration",
                   "type": "object",
+                  "default": {},
                   "additionalProperties": false,
 
                   "properties": {
@@ -188,6 +200,7 @@
 
                     "summary_lines": {
                       "type": "object",
+                      "default": {},
                       "additionalProperties": false,
                       "markdownDescription": "Maximum number of summary lines displayed in each layout.",
 
@@ -223,7 +236,7 @@
             }
           }
         }
-      ]
+      }
     }
-  }
+  ]
 }
