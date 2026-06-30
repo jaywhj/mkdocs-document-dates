@@ -6,7 +6,7 @@
 
 新一代用于显示文档确切**创建日期、最后更新日期、作者、头像、邮箱**等信息的 MkDocs 插件
 
-![render](render.gif)
+![render](docs/assets/document-dates.gif)
 
 ## 特性
 
@@ -71,7 +71,7 @@ plugins:
 
 具体内容参见文档：https://jaywhj.netlify.app/document-dates-zh
 
-![recently-updated](recently-updated-zh.gif)
+![recently-updated](docs/assets/recently-updated-zh.gif)
 
 ## 其他项目
 

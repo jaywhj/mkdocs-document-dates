@@ -6,7 +6,7 @@ English | [简体中文](README_zh.md)
 
 A new generation MkDocs plugin for displaying exact **creation date, last updated date, authors, email** of documents
 
-![render](render.gif)
+![render](docs/assets/document-dates.gif)
 
 ## Features
 
@@ -71,7 +71,7 @@ In addition to the above basic configuration, the plug-in also provides a wealth
 
 See the documentation for details: https://jaywhj.netlify.app/document-dates-en
 
-![recently-updated](recently-updated-en.gif)
+![recently-updated](docs/assets/recently-updated-en.gif)
 
 ## Other Projects
 
