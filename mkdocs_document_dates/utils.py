@@ -233,7 +233,7 @@ def load_git_last_updated_dates(docs_dir_path: Path):
     return doc_mtime_map
 
 # 建议在 on_page_markdown 之后的全局事件中调用，因为需要读取 page.meta 中的信息
-def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False, prefix: str = "", wpm: int = DEFAULT_WPM, wpm_cjk: int = DEFAULT_WPM_CJK):
+def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list: list, limit: int = 10, recent_enable: bool = False, prefix: str = "", wpm: int = DEFAULT_WPM, wpm_cjk: int = DEFAULT_WPM_CJK, tz=None):
     recently_updated_results = []
     if recent_enable:
         files_meta = []
@@ -288,8 +288,8 @@ def get_recently_updated_files(existing_dates: dict, files: Files, exclude_list:
             recently_updated_results = heapq.nlargest(limit, files_meta, key=itemgetter("updated_ts"))
 
             for doc in recently_updated_results:
-                # timestamp -> utc datetime -> local datetime
-                dt = datetime.fromtimestamp(doc["updated_ts"], tz=timezone.utc).astimezone()
+                # timestamp -> utc datetime -> configured timezone (tz=None 时为本地时区)
+                dt = datetime.fromtimestamp(doc["updated_ts"], tz=timezone.utc).astimezone(tz)
                 doc["updated_dt"] = dt.isoformat()
                 doc["updated"] = dt.date().isoformat()
 
