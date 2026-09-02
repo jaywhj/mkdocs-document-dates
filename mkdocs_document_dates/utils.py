@@ -110,12 +110,38 @@ COAUTHOR_RE = re.compile(
     r'^Co-authored-by:\s*(.+?) <([^<>]+)>$',
     re.MULTILINE | re.IGNORECASE
 )
-def parse_commit_authors(name, email, body):
-    authors = [(name, email)]
-    seen = {(name, email)}
+def check_mailmap(name: str, email: str, git_root: Path = None, cache: dict = None) -> tuple[str, str]:
+    key = (name, email)
+    if cache is not None and key in cache:
+        return cache[key]
+    if git_root:
+        try:
+            proc = subprocess.run(
+                ['git', 'check-mailmap', f'{name} <{email}>'],
+                cwd=git_root,
+                capture_output=True,
+                text=True
+            )
+            if proc.returncode == 0 and proc.stdout.strip():
+                m = re.match(r'^(.*?)\s*<([^<>]+)>$', proc.stdout.strip())
+                if m:
+                    res = (m.group(1).strip(), m.group(2).strip())
+                    if cache is not None:
+                        cache[key] = res
+                    return res
+        except Exception as e:
+            logger.debug(f"Error checking mailmap for {name} <{email}>: {e}")
+    if cache is not None:
+        cache[key] = key
+    return key
+
+def parse_commit_authors(name, email, body, git_root: Path = None, mailmap_cache: dict = None):
+    canonical_author = check_mailmap(name, email, git_root, mailmap_cache)
+    authors = [canonical_author]
+    seen = {canonical_author}
 
     for co_name, co_email in COAUTHOR_RE.findall(body):
-        author = (co_name, co_email)
+        author = check_mailmap(co_name, co_email, git_root, mailmap_cache)
         if author in seen:
             continue
 
@@ -157,6 +183,7 @@ def load_git_metadata(docs_dir_path: Path):
             authors_dict = defaultdict(dict)
             first_commit = {}
             current_commit = None
+            mailmap_cache = {}
 
             records = process.stdout.split('\x00')
             for item in records:
@@ -167,7 +194,7 @@ def load_git_metadata(docs_dir_path: Path):
                 parts = item.split('\x1f', 3)
                 if len(parts) == 4:
                     name, email, created, body = parts
-                    authors = parse_commit_authors(name, email, body)
+                    authors = parse_commit_authors(name, email, body, git_root, mailmap_cache)
                     current_commit = (authors, int(created))
                 elif item.endswith('.md') and current_commit:
                     authors, created = current_commit
@@ -178,7 +205,6 @@ def load_git_metadata(docs_dir_path: Path):
                         authors_dict[item].setdefault(author, None)
 
                     first_commit.setdefault(item, created)
-
             # 构建最终的缓存数据
             for file_path in first_commit:
                 authors_list = [
