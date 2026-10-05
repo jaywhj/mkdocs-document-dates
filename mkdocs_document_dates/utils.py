@@ -110,7 +110,7 @@ COAUTHOR_RE = re.compile(
     r'^Co-authored-by:\s*(.+?) <([^<>]+)>$',
     re.MULTILINE | re.IGNORECASE
 )
-def check_mailmap(name: str, email: str, git_root: Path = None, cache: dict = None) -> tuple[str, str]:
+def check_mailmap(name: str, email: str, git_root: Path = None, cache: dict = None):
     key = (name, email)
     if cache is not None and key in cache:
         return cache[key]
@@ -120,7 +120,7 @@ def check_mailmap(name: str, email: str, git_root: Path = None, cache: dict = No
                 ['git', 'check-mailmap', f'{name} <{email}>'],
                 cwd=git_root,
                 capture_output=True,
-                text=True
+                encoding='utf-8'
             )
             if proc.returncode == 0 and proc.stdout.strip():
                 m = re.match(r'^(.*?)\s*<([^<>]+)>$', proc.stdout.strip())
@@ -136,9 +136,9 @@ def check_mailmap(name: str, email: str, git_root: Path = None, cache: dict = No
     return key
 
 def parse_commit_authors(name, email, body, git_root: Path = None, mailmap_cache: dict = None):
-    canonical_author = check_mailmap(name, email, git_root, mailmap_cache)
-    authors = [canonical_author]
-    seen = {canonical_author}
+    # name/email come from `git log --use-mailmap`; mapping them again can diverge on chained entries
+    authors = [(name, email)]
+    seen = {(name, email)}
 
     for co_name, co_email in COAUTHOR_RE.findall(body):
         author = check_mailmap(co_name, co_email, git_root, mailmap_cache)
@@ -460,7 +460,7 @@ BRACE_RE = re.compile(r"\{[^}]*\}")
 MD_SYNTAX_RE = re.compile(r"[`*_#]+")
 
 
-def analyze_markdown(md: str, readtime_wpm: int = DEFAULT_WPM, readtime_wpm_cjk: int = DEFAULT_WPM_CJK) -> tuple[int, str]:
+def analyze_markdown(md: str, readtime_wpm: int = DEFAULT_WPM, readtime_wpm_cjk: int = DEFAULT_WPM_CJK):
     # ---------- for Readtime ----------
     words = 0
     cjk = 0
