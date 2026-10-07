@@ -88,7 +88,7 @@ def _clean_git_env():
 
     return env
 
-def find_mkdocs_projects() -> dict[Path, Path]:
+def find_mkdocs_projects():
     projects = {}
 
     try:

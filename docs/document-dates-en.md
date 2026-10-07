@@ -250,13 +250,20 @@ authors:
     url: https://xxx.com
     email: xxx@gmail.com
     description: xxx
+  bot:
+    name: Renovate Bot
+    ignore: true
 ```
 
-When the author name in `Front Matter`, `Git Author`, `site_author(mkdocs.yml)` matches the key in `authors`, the full author information of the key will be automatically loaded.
+When the author in `Front Matter`, `Git Author`, or `site_author(mkdocs.yml)` matches the key, `name`, or `email` in `authors`, the author information will load automatically.
+
+Set `ignore: true` or `exclude: true` on an entry in `authors.yml` to omit bots, automation accounts, or specific users from the rendered page footer.
 
 #### Git author aggregation
 
 Git author support account aggregation, i.e. multiple different email accounts for the same person can be aggregated to show the same author, which can be configured by providing a `.mailmap` file in the repository root directory, this is also a feature of Git itself, see [gitmailmap](https://git-scm.com/docs/gitmailmap) for more details.
+
+Mailmap rules apply to both primary commit authors and `Co-Authored-By:` trailers in commit messages.
 
 The following example unifies my other Git accounts and displays them as `Aaron <junewhj@qq.com>`:
 

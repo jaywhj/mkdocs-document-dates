@@ -250,13 +250,20 @@ authors:
     url: https://xxx.com
     email: xxx@gmail.com
     description: xxx
+  bot:
+    name: Renovate Bot
+    ignore: true
 ```
 
-当 `Front Matter`、`Git作者`、`site_author(mkdocs.yml)` 中的作者名跟 authors 中的 key 匹配时，会自动加载 key 对应的完整作者信息
+当 `Front Matter`、`Git作者`、`site_author(mkdocs.yml)` 中的作者匹配 authors 中的 key、`name` 或 `email` 时，会自动加载对应的完整作者信息。
+
+在 `authors.yml` 中配置 `ignore: true` 或 `exclude: true` 可从页面底部渲染中排除特定作者（例如机器人或系统账号）。
 
 #### Git作者聚合
 
 Git作者支持账户聚合，即同一人的多个不同邮箱账户可聚合显示为同一作者，可通过在仓库根目录提供一个 `.mailmap` 文件来配置，这也是 Git 本身的一个功能，详情见 [gitmailmap](https://git-scm.com/docs/gitmailmap)
+
+`.mailmap` 规则同时适用于主提交作者和提交信息中的 `Co-Authored-By:` 协作者。
 
 以下示例将我的其它 Git 账户统一聚合，显示为 `Aaron <junewhj@qq.com>`：
 
