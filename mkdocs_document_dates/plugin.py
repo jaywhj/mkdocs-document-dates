@@ -31,6 +31,7 @@ class DocumentDatesPlugin(BasePlugin):
     config_scheme = (
         ('type', config_options.Type(str, default='date')),
         ('locale', config_options.Type(str, default='')),
+        ('timezone', config_options.Type(str, default='')),
         ('date_format', config_options.Type(str, default='%Y-%m-%d')),
         ('time_format', config_options.Type(str, default='%H:%M:%S')),
         ('position', config_options.Type(str, default='top')),
@@ -53,9 +54,34 @@ class DocumentDatesPlugin(BasePlugin):
         self.recent_docs_html = None
         self.recent_enable = False
         self._exclude_patterns = []
+        self.tz = None
+
+    def _resolve_timezone(self, name: str):
+        """解析配置的时区名，留空则回退到构建机器的本地时区（保持旧行为）
+
+        这个时区同时承担两个角色：
+          1. 把 git 的时间戳（绝对时刻）落地成"哪一天"
+          2. 解释 Front Matter 中不带时区的时间（视作作者所在时区）
+        显式写了时区的 Front Matter 值不受影响，以它自己的为准。
+        """
+        local_tz = datetime.now().astimezone().tzinfo
+        if not name:
+            return local_tz
+        try:
+            # zoneinfo 返回的 tzinfo 可安全用于 replace()，优先使用
+            from zoneinfo import ZoneInfo
+            return ZoneInfo(name)
+        except Exception:
+            try:
+                from babel.dates import get_timezone
+                return get_timezone(name)
+            except Exception as e:
+                logger.warning(f"Unknown timezone '{name}', falling back to local timezone: {e}")
+                return local_tz
 
     def on_config(self, config):
         docs_dir_path = Path(config.docs_dir)
+        self.tz = self._resolve_timezone(self.config['timezone'])
 
         # 加载 author 配置
         authors_file = None
@@ -154,6 +180,17 @@ class DocumentDatesPlugin(BasePlugin):
     @event_priority(50)
     def on_files(self, files, config):
         self.data_cached = load_dates_and_authors(Path(config.docs_dir), files)
+
+        # 缓存里是 UTC，统一转成配置的时区。
+        # data_cached 是对外的日期 API（例如 MaterialX 的 blog 插件会直接读它来定
+        # 文章日期），转换只改变呈现方式、不改变绝对时刻，排序与比较都不受影响。
+        if self.tz:
+            for info in self.data_cached.values():
+                for key in ('created', 'updated'):
+                    value = info.get(key)
+                    if isinstance(value, datetime):
+                        info[key] = value.astimezone(self.tz)
+
         return files
 
     @event_priority(50)
@@ -181,11 +218,11 @@ class DocumentDatesPlugin(BasePlugin):
         if not authors:
             authors = self._load_author_cached(rel_path, page, config)
 
-        # 注入数据到模板 (utc datetime -> local datetime)
+        # 注入数据到模板 (utc datetime -> configured timezone)
         page.meta["document_dates"] = {
             "dates": {
-                "created": created.astimezone().isoformat() if created else None,
-                "updated": updated.astimezone().isoformat() if updated else None,
+                "created": created.astimezone(self.tz).isoformat() if created else None,
+                "updated": updated.astimezone(self.tz).isoformat() if updated else None,
             },
             "authors": authors
         }
@@ -229,7 +266,7 @@ class DocumentDatesPlugin(BasePlugin):
 
         # 获取最近更新的文档数据
         recent_exclude_patterns = compile_exclude_patterns(exclude_list)
-        recently_updated_docs = get_recently_updated_files(self.data_cached, files, recent_exclude_patterns, limit, self.recent_enable, prefix, wpm, wpm_cjk)
+        recently_updated_docs = get_recently_updated_files(self.data_cached, files, recent_exclude_patterns, limit, self.recent_enable, prefix, wpm, wpm_cjk, self.tz)
 
         # 将数据注入到 config['extra'] 中供全局访问
         if not config.get('extra', {}).get("recently_updated_docs", {}):
@@ -312,10 +349,10 @@ class DocumentDatesPlugin(BasePlugin):
                     # 移除首尾可能存在的单双引号
                     date_str = str(meta[field]).strip("'\"")
                     dt = datetime.fromisoformat(date_str)
-                    # 如果没时区，则当成本地时间，再转 UTC
+                    # 没写时区就按配置的时区解释（即作者所在时区），再转 UTC；
+                    # 显式写了时区的以它自己的为准
                     if dt.tzinfo is None:
-                        local_tz = datetime.now().astimezone().tzinfo
-                        dt = dt.replace(tzinfo=local_tz)
+                        dt = dt.replace(tzinfo=self.tz or datetime.now().astimezone().tzinfo)
                     return dt.astimezone(timezone.utc)
                     # return datetime.fromisoformat(date_str).astimezone()
                 except Exception:
@@ -426,6 +463,7 @@ class DocumentDatesPlugin(BasePlugin):
         return format_datetime(
             date,
             format=fmt,
+            tzinfo=self.tz,
             locale=locale
         )
 
@@ -451,7 +489,7 @@ class DocumentDatesPlugin(BasePlugin):
                 return (
                     f"<span class='dd-item' data-tippy-content data-tippy-raw='{formatted}'>"
                     f"<span class='material-icons' data-icon='{icon}'></span>"
-                    f"<time datetime='{time_obj.astimezone().isoformat()}'>{formatted}</time>"
+                    f"<time datetime='{time_obj.astimezone(self.tz).isoformat()}'>{formatted}</time>"
                     f"</span>"
                 )
 
