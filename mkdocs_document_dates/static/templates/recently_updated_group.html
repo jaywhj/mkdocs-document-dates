@@ -270,17 +270,17 @@
     {%- set readtime = doc.readtime | default(0) %}
     {%- set tags = doc.tags | default([]) %}
     <div class="article-card">
-        <a class="card-header" href="{{ url }}" target="_blank">
-            <div class="card-title">{{ title }}</div>
+        <a class="card-header" href="{{ url | e }}" target="_blank">
+            <div class="card-title">{{ title | e }}</div>
             <time class="dd-timeago card-date" datetime="{{ updated_dt }}">{{ updated }}</time>
         </a>
         <div class="card-body">
             {%- if cover %}
             <div class="card-cover">
-                <img src="{{ cover }}" alt="{{ title }}">
+                <img src="{{ cover | e }}" alt="{{ title | e }}">
             </div>
             {%- endif %}
-            <div class="card-summary">{{ summary }}</div>
+            <div class="card-summary">{{ summary | e }}</div>
         </div>
 
         {%- if tags or readtime > 0 %}
@@ -298,7 +298,7 @@
             {%- if tags %}
             <div class="md-tags">
                 {%- for tag in tags %}
-                <span class="md-tag md-tag-icon">{{- tag -}}</span>
+                <span class="md-tag md-tag-icon">{{- tag | e -}}</span>
                 {%- endfor %}
             </div>
             {%- endif %}

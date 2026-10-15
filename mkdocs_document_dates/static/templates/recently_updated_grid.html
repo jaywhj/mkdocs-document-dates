@@ -89,15 +89,15 @@
 <div class="article-grid">
     {%- for mtime, rel_path, title, url, cover, summary in recent_docs %}
     <div class="article-card">
-        <a class="card-header" href="{{ url }}" target="_blank">
-            <div class="card-title">{{ title }}</div>
+        <a class="card-header" href="{{ url | e }}" target="_blank">
+            <div class="card-title">{{ title | e }}</div>
             <time class="dd-timeago card-date" datetime="{{ mtime }}">{{ mtime[:10] }}</time>
         </a>
         <div class="card-body">
-            <div class="card-summary">{{ summary }}</div>
+            <div class="card-summary">{{ summary | e }}</div>
             {%- if cover %}
             <div class="card-cover">
-                <img src="{{ cover }}" alt="{{ title }}">
+                <img src="{{ cover | e }}" alt="{{ title | e }}">
             </div>
             {%- endif %}
         </div>
