@@ -2,6 +2,18 @@
 
 
 
+## v3.8.8 (2026-10-16)
+
+### en
+
+- Fixed escaping issues in summaries of the recent update module
+
+### zh
+
+- 修复了最近更新模块摘要的转义问题
+
+
+
 ## v3.8.7 (2026-06-19)
 
 ### en

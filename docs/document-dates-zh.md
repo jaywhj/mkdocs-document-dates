@@ -204,7 +204,7 @@ flowchart LR
     === "说明"
     
         1. 优先读取 Front Matter 中的自定义作者
-        2. 其次读取 Git 作者
+        2. 其次读取 Git 作者（支持 `Co-Authored-By` 协作者）
         3. 再次读取 mkdocs.yml 中的 site_author
         4. 最后读取 PC用户名
 
@@ -236,7 +236,7 @@ authors:
 
 可为所有作者补充完整信息配置，以丰富用户体验。在 `docs/` 目录下创建一个 `authors.yml` 文件，格式如下：
 
-```yaml title="docs/authors.yml"
+```yaml { title="docs/authors.yml" data-fold="0"}
 authors:
   jaywhj:
     name: Aaron Wang
@@ -257,13 +257,11 @@ authors:
 
 当 `Front Matter`、`Git作者`、`site_author(mkdocs.yml)` 中的作者匹配 authors 中的 key、`name` 或 `email` 时，会自动加载对应的完整作者信息。
 
-在 `authors.yml` 中配置 `ignore: true` 或 `exclude: true` 可从页面底部渲染中排除特定作者（例如机器人或系统账号）。
+可通过配置 `ignore: true` 或 `exclude: true` 或 `hidden: true` 来排除特定作者（例如机器人或自动化账号）。
 
 #### Git作者聚合
 
-Git作者支持账户聚合，即同一人的多个不同邮箱账户可聚合显示为同一作者，可通过在仓库根目录提供一个 `.mailmap` 文件来配置，这也是 Git 本身的一个功能，详情见 [gitmailmap](https://git-scm.com/docs/gitmailmap)
-
-`.mailmap` 规则同时适用于主提交作者和提交信息中的 `Co-Authored-By:` 协作者。
+Git作者支持账户聚合，即同一人的多个不同邮箱账户可聚合显示为同一作者，可通过在仓库根目录提供一个 `.mailmap` 文件来配置，这也是 Git 本身的一个功能，详情见 [gitmailmap](https://git-scm.com/docs/gitmailmap)。
 
 以下示例将我的其它 Git 账户统一聚合，显示为 `Aaron <junewhj@qq.com>`：
 
@@ -272,6 +270,8 @@ Aaron <junewhj@qq.com> <aaron@gmail.com>
 Aaron <junewhj@qq.com> <aaron@AarondeMacBook-Pro.local>
 Aaron <junewhj@qq.com> aaron <aaronwqt@icloud.com>
 ```
+
+`.mailmap` 规则同时适用于主提交作者和提交信息中的 `Co-Authored-By` 协作者。
 
 ### 头像
 

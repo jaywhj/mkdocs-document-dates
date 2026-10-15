@@ -204,7 +204,7 @@ flowchart LR
     === "Description"
     
         1. Prioritize reading custom authors in Front Matter
-        2. Then read the Git author
+        2. Then read the Git author (support `Co-Authored-By` co-authors)
         3. Next read the site_author in mkdocs.yml
         4. Finally read the PC username
 
@@ -236,7 +236,7 @@ authors:
 
 For a better user experience, you can add full configuration for all authors. To do so, create an `authors.yml` file in the `docs/` folder using the format below:
 
-```yaml title="docs/authors.yml"
+```yaml { title="docs/authors.yml" data-fold="0"}
 authors:
   jaywhj:
     name: Aaron Wang
@@ -257,13 +257,11 @@ authors:
 
 When the author in `Front Matter`, `Git Author`, or `site_author(mkdocs.yml)` matches the key, `name`, or `email` in `authors`, the author information will load automatically.
 
-Set `ignore: true` or `exclude: true` on an entry in `authors.yml` to omit bots, automation accounts, or specific users from the rendered page footer.
+You can exclude specific authors (such as bots or automation accounts) by setting `ignore: true`, `exclude: true`, or `hidden: true`.
 
 #### Git author aggregation
 
 Git author support account aggregation, i.e. multiple different email accounts for the same person can be aggregated to show the same author, which can be configured by providing a `.mailmap` file in the repository root directory, this is also a feature of Git itself, see [gitmailmap](https://git-scm.com/docs/gitmailmap) for more details.
-
-Mailmap rules apply to both primary commit authors and `Co-Authored-By:` trailers in commit messages.
 
 The following example unifies my other Git accounts and displays them as `Aaron <junewhj@qq.com>`:
 
@@ -272,6 +270,8 @@ Aaron <junewhj@qq.com> <aaron@gmail.com>
 Aaron <junewhj@qq.com> <aaron@AarondeMacBook-Pro.local>
 Aaron <junewhj@qq.com> aaron <aaronwqt@icloud.com>
 ```
+
+Mailmap rules apply to both primary commit authors and `Co-Authored-By` trailers in commit messages.
 
 ### Avatar
 
