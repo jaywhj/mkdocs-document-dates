@@ -9,6 +9,7 @@ from mkdocs.config import config_options
 from mkdocs.structure.pages import Page
 from mkdocs.utils import get_relative_url
 from urllib.parse import urlparse
+from babel.core import default_locale
 from babel.dates import format_datetime
 from .utils import compile_exclude_patterns, is_excluded, get_recently_updated_files, load_dates_and_authors, DEFAULT_WPM, DEFAULT_WPM_CJK
 
@@ -396,7 +397,9 @@ class DocumentDatesPlugin(BasePlugin):
 
 
     def _formatting_date(self, date: datetime):
-        locale = self.config.get('locale', 'en')
+        # 空配置表示自动检测系统 locale；若运行环境未设置 locale，则回退到英语。
+        locale = (self.config.get('locale') or '').strip()
+        locale = locale or default_locale('LC_TIME') or 'en'
 
         # 兼容旧 strftime 配置，转换为 Babel/ICU 格式
         date_format = (
@@ -444,6 +447,7 @@ class DocumentDatesPlugin(BasePlugin):
             html_parts = []
             position_class = 'document-dates-top' if self.config['position'] == 'top' else 'document-dates-bottom'
             html_parts.append(f"<div class='document-dates-plugin-wrapper {position_class}'>")
+            # 前端 locale 留给浏览器语言回退逻辑；这里只传递用户显式配置。
             html_parts.append(f"<div class='document-dates-plugin' locale='{self.config['locale']}'>")
 
             def build_time_icon(time_obj: datetime, icon: str):
