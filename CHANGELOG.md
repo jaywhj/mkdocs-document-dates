@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v3.8.9 (2026-10-23)
+
+### en
+
+- Fixed date formatting when no locale is available
+
+### zh
+
+- 修复无可用 locale 时的日期格式化问题
+
 
 
 ## v3.8.8 (2026-10-16)
