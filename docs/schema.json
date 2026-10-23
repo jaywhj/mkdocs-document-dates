@@ -79,6 +79,16 @@
                 ]
               },
 
+              "timezone": {
+                "type": "string",
+                "markdownDescription": "IANA timezone name used to render dates. Git timestamps are resolved into calendar days in this timezone, and Front Matter values without a timezone are interpreted as being in it. Values that carry an explicit timezone are left untouched. Defaults to the build machine's local timezone.",
+                "examples": [
+                  "Asia/Shanghai",
+                  "UTC",
+                  "America/New_York"
+                ]
+              },
+
               "date_format": {
                 "type": "string",
                 "default": "%Y-%m-%d",
