@@ -21,9 +21,18 @@ DEFAULT_WPM = 240
 DEFAULT_WPM_CJK = 480
 
 def load_dates_and_authors(docs_dir_path: Path, files: Files):
+    docs_dir_path = Path(docs_dir_path).resolve()
 
     # git 创建日期
     created_data = load_git_metadata(docs_dir_path)
+
+    # Submodule files are gitlinks in the parent repository, so load their
+    # history from each initialized submodule and map it back to docs-relative paths.
+    submodule_roots = _load_initialized_submodule_roots(docs_dir_path)
+    for submodule_root in submodule_roots:
+        prefix = submodule_root.relative_to(docs_dir_path).as_posix().rstrip('/')
+        for rel_path, metadata in load_git_metadata(submodule_root).items():
+            created_data[f"{prefix}/{rel_path}"] = metadata
 
     # 覆盖 jsonl 创建日期
     jsonl_cache_file = docs_dir_path / '.dates_cache.jsonl'
@@ -35,6 +44,10 @@ def load_dates_and_authors(docs_dir_path: Path, files: Files):
 
     # git 更新日期
     updated_data = load_git_last_updated_dates(docs_dir_path)
+    for submodule_root in submodule_roots:
+        prefix = submodule_root.relative_to(docs_dir_path).as_posix().rstrip('/')
+        for rel_path, timestamp in load_git_last_updated_dates(submodule_root).items():
+            updated_data[f"{prefix}/{rel_path}"] = timestamp
 
     for file in files:
         if file.inclusion.is_excluded():
@@ -57,6 +70,29 @@ def load_dates_and_authors(docs_dir_path: Path, files: Files):
         created_data[rel_path]['updated'] = datetime.fromtimestamp(mtime, tz=timezone.utc)
 
     return created_data
+
+
+def _load_initialized_submodule_roots(docs_dir_path: Path):
+    try:
+        output = subprocess.check_output(
+            ['git', 'submodule', 'foreach', '--quiet', '--recursive', 'pwd -P'],
+            cwd=docs_dir_path,
+            encoding='utf-8',
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return []
+
+    roots = []
+    for line in output.splitlines():
+        try:
+            root = Path(line).resolve()
+            root.relative_to(docs_dir_path)
+        except (OSError, ValueError):
+            continue
+        if root.is_dir():
+            roots.append(root)
+    return roots
 
 def compile_exclude_patterns(exclude_list):
     if not exclude_list:
@@ -153,10 +189,11 @@ def parse_commit_authors(name, email, body, git_root: Path = None, mailmap_cache
 def load_git_metadata(docs_dir_path: Path):
     dates_cache = {}
     try:
+        docs_dir_path = Path(docs_dir_path).resolve()
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
-        ).strip())
+        ).strip()).resolve()
         rel_docs_path = docs_dir_path.relative_to(git_root)
 
         relative_arg = (
@@ -222,10 +259,11 @@ def load_git_metadata(docs_dir_path: Path):
 def load_git_last_updated_dates(docs_dir_path: Path):
     doc_mtime_map = {}
     try:
+        docs_dir_path = Path(docs_dir_path).resolve()
         git_root = Path(subprocess.check_output(
             ['git', 'rev-parse', '--show-toplevel'],
             cwd=docs_dir_path, encoding='utf-8'
-        ).strip())
+        ).strip()).resolve()
         rel_docs_path = docs_dir_path.relative_to(git_root)
 
         relative_arg = (
