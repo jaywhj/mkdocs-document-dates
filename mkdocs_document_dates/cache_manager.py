@@ -122,6 +122,90 @@ def find_mkdocs_projects():
 
     return projects
 
+def get_renamed_files(docs_dir: Path) -> dict:
+    """获取本次提交中被重命名/移动的 markdown 文件，返回 {旧路径: 新路径}
+
+    路径均相对 docs_dir，与 JSONL 缓存的 key 格式一致。
+    在 pre-commit 阶段对比 HEAD 与暂存区，依靠 git 的 -M 相似度检测识别移动，
+    因此 `git mv` 和「手动 mv + git add」两种方式都能覆盖。
+
+    这里刻意以仓库根为视角（--no-relative）再自行过滤，只保留两端都在 docs_dir
+    内的重命名。若改用 --relative，git 只能看见 docs_dir 内部的增删，会把
+    「移出去的文件」和「移进来的相似文件」误配成一次重命名，导致创建日期张冠李戴。
+    """
+    renames = {}
+    try:
+        git_root = Path(subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=docs_dir, env=_clean_git_env(), encoding="utf-8"
+        ).strip()).resolve()
+        rel_docs = docs_dir.resolve().relative_to(git_root)
+        # docs_dir 就是仓库根时前缀为空，否则形如 "docs/"
+        prefix = "" if rel_docs == Path(".") else rel_docs.as_posix() + "/"
+
+        # --no-relative 抵消用户可能配置的 diff.relative=true
+        cmd = [
+            "git", "-c", "core.quotepath=false",
+            "diff", "--cached", "-M", "--name-status", "-z", "--no-relative",
+        ]
+        result = subprocess.run(cmd, cwd=docs_dir, env=_clean_git_env(),
+                                capture_output=True, encoding="utf-8")
+        if result.returncode != 0 or not result.stdout:
+            return renames
+
+        # -z 输出格式: 重命名为 "R<score>\0旧路径\0新路径"，其余为 "<status>\0路径"
+        fields = result.stdout.split("\0")
+        i = 0
+        while i < len(fields):
+            status = fields[i]
+            if not status:
+                i += 1
+                continue
+            # R(重命名) 和 C(复制) 均为三字段，但只有 R 需要迁移
+            if status[0] in ("R", "C"):
+                if i + 2 < len(fields):
+                    old_path, new_path = fields[i + 1], fields[i + 2]
+                    # 只保留两端都在 docs_dir 内的 markdown 重命名，
+                    # 跨 docs_dir 边界的移动没有可继承的创建日期
+                    if (status[0] == "R"
+                            and old_path.endswith(".md") and new_path.endswith(".md")
+                            and old_path.startswith(prefix) and new_path.startswith(prefix)):
+                        renames[old_path[len(prefix):]] = new_path[len(prefix):]
+                i += 3
+            else:
+                i += 2
+    except Exception as e:
+        logger.warning(f"Failed to detect renamed files in {docs_dir}: {e}")
+    return renames
+
+def migrate_renamed_entries(dates_cache: dict, docs_dir: Path) -> bool:
+    """把被重命名文件的创建日期从旧路径迁移到新路径
+
+    不这样做的话，新路径不在缓存中，会被当作新文件重新取创建时间
+    （Linux 上即文件的 mtime，也就是重命名的那一刻），原始创建日期就丢了。
+    """
+    renames = get_renamed_files(docs_dir)
+    if not renames:
+        return False
+
+    # 分两阶段：先全部摘出，再统一落位。
+    # 这样 a→b 与 b→a 这类互换也能正确处理（单阶段时会因目标已存在而互相阻塞）
+    pending = {}
+    for old_path, new_path in renames.items():
+        if old_path in dates_cache:
+            pending[new_path] = (old_path, dates_cache.pop(old_path))
+
+    migrated = False
+    for new_path, (old_path, info) in pending.items():
+        # 目标已被别的条目占用时不覆盖（重命名恰好盖掉一个已存在的文件）
+        if new_path in dates_cache:
+            logger.info(f"Skipped migration, target already exists: {old_path} -> {new_path}")
+            continue
+        dates_cache[new_path] = info
+        migrated = True
+        logger.info(f"Migrated created date: {old_path} -> {new_path}")
+    return migrated
+
 def setup_gitattributes(docs_dir: Path):
     try:
         gitattributes_path = docs_dir / ".gitattributes"
@@ -186,6 +270,10 @@ def update_cache():
             # 读取 JSONL 缓存
             jsonl_cache_file = docs_dir / ".dates_cache.jsonl"
             jsonl_dates_cache = read_jsonl_cache(jsonl_cache_file)
+
+            # 迁移重命名/移动文件的创建日期（须在下面的循环之前，否则会被当作新文件处理）
+            if jsonl_dates_cache:
+                project_updated |= migrate_renamed_entries(jsonl_dates_cache, docs_dir)
 
             # 根据 git已跟踪的文件来更新
             for rel_path in tracked_files:
