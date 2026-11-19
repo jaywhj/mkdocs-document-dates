@@ -75,7 +75,7 @@ def load_dates_and_authors(docs_dir_path: Path, files: Files):
 def _load_initialized_submodule_roots(docs_dir_path: Path):
     try:
         output = subprocess.check_output(
-            ['git', 'submodule', 'foreach', '--quiet', '--recursive', 'pwd -P'],
+            ['git', 'submodule', 'foreach', '--quiet', '--recursive', 'git rev-parse --show-toplevel'],
             cwd=docs_dir_path,
             encoding='utf-8',
             stderr=subprocess.DEVNULL,
