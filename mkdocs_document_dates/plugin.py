@@ -132,6 +132,11 @@ class DocumentDatesPlugin(BasePlugin):
         for js_file in js_core_files:
             config['extra_javascript'].append(f'assets/document_dates/tippy/{js_file}')
 
+        # Shared text-avatar helper must be available before the core runtime.
+        avatar_script = 'assets/document_dates/core/avatar.js'
+        if not any(str(item) == avatar_script for item in config['extra_javascript']):
+            config['extra_javascript'].append(avatar_script)
+
         # Plugin JS
         config['extra_javascript'].extend([
             'assets/document_dates/core/md5.min.js',
